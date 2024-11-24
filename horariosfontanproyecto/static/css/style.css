@@ -1,0 +1,116 @@
+.custom-navbar-bg {
+  background-color: #064463 !important;
+}
+
+.vertical-navbar {
+  position: fixed;
+  top: 110px;
+  left: 0;
+  bottom: 0;
+  width: 230px;
+  background-color: #1C5471;
+  overflow-y: hidden; /* Cambiado a hidden para evitar doble scroll */
+  z-index: 1000;
+}
+
+.vertical-navbar .scroll-container {
+  max-height: calc(100vh - 110px); /* Ajusta la altura para el scroll */
+  overflow-y: auto;
+}
+
+.vertical-navbar ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: block;
+}
+
+.vertical-navbar ul li {
+  padding-bottom: 25px;
+}
+
+
+.vertical-navbar ul li a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 20px;
+  padding: 15px; /* Padding uniforme */
+  display: block; /* Asegura que el enlace ocupe toda el área del elemento */
+}
+
+.vertical-navbar ul li a:hover {
+  background-color: #064463;
+  border-radius: 5px; /* Añade un borde redondeado al hover */
+}
+
+.container {
+  padding-top: 60px; /* Ajusta según la altura de la barra de navegación */
+}
+
+.container-principal {
+  max-width: 90%; 
+  padding-left: 2rem;  
+  padding-right: 2rem;
+  margin-left: 250px; /* Añade margen para evitar superposición con la barra lateral */
+}
+
+.btn-custom {
+  background-color: #064463;
+  border-color: #064463;
+  color: white;
+  
+}
+
+.btn-custom:hover {
+    background-color: #1C5471;
+    border-color: #1C5471;
+    color: white;
+}
+
+.btn-custom-modify {
+  background-color: #1C5471;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.btn-custom-modify:hover {
+  background-color: #163E59;
+  transform: scale(1.05);
+  color: #f4f4f4;
+}
+
+.profile-image-container {
+  width: 100%; 
+  max-width: 230px; 
+  height: 300px; 
+  overflow: hidden; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px; 
+}
+
+.profile-image-container img {
+  width: auto; 
+  height: 100%; 
+  object-fit: cover; 
+}
+
+
+.custom-toggle-btn{
+    background-color: #064463;
+    border-color: #064463;
+    color: white;
+}
+  
+.custom-toggle-btn:hover {
+    background-color: #1C5471;
+    border-color: #1C5471;
+    color: white;
+}
