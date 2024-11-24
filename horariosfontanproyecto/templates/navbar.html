@@ -11,7 +11,7 @@
           <a class="nav-link me-3">Tutores</a>
         </li>
         <li class="nav-item me-3">
-          <a class="nav-link me-3" href="">Cerrar Sesión</a>
+          <a class="nav-link me-3" href="{% url 'accounts.logout' %}">Cerrar Sesión ({{ user.username }})</a>
         </li>
         <li class="nav-item me-3">
           <a class="nav-link me-3" href="">Registrar Estudiantes</a>
@@ -31,10 +31,11 @@
       {% else %}
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0 me-1">
         <li class="nav-item me-3">
-          <a class="nav-link me-3" href="">Iniciar Sesión</a>
+          <a class="nav-link me-3" href="{% url 'accounts.login' %}">Iniciar Sesión</a>
+          
         </li>
         <li class="nav-item me-3">
-          <a class="nav-link me-3" href="">Registrarse</a>
+          <a class="nav-link me-3" href="{% url 'accounts.signup' %}">Registrarse</a>
         </li>
       </ul>
       {% endif %}
