@@ -114,3 +114,30 @@
     border-color: #1C5471;
     color: white;
 }
+
+
+.btn-home {
+    padding: 1rem 2rem; /* Botones más grandes */
+    font-size: 1.5rem; /* Tamaño del texto del botón */
+    border-radius: 0.5rem;
+    background-color: #064463; /* Color azul */
+    color: white;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.btn-home:hover{
+  background-color: #1C5471;
+}
+
+.container-home {
+  max-width: 90%; 
+  padding-left: 2rem;  
+  padding-right: 2rem;
+  padding-top: 240px;
+}
+
+
+.container-home h1{
+  font-size: 55px;
+}
