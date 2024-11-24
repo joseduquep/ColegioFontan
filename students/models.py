@@ -1,14 +1,12 @@
 from django.db import models
-from django.contrib.auth.models import User
-
 
 class Student(models.Model):
-    id = models.AutoField(primary_key=True)  # Campo ID explícito y autoincrementado
+    student_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
     lastname = models.CharField(max_length=100)
     id_number = models.IntegerField(unique=True)
     autonomy_level = models.CharField(
-        max_length=50,
+        max_length=20,
         choices=[
             ('1', 'Nivel 1'),
             ('2', 'Nivel 2'),
@@ -34,4 +32,4 @@ class Student(models.Model):
     )
 
     def __str__(self):
-        return f"{self.name} {self.lastname} (ID: {self.id_number})"
+        return f"{self.name} {self.lastname} (ID: {self.student_id})"
