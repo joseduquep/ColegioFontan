@@ -30,14 +30,17 @@ def logout(request):
 def signup(request):
     template_data = {}
     template_data['title'] = 'Sign Up'
+    
     if request.method == 'GET':
         template_data['form'] = CustomUserCreationForm()
         return render(request, 'accounts/signup.html', {'template_data': template_data})
+    
     elif request.method == 'POST':
-        form = CustomUserCreationForm(request.POST, error_class = CustomErrorList)
+        form = CustomUserCreationForm(request.POST, error_class=CustomErrorList)
         if form.is_valid():
-            form.save()
-            return redirect('accounts.login')
+            # Guardamos el usuario (email y cédula son campos adicionales)
+            form.save()  # Aquí se guarda el usuario con todos los campos requeridos
+            return redirect('accounts.login')  # Redirige a la página de login después de crear el usuario
         else:
             template_data['form'] = form
             return render(request, 'accounts/signup.html', {'template_data': template_data})
