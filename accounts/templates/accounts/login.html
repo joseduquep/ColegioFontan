@@ -6,7 +6,7 @@
         <div class="col-md-8">
         <div class="card shadow p-3 mb-4 rounded">
         <div class="card-body">
-        <h2>Login</h2>
+        <h2>Iniciar Sesión</h2>
         <hr />
         {% if template_data.error %}
         <div class="alert alert-danger" role="alert">
@@ -16,14 +16,14 @@
         <form method="POST">
         {% csrf_token %}
         <p>
-        <label for="username">Username</label>
+        <label for="username">Usuario: </label>
         <input id="username" type="text"
         name="username" required
         autocomplete="username"
         class="form-control">
         </p>
         <p>
-        <label for="password">Password</label>
+        <label for="password">Contraseña: </label>
         <input id="password" type="password"
         name="password" required
         autocomplete="current-password"
@@ -31,7 +31,7 @@
         </p>
         <div class="text-center">
         <button type="submit"
-        class="btn bg-dark text-white">Login
+        class="btn bg-dark text-white">Ingresar
         </button>
         </div>
         </form>

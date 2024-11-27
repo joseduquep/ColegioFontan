@@ -16,11 +16,12 @@ class CustomUserCreationForm(UserCreationForm):
         widget=forms.TextInput(attrs={'class': 'form-control'}),
         help_text="Por favor ingrese su número de cédula."
     )
+    is_tutor = forms.ChoiceField(
+        choices=[('yes', 'Sí'), ('no', 'No')],
+        widget=forms.RadioSelect,  # Esto lo convierte en un input tipo radio
+        label="¿Eres Tutor?"
+    )
 
-    class Meta:
-        model = User  # Usamos el modelo User de Django
-        fields = ['username', 'email', 'cedula', 'password1', 'password2']
-    
     def __init__(self, *args, **kwargs):
         super(CustomUserCreationForm, self).__init__(*args, **kwargs)
         # Eliminamos los textos de ayuda por defecto
@@ -29,7 +30,23 @@ class CustomUserCreationForm(UserCreationForm):
             self.fields[fieldname].widget.attrs.update({
                 'class': 'form-control'
             })
+
+    def clean(self):
+        cleaned_data = super().clean()
+        is_tutor = cleaned_data.get('is_tutor')
+
+        # Si el usuario es tutor, activamos is_staff
+        if is_tutor == 'yes':
+            self.instance.is_staff = True
+        else:
+            self.instance.is_staff = False
+
+        return cleaned_data
     
+    class Meta:
+        model = User  # Usamos el modelo User de Django
+        fields = ['username', 'email', 'cedula', 'password1', 'password2']
+
 class CustomErrorList(ErrorList):
     def __str__(self):
         if not self:

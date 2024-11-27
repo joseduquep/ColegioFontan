@@ -7,12 +7,12 @@
             <div class="col-md-8">
                 <div class="card shadow p-3 mb-4 rounded">
                     <div class="card-body">
-                        <h2>Sign Up</h2>
+                        <h2>Registro</h2>
                         <hr />
                         <form method="POST">
                             {% csrf_token %}
                             <div class="form-group">
-                                {{ template_data.form.username.label_tag }} 
+                                <label>Usuario: </label>
                                 {{ template_data.form.username }} 
                             </div>
                             <div class="form-group">
@@ -24,14 +24,18 @@
                                 {{ template_data.form.cedula }}
                             </div>
                             <div class="form-group">
-                                {{ template_data.form.password1.label_tag }}
+                                <label>Contraseña: </label>
                                 {{ template_data.form.password1 }}
                             </div>
                             <div class="form-group">
-                                {{ template_data.form.password2.label_tag }}
+                                <label>Confirmar Contraseña: </label>
                                 {{ template_data.form.password2 }}
                             </div>
-                            <button type="submit" class="btn bg-dark text-white">Sign Up</button>
+                            <div class="form-group">
+                                <label for="id_is_tutor">¿Eres Tutor?</label><br />
+                                {{ template_data.form.is_tutor }}  <!-- Este es el campo de radio para tutor -->
+                            </div>
+                            <button type="submit" class="btn bg-dark text-white">Registrarse</button>
                         </form>
                     </div>
                 </div>
