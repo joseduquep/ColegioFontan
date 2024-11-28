@@ -14,10 +14,12 @@
                             <div class="form-group">
                                 <label>Usuario: </label>
                                 {{ template_data.form.username }} 
+                                <span style="color:blue;" class="form-text text-muted"><small>Debe ser 20 caracteres o menos. Solo letras, números y @/./+/-/_</small></span>
                             </div>
                             <div class="form-group">
                                 {{ template_data.form.email.label_tag }}
                                 {{ template_data.form.email }}
+                                <span class="form-text text-muted"><small>Debe ser un correo que termine en @colegiofontan.edu.co.</small></span>
                             </div>
                             <div class="form-group">
                                 {{ template_data.form.cedula.label_tag }}
@@ -26,6 +28,12 @@
                             <div class="form-group">
                                 <label>Contraseña: </label>
                                 {{ template_data.form.password1 }}
+                                <ul class="form-text text-muted small">
+                                    <li>Tu contraseña no puede ser muy parecida a tu nombre de usuario.</li>
+                                    <li>Tu contraseña debe tener al menos 8 caracteres.</li>
+                                    <li>Tu contraseña no puede ser una contraseña comúnmente usada.</li>
+                                    <li>Tu contraseña no puede consistir únicamente en números.</li>
+                                </ul>
                             </div>
                             <div class="form-group">
                                 <label>Confirmar Contraseña: </label>
@@ -36,10 +44,12 @@
                                 {{ template_data.form.is_tutor }}
                             </div>
                             <!-- Campo para subir la imagen -->
+                            <br>
                             <div class="form-group">
                                 <label for="id_photo">Subir foto de tutor:</label>
                                 {{ template_data.form.photo }}
                             </div>
+                            <br>
                             <button type="submit" class="btn bg-dark text-white">Registrarse</button>
                         </form>
                     </div>

@@ -17,7 +17,7 @@ class Tutor(models.Model):
         blank=True
     )
     photo = models.ImageField(
-        upload_to="tutors_photos/",
+        upload_to="tutors_photos/",  # Los archivos se guardarán en media/tutors_photos/
         null=True,
         blank=True
     )

@@ -25,26 +25,21 @@ def logout(request):
     auth_logout(request)
     return redirect('home.index')
     
-
-
-from django.shortcuts import render, redirect
-from django.contrib.auth import login as auth_login, authenticate
-from .forms import CustomUserCreationForm  # Asegúrate de que el formulario esté importado correctamente
-
 def signup(request):
     template_data = {}
     template_data['title'] = 'Sign Up'
 
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
-            # Guardamos el formulario y el nuevo usuario
+            print("El formulario es válido")
             form.save()
-            # Redirigimos al login después de un registro exitoso
             return redirect('accounts.login')
         else:
+            print("Errores en el formulario:", form.errors)
             template_data['form'] = form
             return render(request, 'accounts/signup.html', {'template_data': template_data})
+
     
     else:
         form = CustomUserCreationForm()
