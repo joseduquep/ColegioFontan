@@ -9,7 +9,7 @@
                     <div class="card-body">
                         <h2>Registro</h2>
                         <hr />
-                        <form method="POST">
+                        <form method="POST" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="form-group">
                                 <label>Usuario: </label>
@@ -33,7 +33,12 @@
                             </div>
                             <div class="form-group">
                                 <label for="id_is_tutor">¿Eres Tutor?</label><br />
-                                {{ template_data.form.is_tutor }}  <!-- Este es el campo de radio para tutor -->
+                                {{ template_data.form.is_tutor }}
+                            </div>
+                            <!-- Campo para subir la imagen -->
+                            <div class="form-group">
+                                <label for="id_photo">Subir foto de tutor:</label>
+                                {{ template_data.form.photo }}
                             </div>
                             <button type="submit" class="btn bg-dark text-white">Registrarse</button>
                         </form>
@@ -43,4 +48,23 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Habilitar/deshabilitar el campo de foto dinámicamente
+    document.addEventListener('DOMContentLoaded', function () {
+        const isTutorRadios = document.querySelectorAll('input[name="is_tutor"]');
+        const photoInput = document.getElementById('id_photo');
+
+        isTutorRadios.forEach(radio => {
+            radio.addEventListener('change', function () {
+                if (this.value === 'yes') {
+                    photoInput.disabled = false;  // Habilitar
+                } else {
+                    photoInput.disabled = true;   // Deshabilitar
+                    photoInput.value = '';       // Limpiar el campo
+                }
+            });
+        });
+    });
+</script>
 {% endblock content %}
