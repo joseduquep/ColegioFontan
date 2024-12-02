@@ -2,15 +2,17 @@ from django.db import models
 
 class Workshop(models.Model):
     workshop_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)  # Asegúrate de que el nombre sea único
     tutor = models.ForeignKey(
         'tutors.Tutor',
-        on_delete=models.CASCADE
+        on_delete=models.SET_NULL,  # Si el tutor se elimina, el campo queda en null
+        null=True,                  # Permite que el campo sea nulo
+        blank=True                  # Permite que el campo esté vacío en formularios
     )
-    max_capacity = models.IntegerField()
+    max_capacity = models.IntegerField(default=25)
 
     def __str__(self):
-        return f"Workshop: {self.name} (Tutor: {self.tutor})"
+        return f"Workshop: {self.name} (Tutor: {self.tutor or 'Sin asignar'})"
 
 
 class Block(models.Model):
