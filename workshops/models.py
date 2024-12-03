@@ -1,15 +1,27 @@
 from django.db import models
 
 class Workshop(models.Model):
+    WORKSHOP_TYPES = [
+        ('primary', 'Primaria'),
+        ('high_school', 'Bachillerato'),
+        ('collective', 'Colectivo'),
+    ]
+
+
     workshop_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100, unique=True)  # Asegúrate de que el nombre sea único
     tutor = models.ForeignKey(
         'tutors.Tutor',
-        on_delete=models.SET_NULL,  # Si el tutor se elimina, el campo queda en null
-        null=True,                  # Permite que el campo sea nulo
-        blank=True                  # Permite que el campo esté vacío en formularios
+        on_delete=models.SET_NULL,  
+        null=True,                  
+        blank=True                  
     )
     max_capacity = models.IntegerField(default=25)
+    type = models.CharField(
+        max_length=20,
+        choices=WORKSHOP_TYPES,
+        default='primary'
+    )
 
     def __str__(self):
         return f"Workshop: {self.name} (Tutor: {self.tutor or 'Sin asignar'})"
@@ -24,7 +36,6 @@ class Block(models.Model):
     day = models.CharField(max_length=20)
     start_time = models.TimeField()
     end_time = models.TimeField()
-    high_school = models.BooleanField(default=False)
     workshop = models.ForeignKey(
         Workshop,
         on_delete=models.CASCADE
