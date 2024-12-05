@@ -32,4 +32,4 @@ class Student(models.Model):
     )
 
     def __str__(self):
-        return f"{self.name} {self.lastname} (ID: {self.student_id})"
+        return f"{self.name} {self.lastname} (ID: {self.student_id}) (Vacaciones Extendidas: {self.extended_vacation})"

@@ -6,15 +6,16 @@
   <nav class="vertical-navbar" style="height: 100vh; overflow-y: auto;">
     <div class="container">
       <ul>
-        {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
+        {% for workshop in workshops %}
         <li class="nav-item">
-          <a class="nav-link">Taller {{ letter }}</a>
+          <a class="nav-link">{{ workshop.name }}</a>
         </li>
         {% endfor %}
       </ul>
     </div>
   </nav>
-</div> 
+</div>
+
 
 <div class="container">
   <div class="row row-cols-1 row-cols-md-3 g-4">
