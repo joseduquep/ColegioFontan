@@ -16,7 +16,6 @@
   </nav>
 </div>
 
-
 <div class="container">
   <div class="row row-cols-1 row-cols-md-3 g-4">
     {% if query %}
@@ -30,7 +29,7 @@
                 <p class="card-text"><strong>Cédula:</strong> {{ student.id_number }}</p>
                 <p class="card-text"><strong>Nivel de Autonomía:</strong> {{ student.autonomy_level }}</p>
                 <p class="card-text"><strong>Grado:</strong> {{ student.grade }}</p>
-                <!-- Botón para ver el horario del estudiante -->
+                <p class="card-text"><strong>Workshop:</strong> {{ student.workshop.name }}</p>
                 <a href="{% url 'student_schedule' student_id=student.student_id %}" class="btn btn-primary">Ver Horario</a>
               </div>
             </div>
@@ -51,7 +50,7 @@
               <p class="card-text"><strong>Cédula:</strong> {{ student.id_number }}</p>
               <p class="card-text"><strong>Nivel de Autonomía:</strong> {{ student.autonomy_level }}</p>
               <p class="card-text"><strong>Grado:</strong> {{ student.grade }}</p>
-              <!-- Botón para ver el horario del estudiante -->
+              <p class="card-text"><strong>Workshop:</strong> {{ student.workshop.name }}</p>
               <a href="{% url 'student_schedule' student_id=student.student_id %}" class="btn btn-primary">Ver Horario</a>
             </div>
           </div>

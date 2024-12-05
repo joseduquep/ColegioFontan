@@ -21,9 +21,10 @@ class Tutor(models.Model):
         null=True,
         blank=True
     )
+    
 
     def __str__(self):
-        return f"Tutor: {self.user.username} (Estudiante: {self.student})"
+        return f"Tutor: {self.user.username}"
 
 
 class ScheduleTutor(models.Model):

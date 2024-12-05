@@ -6,8 +6,6 @@ class Workshop(models.Model):
         ('high_school', 'Bachillerato'),
         ('collective', 'Colectivo'),
     ]
-
-
     workshop_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100, unique=True)  # Asegúrate de que el nombre sea único
     tutor = models.ForeignKey(
@@ -24,7 +22,7 @@ class Workshop(models.Model):
     )
 
     def __str__(self):
-        return f"Workshop: {self.name} (Tutor: {self.tutor or 'Sin asignar'})"
+        return f"{self.name} {self.tutor or 'Sin asignar'}"
 
 
 from django.db import models
