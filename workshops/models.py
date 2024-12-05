@@ -27,14 +27,11 @@ class Workshop(models.Model):
         return f"Workshop: {self.name} (Tutor: {self.tutor or 'Sin asignar'})"
 
 
+from django.db import models
+
 class Block(models.Model):
     block_id = models.AutoField(primary_key=True)
-    student = models.ForeignKey(
-        'students.Student',
-        on_delete=models.CASCADE,
-        null=True,                  
-        blank=True 
-    )
+    students = models.ManyToManyField('students.Student', related_name='blocks')
     day = models.CharField(max_length=20)
     start_time = models.TimeField()
     end_time = models.TimeField()
@@ -45,3 +42,4 @@ class Block(models.Model):
 
     def __str__(self):
         return f"Block: {self.workshop} {self.day} ({self.start_time} - {self.end_time})"
+
