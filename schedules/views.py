@@ -1,11 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Schedule
 from students.models import Student
 from datetime import time
-
-
-from django.shortcuts import render
+from .models import Schedule
+from workshops.models import Block
 from students.models import Student
+from workshops.models import Workshop
+
 
 def schedule_index(request):
     # Obtener todos los estudiantes para mostrar en la página de horarios
@@ -46,38 +47,32 @@ def default_schedule():
     }
     return blocks
 
-from django.shortcuts import render, get_object_or_404
-from .models import Student, Workshop, Block
+
 
 def student_schedule(request, student_id):
-    student = get_object_or_404(Student, id=student_id)
+    student = get_object_or_404(Student, student_id=student_id)
     is_high_school = student.grade > 5
 
-    # Definimos el horario según el grado
+    # Determinamos el número de bloques
     if is_high_school:
-        schedule = {
-            "Monday-Thursday": ["7:40-9:10", "9:40-11:00", "11:20-12:40", "1:20-2:40"],
-            "Friday": ["7:40-9:10", "9:50-11:20", "11:50-1:20"],
-        }
+        num_blocks = 4
+        friday_blocks = 3
     else:
-        schedule = {
-            "Monday-Thursday": ["7:40-8:40", "9:10-10:20", "10:40-11:50", "12:30-1:30", "1:50-2:40"],
-            "Friday": ["7:40-8:40", "9:10-10:20", "10:40-11:50", "12:20-1:20"],
-        }
+        num_blocks = 5
+        friday_blocks = 4
+
+    # Lista de días de la semana
+    days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
 
     context = {
         "student": student,
-        "schedule": schedule,
         "is_high_school": is_high_school,
+        "num_blocks": range(1, num_blocks + 1),  # Bloques del 1 al número máximo
+        "friday_blocks": friday_blocks,  # Bloques específicos para el viernes
+        "days_of_week": days_of_week,
     }
-    return render(request, "students/schedule.html", context)
+    return render(request, "schedules/schedule.html", context)
 
-
-from django.shortcuts import render, redirect
-from .models import Schedule
-from workshops.models import Block
-from students.models import Student
-from workshops.models import Workshop
 
 def update_schedule(request, student_id):
     student = Student.objects.get(pk=student_id)

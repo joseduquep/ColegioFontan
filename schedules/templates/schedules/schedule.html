@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Horario de {{ student.name }}</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Bloque/Día</th>
+                {% for day in days_of_week %}
+                    <th>{{ day }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for block in num_blocks %}
+            <tr>
+                <td>Bloque {{ block }}</td>
+                {% for day in days_of_week %}
+                    <td>
+                        {% if day == "Friday" and block > friday_blocks %}
+                            <!-- Para el viernes, mostrar guiones si el bloque no aplica -->
+                            -
+                        {% else %}
+                            <button>Agregar Taller</button>
+                        {% endif %}
+                    </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
