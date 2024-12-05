@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Lista de Talleres</h1>
+
+    <ul>
+        {% for workshop in workshops %}
+            <li>{{ workshop.name }} - {{ workshop.type }}</li>
+        {% empty %}
+            <li>No hay talleres registrados.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

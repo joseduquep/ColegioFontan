@@ -31,7 +31,9 @@ class Block(models.Model):
     block_id = models.AutoField(primary_key=True)
     student = models.ForeignKey(
         'students.Student',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        null=True,                  
+        blank=True 
     )
     day = models.CharField(max_length=20)
     start_time = models.TimeField()
@@ -42,4 +44,4 @@ class Block(models.Model):
     )
 
     def __str__(self):
-        return f"Block: {self.day} ({self.start_time} - {self.end_time})"
+        return f"Block: {self.workshop} {self.day} ({self.start_time} - {self.end_time})"

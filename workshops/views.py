@@ -10,44 +10,81 @@ def create_workshop(request):
             workshop = form.save()  # Guardamos el taller
             
             # Crear bloques según el tipo de taller
-            if workshop.type == 'B':
-                # Horarios para bachillerato
-                create_blocks(workshop, high_school=True)
-            elif workshop.type == 'P':
-                # Horarios para primaria
-                create_blocks(workshop, high_school=False)
-            elif workshop.type == 'C':
-                # Horarios para bachillerato y primaria (colectivas)
-                create_blocks(workshop, high_school=True)
-                create_blocks(workshop, high_school=False)
+            if workshop.type == 'high_school':
+                create_blocks(workshop, is_high_school=True)
+            elif workshop.type == 'primary':
+                create_blocks(workshop, is_high_school=False)
+            elif workshop.type == 'collective':
+                # Horarios para talleres colectivos (primaria y bachillerato)
+                create_blocks(workshop, is_high_school=True)
+                create_blocks(workshop, is_high_school=False)
 
-            return redirect('workshops:list_workshops')  # Cambia al nombre de tu vista/lista de talleres
+            return redirect('workshops:list_workshops')  # Cambia según el nombre de tu vista/lista de talleres
     else:
         form = WorkshopForm()
     
     return render(request, 'workshops/create_workshop.html', {'form': form})
 
-# Función para crear bloques
-def create_blocks(workshop, high_school):
-    days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
-    time_slots = [
-        (time(8, 0), time(9, 0)),
-        (time(9, 15), time(10, 15)),
-        (time(10, 30), time(11, 30)),
-    ]
 
-    if high_school:
-        time_slots += [(time(13, 0), time(14, 0))]  # Ejemplo de horario adicional para bachillerato
-    
-    for day in days:
-        for start_time, end_time in time_slots:
-            Block.objects.create(
-                day=day,
-                start_time=start_time,
-                end_time=end_time,
-                high_school=high_school,
-                workshop=workshop
-            )
+def create_blocks(workshop, is_high_school):
+    """
+    Crea bloques de horarios para un taller.
+    """
+    if is_high_school:
+        schedules = {
+            "Monday-Thursday": [
+                ("7:40", "9:10"),
+                ("9:40", "11:00"),
+                ("11:20", "12:40"),
+                ("13:20", "14:40"),
+            ],
+            "Friday": [
+                ("7:40", "9:10"),
+                ("9:50", "11:20"),
+                ("11:50", "13:20"),
+            ],
+        }
+    else:
+        schedules = {
+            "Monday-Thursday": [
+                ("7:40", "8:40"),
+                ("9:10", "10:20"),
+                ("10:40", "11:50"),
+                ("12:30", "13:30"),
+                ("13:50", "14:40"),
+            ],
+            "Friday": [
+                ("7:40", "8:40"),
+                ("9:10", "10:20"),
+                ("10:40", "11:50"),
+                ("12:20", "13:20"),
+            ],
+        }
 
+    # Convertir las horas a formato ISO válido
+    def to_iso_time(hour_minute):
+        if len(hour_minute.split(":")[0]) == 1:  # Si la hora tiene un solo dígito
+            return f"0{hour_minute}"  # Agregar un cero inicial
+        return hour_minute
+
+    for day_group, time_slots in schedules.items():
+        if day_group == "Monday-Thursday":
+            days = ["Monday", "Tuesday", "Wednesday", "Thursday"]
+        elif day_group == "Friday":
+            days = ["Friday"]
+
+        for day in days:
+            for start, end in time_slots:
+                Block.objects.create(
+                    workshop=workshop,
+                    day=day,
+                    start_time=time.fromisoformat(to_iso_time(start)),
+                    end_time=time.fromisoformat(to_iso_time(end)),
+                )
+
+
+def list_workshops(request):
+    workshops = Workshop.objects.all()
+    return render(request, 'workshops/list.html', {'workshops': workshops})
 
 
