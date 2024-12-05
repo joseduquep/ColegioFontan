@@ -46,23 +46,31 @@ def default_schedule():
     }
     return blocks
 
-def student_schedule(request, student_id):
-    # Aquí usaríamos default_schedule() para obtener un horario estático por defecto.
-    blocks = default_schedule()
+from django.shortcuts import render, get_object_or_404
+from .models import Student, Workshop, Block
 
-    # Pasar los bloques al template de forma estructurada por días y horas
-    # Vamos a estructurarlo de forma más accesible para el template
-    days_schedule = {
-        day: blocks[day] for day in days
-    }
+def student_schedule(request, student_id):
+    student = get_object_or_404(Student, id=student_id)
+    is_high_school = student.grade > 5
+
+    # Definimos el horario según el grado
+    if is_high_school:
+        schedule = {
+            "Monday-Thursday": ["7:40-9:10", "9:40-11:00", "11:20-12:40", "1:20-2:40"],
+            "Friday": ["7:40-9:10", "9:50-11:20", "11:50-1:20"],
+        }
+    else:
+        schedule = {
+            "Monday-Thursday": ["7:40-8:40", "9:10-10:20", "10:40-11:50", "12:30-1:30", "1:50-2:40"],
+            "Friday": ["7:40-8:40", "9:10-10:20", "10:40-11:50", "12:20-1:20"],
+        }
 
     context = {
-        'days_schedule': days_schedule,
-        'hours': hours,
-        'days': days
+        "student": student,
+        "schedule": schedule,
+        "is_high_school": is_high_school,
     }
-
-    return render(request, 'schedules/student_schedule.html', context)
+    return render(request, "students/schedule.html", context)
 
 
 from django.shortcuts import render, redirect
