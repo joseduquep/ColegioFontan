@@ -18,7 +18,7 @@ def login(request):
             return render(request, 'accounts/login.html', {'template_data': template_data})
         else:
             auth_login(request, user)
-            return redirect('main_menu')
+            return redirect('students.main_menu')
 
 @login_required
 def logout(request):
