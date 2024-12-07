@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+  <h2>Horario del Tutor: {{ tutor.user.username }}</h2>
+  
+  <!-- Si tienes datos sobre el horario, los mostrarías aquí -->
+  <p>Aquí podrás ver el horario del tutor.</p>
+
+  <!-- Si aún no hay datos, puedes mostrar un mensaje indicando que no hay horario disponible -->
+  <p><strong>Horario no disponible por el momento.</strong></p>
+  
+</div>
+{% endblock %}
