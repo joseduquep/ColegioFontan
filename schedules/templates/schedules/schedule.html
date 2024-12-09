@@ -1,8 +1,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Horario de {{ student.name }}</h1>
-    <table border="1">
+<div class="schedule-container">
+    <h1 class="schedule-title">Horario de {{ student.name }} {{ student.lastname }}</h1>
+    <h2>{{ student.workshop }}</h2>
+    <h3>Grado {{ student.grade }}</h3>
+
+    <!-- Tabla de horario -->
+    <table class="schedule-table">
         <thead>
             <tr>
                 <th>Bloque/Día</th>
@@ -14,14 +19,14 @@
         <tbody>
             {% for block in num_blocks %}
             <tr>
-                <td>Bloque {{ block }}</td>
+                <td class="schedule-block">Bloque {{ block }}</td>
                 {% for day in days_of_week %}
-                    <td>
+                    <td class="schedule-cell">
                         {% if day == "Friday" and block > friday_blocks %}
-                            <!-- Para el viernes, mostrar guiones si el bloque no aplica -->
-                            -
+                            <span class="no-block">-</span>
                         {% else %}
-                            <button>Agregar Taller</button>
+                            <!-- Botón para mostrar la ventana emergente -->
+                            <button class="add-workshop-button" onclick="openModal('workshopModal{{ block }}{{ day }}')">Agregar Taller</button>
                         {% endif %}
                     </td>
                 {% endfor %}
@@ -29,5 +34,43 @@
             {% endfor %}
         </tbody>
     </table>
-{% endblock %}
+</div>
 
+
+<!-- Ventana Emergente -->
+{% for block in num_blocks %}
+    {% for day in days_of_week %}
+        <div class="modal" id="workshopModal{{ block }}{{ day }}" style="display:none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('workshopModal{{ block }}{{ day }}')">&times;</span>
+                <h3>Selecciona un taller para {{ day }} - Bloque {{ block }}</h3>
+                <form method="POST" action="{% url 'schedule_add_workshop' student.student_id %}">
+                    {% csrf_token %}
+                    <label for="workshop">Taller:</label>
+                    <select name="workshop" required>
+                        {% for workshop in workshops %}
+                            <option value="{{ workshop.id }}">{{ workshop.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="hidden" name="day" value="{{ day }}">
+                    <input type="hidden" name="block" value="{{ block }}">
+                    <button type="submit">Agregar</button>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+{% endfor %}
+
+<!-- Aquí va el código de JavaScript para abrir y cerrar el modal -->
+<script>
+    // Función para cerrar el modal
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Función para abrir el modal
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'block';
+    }
+</script>
+{% endblock %}

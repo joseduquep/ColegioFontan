@@ -141,3 +141,110 @@
 .container-home h1{
   font-size: 55px;
 }
+
+
+/* Tabla principal del horario */
+.schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px auto;
+  text-align: center;
+  background-color: #f9f9f9;
+}
+
+/* Encabezado de la tabla */
+.schedule-table thead th {
+  background-color: #007bff;
+  color: white;
+  padding: 10px;
+  font-size: 1.2em;
+  border: 1px solid #ddd;
+}
+
+/* Celdas de la tabla */
+.schedule-table tbody td {
+  padding: 15px;
+  border: 1px solid #ddd;
+  vertical-align: middle;
+  font-size: 1em;
+}
+
+/* Botones para agregar talleres */
+.schedule-table tbody td button {
+  padding: 8px 12px;
+  font-size: 0.9em;
+  border: none;
+  background-color: #28a745;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+/* Botón al pasar el mouse */
+.schedule-table tbody td button:hover {
+  background-color: #218838;
+}
+
+/* Espaciado entre bloques */
+.schedule-table tbody td {
+  height: 60px;
+}
+
+/* Bloques de la izquierda (números de bloque) */
+.schedule-table tbody th {
+  background-color: #f1f1f1;
+  color: #333;
+  padding: 15px;
+  font-weight: bold;
+  border: 1px solid #ddd;
+}
+
+/* Ajustes para que sea responsivo */
+@media (max-width: 768px) {
+  .schedule-table {
+      font-size: 0.8em;
+  }
+
+  .schedule-table tbody td button {
+      font-size: 0.8em;
+      padding: 6px 10px;
+  }
+}
+
+
+
+/* Modal estilos básicos */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
