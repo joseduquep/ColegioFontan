@@ -18,7 +18,7 @@ def show_tutors(request):
         )
     else:
         tutors = Tutor.objects.all()  # Obtener todos los tutores
-    return render(request, 'tutors/show_tutors.html', {'workshops': workshops, 'tutors': tutors, 'query': query})
+    return render(request, 'tutors/show_tutors.html', {'workshops': workshops, 'tutors': tutors, 'query': query, 'search_type': 'tutors'})
 
 # Vista para mostrar el horario del tutor
 def tutor_schedule(request, tutor_id):

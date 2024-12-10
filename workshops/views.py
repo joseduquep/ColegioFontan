@@ -1,7 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .forms import WorkshopForm
 from .models import Workshop, Block
 from datetime import time
+from students.models import Student
 
 def create_workshop(request):
     if request.method == 'POST':
@@ -88,3 +89,16 @@ def list_workshops(request):
     return render(request, 'workshops/list.html', {'workshops': workshops})
 
 
+def students_by_workshop(request, workshop_id):
+    # Obtén el taller específico usando el ID
+    workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
+    workshops = Workshop.objects.all()
+    # Filtra los estudiantes que tienen asignado este taller
+    students = Student.objects.filter(workshop=workshop)
+    
+    # Renderiza la plantilla con los datos
+    return render(request, 'workshops/students_by_workshop.html', {
+        'workshop': workshop,
+        'students': students,
+        'workshops': workshops,  # Lista de todos los talleres
+    })

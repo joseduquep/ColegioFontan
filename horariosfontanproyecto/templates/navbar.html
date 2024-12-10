@@ -15,10 +15,17 @@
           <a class="nav-link me-3" href="">Registrar Estudiantes</a>
         </li>  
         <li class="nav-item me-3">
+          {% if search_type == 'tutors' %}
           <form class="d-flex" action="{% url 'tutors.show_tutors' %}" method="GET"> <!-- Especificar action correctamente -->
             <input class="form-control me-2" type="search" placeholder="Buscar tutores" aria-label="Search" name="query"> <!-- name="query" -->
             <button class="btn btn-outline-light" type="submit">Buscar</button>
           </form>
+          {% else %}
+          <form class="d-flex" action="{% url 'students.main_menu' %}" method="GET"> <!-- Especificar action correctamente -->
+            <input class="form-control me-2" type="search" placeholder="Buscar estudiantes" aria-label="Search" name="query"> <!-- name="query" -->
+            <button class="btn btn-outline-light" type="submit">Buscar</button>
+          </form>
+          {% endif %}
           <li class="nav-item me-3">
             <a class="nav-link me-3" href="{% url 'accounts.logout' %}">Cerrar Sesión</a>
           </li>
