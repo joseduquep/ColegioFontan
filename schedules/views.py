@@ -105,42 +105,52 @@ def student_schedule(request, student_id):
     return render(request, "schedules/schedule.html", context)
 
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import Schedule
+from students.models import Student
+from workshops.models import Block, Workshop
+
 
 def add_workshop(request, student_id):
     student = get_object_or_404(Student, student_id=student_id)
+
     if request.method == 'POST':
         day = request.POST.get('day')
-        block = request.POST.get('block')
+        block_id = request.POST.get('block')  # El bloque es lo que vas a recibir del formulario
         workshop_id = request.POST.get('workshop')
 
         if not workshop_id:
             messages.error(request, "Por favor, selecciona un taller.")
-            return redirect('student_schedule', student_id=student.student_id)
+            return redirect('schedule_index')  # Redirigir a la vista 'schedule_index' sin student_id
 
+        # Obtener el taller seleccionado
         workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
 
+        # Obtener el bloque correspondiente al día y al taller
+        try:
+            block = Block.objects.get(block_id=block_id, workshop__workshop_id=workshop_id, day=day)
+        except Block.DoesNotExist:
+            messages.error(request, "No se pudo encontrar el bloque seleccionado.")
+            return redirect('schedule_index')  # Redirigir a la vista 'schedule_index' sin student_id
+
+        # Verificar si ya existe una entrada en el calendario para este estudiante y bloque
         schedule_entry, created = Schedule.objects.get_or_create(
             student=student,
-            block=block,
-            defaults={'workshop': workshop}
+            block=block,  # Asocias el bloque directamente
+            defaults={'high_school': student.grade > 5}  # Si necesitas configurar otros campos, como high_school, se añade aquí
         )
 
-        return redirect('student_schedule', student_id=student.student_id)
+        if created:
+            messages.success(request, f"Taller '{workshop.name}' agregado correctamente.")
+        else:
+            messages.info(request, f"El estudiante ya está inscrito en el taller '{workshop.name}' para este bloque.")
 
-    return redirect('student_schedule', student_id=student.student_id)
+        # Redirigir a la vista 'schedule' y pasar el taller seleccionado
+        return redirect('student_schedule', student_id=student.student_id)  # Redirigir al horario del estudiante
 
-
-
-
-
-
-
-
-
-
-
-
-
+    # Si no es un POST, redirigir a la vista 'schedule_index' sin student_id
+    return redirect('schedule_index')
 
 
 
