@@ -34,6 +34,7 @@
                 <p class="card-text"><strong>Nivel de Autonomía:</strong> {{ student.autonomy_level }}</p>
                 <p class="card-text"><strong>Grado:</strong> {{ student.grade }}</p>
                 <p class="card-text"><strong>Workshop:</strong> {{ student.workshop.name }}</p>
+                <p class="card-text"><strong>Nivel de autonomia:</strong> {{ student.autonomy_level }}</p>
                 <a href="{% url 'student_schedule' student_id=student.student_id %}" class="btn btn-primary">Ver Horario</a>
               </div>
             </div>
@@ -55,6 +56,7 @@
               <p class="card-text"><strong>Nivel de Autonomía:</strong> {{ student.autonomy_level }}</p>
               <p class="card-text"><strong>Grado:</strong> {{ student.grade }}</p>
               <p class="card-text"><strong>Workshop:</strong> {{ student.workshop.name }}</p>
+              <p class="card-text"><strong>Nivel de autonomia:</strong> {{ student.autonomy_level }}</p>
               <a href="{% url 'student_schedule' student_id=student.student_id %}" class="btn btn-primary">Ver Horario</a>
             </div>
           </div>

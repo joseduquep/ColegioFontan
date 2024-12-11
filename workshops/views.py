@@ -102,3 +102,5 @@ def students_by_workshop(request, workshop_id):
         'students': students,
         'workshops': workshops,  # Lista de todos los talleres
     })
+
+

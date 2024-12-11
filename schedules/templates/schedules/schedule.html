@@ -49,7 +49,7 @@
                     <label for="workshop">Taller:</label>
                     <select name="workshop" required>
                         {% for workshop in workshops %}
-                            <option value="{{ workshop.id }}">{{ workshop.name }}</option>
+                            <option value="{{ workshop.workshop_id}}">{{ workshop.name }}</option>
                         {% endfor %}
                     </select>
                     <input type="hidden" name="day" value="{{ day }}">

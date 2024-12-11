@@ -7,6 +7,8 @@ from workshops.models import Block
 from students.models import Student
 from workshops.models import Workshop
 from django.http import HttpResponseRedirect
+from django.contrib import messages
+
 
 
 def schedule_index(request):
@@ -110,22 +112,23 @@ def add_workshop(request, student_id):
         day = request.POST.get('day')
         block = request.POST.get('block')
         workshop_id = request.POST.get('workshop')
-        
+
+        if not workshop_id:
+            messages.error(request, "Por favor, selecciona un taller.")
+            return redirect('student_schedule', student_id=student.student_id)
+
         workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
-        
-        # Crear o actualizar la entrada del horario con el taller seleccionado
+
         schedule_entry, created = Schedule.objects.get_or_create(
             student=student,
-            day=day,
             block=block,
             defaults={'workshop': workshop}
         )
-        
-        # Redirigir de nuevo al horario del estudiante después de agregar el taller
+
         return redirect('student_schedule', student_id=student.student_id)
 
-    # Redirigir al horario del estudiante si no es una solicitud POST
     return redirect('student_schedule', student_id=student.student_id)
+
 
 
 
