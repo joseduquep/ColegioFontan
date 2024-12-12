@@ -14,10 +14,6 @@ from django.contrib import messages
 def schedule_index(request):
     # Obtener todos los estudiantes para mostrar en la página de horarios
     students = Student.objects.all()
-    
-    # Depuración: Imprimir los estudiantes para ver si tienen un ID válido
-    print(students)  # Esto imprimirá en la consola de Django
-    
     return render(request, 'schedules/schedule_index.html', {'students': students})
 
 
@@ -105,13 +101,6 @@ def student_schedule(request, student_id):
     return render(request, "schedules/schedule.html", context)
 
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from .models import Schedule
-from students.models import Student
-from workshops.models import Block, Workshop
-
-
 def add_workshop(request, student_id):
     student = get_object_or_404(Student, student_id=student_id)
 
@@ -119,6 +108,7 @@ def add_workshop(request, student_id):
         day = request.POST.get('day')
         block_id = request.POST.get('block')  # El bloque es lo que vas a recibir del formulario
         workshop_id = request.POST.get('workshop')
+        print(f"Day: {day}, Block: {block_id}, Workshop ID: {workshop_id}")  # Imprime los valores recibidos
 
         if not workshop_id:
             messages.error(request, "Por favor, selecciona un taller.")
@@ -146,15 +136,11 @@ def add_workshop(request, student_id):
         else:
             messages.info(request, f"El estudiante ya está inscrito en el taller '{workshop.name}' para este bloque.")
 
-        # Redirigir a la vista 'schedule' y pasar el taller seleccionado
-        return redirect('student_schedule', student_id=student.student_id)  # Redirigir al horario del estudiante
+        # Redirigir a la vista 'student_schedule' con el student_id
+        return redirect('schedule', student_id=student.student_id)
 
-    # Si no es un POST, redirigir a la vista 'schedule_index' sin student_id
+    # Si no es un POST, redirigir a la vista 'schedule_index'
     return redirect('schedule_index')
-
-
-
-
 
 
 
