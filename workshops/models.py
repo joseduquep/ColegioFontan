@@ -39,5 +39,5 @@ class Block(models.Model):
     )
 
     def __str__(self):
-        return f"Block: {self.workshop} {self.day} ({self.start_time} - {self.end_time})"
+        return f"Block: (ID: {self.block_id}) {self.workshop} {self.day} ({self.start_time} - {self.end_time})"
 

@@ -100,54 +100,70 @@ def student_schedule(request, student_id):
 
     return render(request, "schedules/schedule.html", context)
 
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from students.models import Student
+from workshops.models import Block, Workshop
+from schedules.models import Schedule
+
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from students.models import Student
+from workshops.models import Block, Workshop
+from schedules.models import Schedule
 
 def add_workshop(request, student_id):
-    student = get_object_or_404(Student, student_id=student_id)
-
     if request.method == 'POST':
+        # Obtener el estudiante
+        student = get_object_or_404(Student, student_id=student_id)
+        
+        # Obtener 'block' (número de bloque) y 'day' del formulario
+        block_number = request.POST.get('block')
         day = request.POST.get('day')
-        block_id = request.POST.get('block')  # El bloque es lo que vas a recibir del formulario
-        workshop_id = request.POST.get('workshop')
-        print(f"Day: {day}, Block: {block_id}, Workshop ID: {workshop_id}")  # Imprime los valores recibidos
-
-        if not workshop_id:
-            messages.error(request, "Por favor, selecciona un taller.")
-            return redirect('schedule_index')  # Redirigir a la vista 'schedule_index' sin student_id
-
-        # Obtener el taller seleccionado
-        workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
-
-        # Obtener el bloque correspondiente al día y al taller
+        
+        if not block_number or not day:
+            return JsonResponse({'error': "Por favor, selecciona un bloque y día."}, status=400)
+        
         try:
-            block = Block.objects.get(block_id=block_id, workshop__workshop_id=workshop_id, day=day)
-        except Block.DoesNotExist:
-            messages.error(request, "No se pudo encontrar el bloque seleccionado.")
-            return redirect('schedule_index')  # Redirigir a la vista 'schedule_index' sin student_id
+            # Asegurarse de que block_number es un entero
+            block_number = int(block_number)
+            
+            # Obtener todos los Blocks para ese día ordenados por start_time
+            blocks_for_day = Block.objects.filter(day=day).order_by('start_time')
+            
+            # Verificar si el block_number es válido
+            if block_number < 1 or block_number > blocks_for_day.count():
+                return JsonResponse({'error': "Bloque no válido."}, status=400)
+            
+            # Obtener el Block correspondiente (1-based index)
+            block = blocks_for_day[block_number - 1]
+            print(f"block_id recibido: {block.block_id}")
 
-        # Verificar si ya existe una entrada en el calendario para este estudiante y bloque
-        schedule_entry, created = Schedule.objects.get_or_create(
-            student=student,
-            block=block,  # Asocias el bloque directamente
-            defaults={'high_school': student.grade > 5}  # Si necesitas configurar otros campos, como high_school, se añade aquí
-        )
-
-        if created:
-            messages.success(request, f"Taller '{workshop.name}' agregado correctamente.")
-        else:
-            messages.info(request, f"El estudiante ya está inscrito en el taller '{workshop.name}' para este bloque.")
-
-        # Redirigir a la vista 'student_schedule' con el student_id
-        return redirect('schedule', student_id=student.student_id)
-
-    # Si no es un POST, redirigir a la vista 'schedule_index'
-    return redirect('schedule_index')
-
-
-
-
-
-
-
+            # Verificar si el estudiante ya está inscrito en este bloque
+            if Schedule.objects.filter(student=student, block=block).exists():
+                return JsonResponse({'error': "Ya has agregado este bloque."}, status=400)
+            
+            # Verificar la capacidad del taller
+            workshop = block.workshop
+            current_capacity = Schedule.objects.filter(block=block).count()
+            if current_capacity >= workshop.max_capacity:
+                return JsonResponse({'error': "El taller seleccionado ha alcanzado su capacidad máxima."}, status=400)
+            
+            # Crear la entrada de Schedule
+            Schedule.objects.create(
+                student=student,
+                block=block,
+                high_school=student.grade > 5
+            )
+            
+            return JsonResponse({'workshop_name': workshop.name})
+        
+        except ValueError:
+            # Si block_number no es un entero válido
+            return JsonResponse({'error': "Número de bloque inválido."}, status=400)
+        
+    # Si no es una solicitud POST válida
+    return JsonResponse({'error': 'Solicitud inválida.'}, status=400)
 
 
 

@@ -13,4 +13,8 @@ urlpatterns = [
 
     # Ruta para agregar un taller al horario de un estudiante
     path('<int:student_id>/add_workshop/', views.add_workshop, name='schedule_add_workshop'),
+
+    path('add_workshop/<int:student_id>/', views.add_workshop, name='add_workshop'),
+
+
 ]
