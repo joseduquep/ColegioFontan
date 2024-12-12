@@ -106,17 +106,6 @@ from students.models import Student
 from workshops.models import Block, Workshop
 from schedules.models import Schedule
 
-from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
-from students.models import Student
-from workshops.models import Block, Workshop
-from schedules.models import Schedule
-from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
-from students.models import Student
-from workshops.models import Block, Workshop
-from schedules.models import Schedule
-
 def add_workshop(request, student_id):
     if request.method == 'POST':
         # Obtener el estudiante
@@ -136,10 +125,10 @@ def add_workshop(request, student_id):
             workshop_id = int(workshop_id)
             
             # Obtener el Workshop seleccionado
-            selected_workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
+            workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
             
-            # Obtener todos los Blocks para ese día y taller, ordenados por start_time
-            blocks_for_day_and_workshop = Block.objects.filter(day=day, workshop=selected_workshop).order_by('start_time')
+            # Obtener todos los Blocks para ese día y taller ordenados por start_time
+            blocks_for_day_and_workshop = Block.objects.filter(day=day, workshop=workshop).order_by('start_time')
             
             # Verificar si el block_number es válido
             if block_number < 1 or block_number > blocks_for_day_and_workshop.count():
@@ -155,7 +144,7 @@ def add_workshop(request, student_id):
             
             # Verificar la capacidad del taller
             current_capacity = Schedule.objects.filter(block=block).count()
-            if current_capacity >= selected_workshop.max_capacity:
+            if current_capacity >= workshop.max_capacity:
                 return JsonResponse({'error': "El taller seleccionado ha alcanzado su capacidad máxima."}, status=400)
             
             # Crear la entrada de Schedule
@@ -165,7 +154,7 @@ def add_workshop(request, student_id):
                 high_school=student.grade > 5
             )
             
-            return JsonResponse({'workshop_name': selected_workshop.name})
+            return JsonResponse({'workshop_name': workshop.name})
         
         except ValueError:
             # Si block_number o workshop_id no son enteros válidos
@@ -173,8 +162,6 @@ def add_workshop(request, student_id):
         
     # Si no es una solicitud POST válida
     return JsonResponse({'error': 'Solicitud inválida.'}, status=400)
-
-
 
 
 
