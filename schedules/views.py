@@ -111,32 +111,42 @@ from django.http import JsonResponse
 from students.models import Student
 from workshops.models import Block, Workshop
 from schedules.models import Schedule
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from students.models import Student
+from workshops.models import Block, Workshop
+from schedules.models import Schedule
 
 def add_workshop(request, student_id):
     if request.method == 'POST':
         # Obtener el estudiante
         student = get_object_or_404(Student, student_id=student_id)
         
-        # Obtener 'block' (número de bloque) y 'day' del formulario
+        # Obtener 'block' (número de bloque), 'day' y 'workshop' del formulario
         block_number = request.POST.get('block')
         day = request.POST.get('day')
+        workshop_id = request.POST.get('workshop')
         
-        if not block_number or not day:
-            return JsonResponse({'error': "Por favor, selecciona un bloque y día."}, status=400)
+        if not block_number or not day or not workshop_id:
+            return JsonResponse({'error': "Por favor, selecciona un bloque, día y taller."}, status=400)
         
         try:
-            # Asegurarse de que block_number es un entero
+            # Asegurarse de que block_number y workshop_id son enteros
             block_number = int(block_number)
+            workshop_id = int(workshop_id)
             
-            # Obtener todos los Blocks para ese día ordenados por start_time
-            blocks_for_day = Block.objects.filter(day=day).order_by('start_time')
+            # Obtener el Workshop seleccionado
+            selected_workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
+            
+            # Obtener todos los Blocks para ese día y taller, ordenados por start_time
+            blocks_for_day_and_workshop = Block.objects.filter(day=day, workshop=selected_workshop).order_by('start_time')
             
             # Verificar si el block_number es válido
-            if block_number < 1 or block_number > blocks_for_day.count():
-                return JsonResponse({'error': "Bloque no válido."}, status=400)
+            if block_number < 1 or block_number > blocks_for_day_and_workshop.count():
+                return JsonResponse({'error': "Bloque no válido para el taller seleccionado."}, status=400)
             
             # Obtener el Block correspondiente (1-based index)
-            block = blocks_for_day[block_number - 1]
+            block = blocks_for_day_and_workshop[block_number - 1]
             print(f"block_id recibido: {block.block_id}")
 
             # Verificar si el estudiante ya está inscrito en este bloque
@@ -144,9 +154,8 @@ def add_workshop(request, student_id):
                 return JsonResponse({'error': "Ya has agregado este bloque."}, status=400)
             
             # Verificar la capacidad del taller
-            workshop = block.workshop
             current_capacity = Schedule.objects.filter(block=block).count()
-            if current_capacity >= workshop.max_capacity:
+            if current_capacity >= selected_workshop.max_capacity:
                 return JsonResponse({'error': "El taller seleccionado ha alcanzado su capacidad máxima."}, status=400)
             
             # Crear la entrada de Schedule
@@ -156,14 +165,15 @@ def add_workshop(request, student_id):
                 high_school=student.grade > 5
             )
             
-            return JsonResponse({'workshop_name': workshop.name})
+            return JsonResponse({'workshop_name': selected_workshop.name})
         
         except ValueError:
-            # Si block_number no es un entero válido
-            return JsonResponse({'error': "Número de bloque inválido."}, status=400)
+            # Si block_number o workshop_id no son enteros válidos
+            return JsonResponse({'error': "Número de bloque o taller inválido."}, status=400)
         
     # Si no es una solicitud POST válida
     return JsonResponse({'error': 'Solicitud inválida.'}, status=400)
+
 
 
 
