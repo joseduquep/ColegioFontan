@@ -1,50 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Schedule
 from students.models import Student
-from datetime import time
 from .models import Schedule
 from workshops.models import Block
 from students.models import Student
 from workshops.models import Workshop
 from django.http import HttpResponseRedirect
-from django.contrib import messages
-
-
-
-def schedule_index(request):
-    # Obtener todos los estudiantes para mostrar en la página de horarios
-    students = Student.objects.all()
-    return render(request, 'schedules/schedule_index.html', {'students': students})
-
-
-# Definir las horas y los días (ajusta según tus necesidades)
-hours = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00']
-days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
-
-def default_schedule():
-    """
-    Esta función genera un horario por defecto con algunos bloques de ejemplo.
-    """
-    blocks = {
-        'Monday': [
-            {'start_time': '08:00', 'end_time': '09:00', 'workshop': 'Math'},
-            {'start_time': '10:00', 'end_time': '11:00', 'workshop': 'English'},
-        ],
-        'Tuesday': [
-            {'start_time': '09:00', 'end_time': '10:00', 'workshop': 'Science'},
-        ],
-        'Wednesday': [
-            {'start_time': '08:00', 'end_time': '09:00', 'workshop': 'History'},
-            {'start_time': '11:00', 'end_time': '12:00', 'workshop': 'Art'},
-        ],
-        'Thursday': [
-            {'start_time': '10:00', 'end_time': '11:00', 'workshop': 'Geography'},
-        ],
-        'Friday': [
-            {'start_time': '13:00', 'end_time': '14:00', 'workshop': 'Computer Science'},
-        ]
-    }
-    return blocks
+from django.http import JsonResponse
 
 
 
@@ -100,65 +62,52 @@ def student_schedule(request, student_id):
 
     return render(request, "schedules/schedule.html", context)
 
-from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
-from students.models import Student
-from workshops.models import Block, Workshop
-from schedules.models import Schedule
+
 
 def add_workshop(request, student_id):
     if request.method == 'POST':
-        # Obtener el estudiante
+
         student = get_object_or_404(Student, student_id=student_id)
         
-        # Obtener 'block' (número de bloque), 'day' y 'workshop' del formulario
+
         block_number = request.POST.get('block')
         day = request.POST.get('day')
         workshop_id = request.POST.get('workshop')
         
-        if not block_number or not day or not workshop_id:
-            return JsonResponse({'error': "Por favor, selecciona un bloque, día y taller."}, status=400)
-        
-        try:
-            # Asegurarse de que block_number y workshop_id son enteros
-            block_number = int(block_number)
-            workshop_id = int(workshop_id)
-            
-            # Obtener el Workshop seleccionado
-            workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
-            
-            # Obtener todos los Blocks para ese día y taller ordenados por start_time
-            blocks_for_day_and_workshop = Block.objects.filter(day=day, workshop=workshop).order_by('start_time')
-            
-            # Verificar si el block_number es válido
-            if block_number < 1 or block_number > blocks_for_day_and_workshop.count():
-                return JsonResponse({'error': "Bloque no válido para el taller seleccionado."}, status=400)
-            
-            # Obtener el Block correspondiente (1-based index)
-            block = blocks_for_day_and_workshop[block_number - 1]
-            print(f"block_id recibido: {block.block_id}")
 
-            # Verificar si el estudiante ya está inscrito en este bloque
-            if Schedule.objects.filter(student=student, block=block).exists():
-                return JsonResponse({'error': "Ya has agregado este bloque."}, status=400)
+        block_number = int(block_number)
+        workshop_id = int(workshop_id)
             
-            # Verificar la capacidad del taller
-            current_capacity = Schedule.objects.filter(block=block).count()
-            if current_capacity >= workshop.max_capacity:
-                return JsonResponse({'error': "El taller seleccionado ha alcanzado su capacidad máxima."}, status=400)
+
+        workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
             
-            # Crear la entrada de Schedule
-            Schedule.objects.create(
-                student=student,
-                block=block,
-                high_school=student.grade > 5
-            )
+
+        blocks_for_day_and_workshop = Block.objects.filter(day=day, workshop=workshop).order_by('start_time')
             
-            return JsonResponse({'workshop_name': workshop.name})
+
+            
+
+        block = blocks_for_day_and_workshop[block_number - 1]
+        print(f"block_id recibido: {block.block_id}")
+
+
+        if Schedule.objects.filter(student=student, block=block).exists():
+            return JsonResponse({'error': "Ya has agregado este bloque."}, status=400)
+            
+
+        current_capacity = Schedule.objects.filter(block=block).count()
+        if current_capacity >= workshop.max_capacity:
+            return JsonResponse({'error': "El taller seleccionado ha alcanzado su capacidad máxima."}, status=400)
+
+        Schedule.objects.create(
+            student=student,
+            block=block,
+            high_school=student.grade > 5
+        )
+            
+        return JsonResponse({'workshop_name': workshop.name})
         
-        except ValueError:
-            # Si block_number o workshop_id no son enteros válidos
-            return JsonResponse({'error': "Número de bloque o taller inválido."}, status=400)
+
         
     # Si no es una solicitud POST válida
     return JsonResponse({'error': 'Solicitud inválida.'}, status=400)
@@ -176,43 +125,6 @@ def add_workshop(request, student_id):
 
 
 
-def update_schedule(request, student_id):
-    student = Student.objects.get(pk=student_id)
 
-    if request.method == 'POST':
-        # Obtener los datos del formulario
-        day = request.POST['day']
-        time = request.POST['time']
-        workshop_id = request.POST['workshop']
-        
-        # Obtener el workshop seleccionado
-        workshop = Workshop.objects.get(pk=workshop_id)
-        
-        # Crear un nuevo bloque
-        block = Block.objects.create(
-            student=student,
-            day=day,
-            start_time=time,
-            end_time=calculate_end_time(time),  # Función para calcular la hora de fin
-            workshop=workshop
-        )
-        
-        # Crear el schedule que asocia el estudiante con el bloque
-        Schedule.objects.create(student=student, block=block)
-        
-        # Redirigir al usuario a la página del horario
-        return redirect('student_schedule', student_id=student.id)
-
-    else:
-        # Si no es un POST, mostramos el formulario para personalizar el horario
-        workshops = Workshop.objects.all()
-        return render(request, 'schedule/update_schedule.html', {'student': student, 'workshops': workshops})
-
-def calculate_end_time(start_time):
-    # Aquí puedes definir una duración fija para todos los bloques, como 1 hora
-    from datetime import datetime, timedelta
-    start_time_obj = datetime.strptime(str(start_time), '%H:%M')
-    end_time_obj = start_time_obj + timedelta(hours=1)
-    return end_time_obj.time()
 
 
