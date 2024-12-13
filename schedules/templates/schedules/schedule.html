@@ -1,43 +1,48 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'schedules/styles.css' %}">
+
 <div class="schedule-container">
-    <h1 class="schedule-title">Horario de {{ student.name }} {{ student.lastname }}</h1>
-    <h2>{{ student.workshop }}</h2>
-    <h3>Grado {{ student.grade }}</h3>
+    <h3 class="schedule-title">Horario de {{ student.name }} {{ student.lastname }}</h3>
+    <h4 class="workshop-title">{{ student.workshop }}</h4>
+    <h5 class="grade-title">Grado {{ student.grade }}</h5>
 
     <!-- Tabla de horario -->
-    <table class="schedule-table">
-        <thead>
-            <tr>
-                <th>Bloque/Día</th>
-                {% for day in days_of_week %}
-                    <th>{{ day }}</th>
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in schedule_table %}
-            <tr>
-                <td class="schedule-block">Bloque {{ row.0.block }}</td>
-                {% for cell in row %}
-                <td class="schedule-cell" data-block="{{ cell.block }}" data-day="{{ cell.day }}">
-                    {% if cell.day == "Friday" and cell.block > friday_blocks %}
-                        <span class="no-block">-</span>
-                    {% else %}
-                        {% if cell.workshop %}
-                            <span class="workshop-name">{{ cell.workshop }}</span>
+    <div class="table-wrapper">
+        <table class="schedule-table">
+            <thead>
+                <tr>
+                    <th>Bloque/Día</th>
+                    {% for day in days_of_week %}
+                        <th>{{ day }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in schedule_table %}
+                <tr>
+                    <td class="schedule-block">Bloque {{ row.0.block }}</td>
+                    {% for cell in row %}
+                    <td class="schedule-cell" data-block="{{ cell.block }}" data-day="{{ cell.day }}">
+                        {% if cell.day == "Friday" and cell.block > friday_blocks %}
+                            <span class="no-block">-</span>
                         {% else %}
-                            <a href="{% url 'select_workshop' student.student_id cell.day cell.block %}" class="add-workshop-button">
-                                Agregar Taller
-                            </a>
+                            {% if cell.workshop %}
+                                <span class="workshop-name">{{ cell.workshop }}</span>
+                            {% else %}
+                                <a href="{% url 'select_workshop' student.student_id cell.day cell.block %}" class="add-workshop-button btn">
+                                    Agregar Taller
+                                </a>
+                            {% endif %}
                         {% endif %}
-                    {% endif %}
-                </td>
+                    </td>
+                    {% endfor %}
+                </tr>
                 {% endfor %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>  
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

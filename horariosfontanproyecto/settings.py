@@ -125,6 +125,7 @@ STATIC_URL = '/static/'  # Ruta pública de archivos estáticos
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'horariosfontanproyecto/static'),  # Ruta a tus archivos estáticos
+    BASE_DIR / "static",
 ]
 
 # Default primary key field type
