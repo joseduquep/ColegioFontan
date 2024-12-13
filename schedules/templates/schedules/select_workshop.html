@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Seleccionar Taller para {{ student.name }} {{ student.lastname }}</h1>
+    <h2>{{ day }} - Bloque {{ block_number }}</h2>
+
+
+    {% if error %}
+    <div class="alert alert-danger">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="day" value="{{ day }}">
+        <input type="hidden" name="block" value="{{ block }}">
+        
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Taller</th>
+                    <th>Tipo</th>
+                    <th>Capacidad</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for workshop in workshops %}
+                <tr>
+                    <td>{{ workshop.name }}</td>
+                    <td>{{ workshop.type }}</td>
+                    <td>
+                        {% if workshop.max_capacity %}
+                            {{ workshop.max_capacity }}
+                        {% elif workshop.capacity %}
+                            {{ workshop.capacity }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button type="submit" name="workshop" value="{{ workshop.workshop_id }}" class="btn btn-primary">
+                            Seleccionar
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+
+    <a href="{% url 'student_schedule' student.student_id %}" class="btn btn-secondary">
+        Volver al Horario
+    </a>
+</div>
+{% endblock %}

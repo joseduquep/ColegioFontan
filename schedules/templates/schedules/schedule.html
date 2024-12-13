@@ -17,130 +17,27 @@
             </tr>
         </thead>
         <tbody>
-            {% for block in num_blocks %}
+            {% for row in schedule_table %}
             <tr>
-                <td class="schedule-block">Bloque {{ block }}</td>
-                {% for day in days_of_week %}
-                    <td class="schedule-cell" data-block="{{ block }}" data-day="{{ day }}">
-                        {% if day == "Friday" and block > friday_blocks %}
-                            <span class="no-block">-</span>
+                <td class="schedule-block">Bloque {{ row.0.block }}</td>
+                {% for cell in row %}
+                <td class="schedule-cell" data-block="{{ cell.block }}" data-day="{{ cell.day }}">
+                    {% if cell.day == "Friday" and cell.block > friday_blocks %}
+                        <span class="no-block">-</span>
+                    {% else %}
+                        {% if cell.workshop %}
+                            <span class="workshop-name">{{ cell.workshop }}</span>
                         {% else %}
-                            <!-- Botón para mostrar la ventana emergente -->
-                            <button class="add-workshop-button" onclick="openModal('workshopModal{{ block }}{{ day }}')">Agregar Taller</button>
+                            <a href="{% url 'select_workshop' student.student_id cell.day cell.block %}" class="add-workshop-button">
+                                Agregar Taller
+                            </a>
                         {% endif %}
-                    </td>
+                    {% endif %}
+                </td>
                 {% endfor %}
             </tr>
             {% endfor %}
         </tbody>
-    </table>
+    </table>  
 </div>
-
-
-<!-- Ventana Emergente -->
-{% for block in num_blocks %}
-    {% for day in days_of_week %}
-        <div class="modal" id="workshopModal{{ block }}{{ day }}" style="display:none;">
-            <div class="modal-content">
-                <span class="close" onclick="closeModal('workshopModal{{ block }}{{ day }}')">&times;</span>
-                <h3>Selecciona un taller para {{ day }} - Bloque {{ block }}</h3>
-                <form method="POST" action="{% url 'add_workshop' student.student_id %}" class="add-workshop-form">
-                    {% csrf_token %}
-                    <label for="workshop">Taller:</label>
-                    <select name="workshop" required>
-                        {% for workshop in workshops %}
-                            <option value="{{ workshop.workshop_id }}">{{ workshop.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <input type="hidden" name="day" value="{{ day }}">
-                    <input type="hidden" name="block" value="{{ block }}">
-                    <button type="submit">Agregar</button>
-                </form>
-            </div>
-        </div>
-    {% endfor %}
-{% endfor %}
-
-<!-- Aquí va el código de JavaScript para abrir y cerrar el modal y manejar el envío AJAX -->
-<script>
-    // Función para cerrar el modal
-    function closeModal(modalId) {
-        document.getElementById(modalId).style.display = 'none';
-    }
-
-    // Función para abrir el modal
-    function openModal(modalId) {
-        document.getElementById(modalId).style.display = 'block';
-    }
-
-    // Función auxiliar para obtener el valor del cookie csrftoken
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-    // Función para manejar el envío del formulario y actualizar la celda
-    function handleWorkshopFormSubmit(form) {
-        form.addEventListener('submit', function(event) {
-            event.preventDefault(); // Evita el envío del formulario por defecto
-
-            // Obtener el valor de block_number, day y workshop_id desde el formulario
-            const block_number = form.querySelector('input[name="block"]').value;
-            const day = form.querySelector('input[name="day"]').value;
-            const workshop_id = form.querySelector('select[name="workshop"]').value;
-
-            // Realizar la solicitud AJAX
-            fetch(form.action, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken'), 
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams({
-                    'block': block_number,
-                    'day': day,
-                    'workshop': workshop_id
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                // Actualizar la celda con el nombre del taller
-                const cell = document.querySelector(`td.schedule-cell[data-block="${block_number}"][data-day="${day}"]`);
-                if (cell) {
-                    cell.innerHTML = `<span>${data.workshop_name}</span>`;
-                }
-
-                // Cerrar el modal
-                const modalId = `workshopModal${block_number}${day}`;
-                closeModal(modalId);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                // Mostrar un mensaje de error al usuario
-                alert('Error al agregar el taller: ' + error.message);
-            });
-        });
-    }
-
-    // Obtener todos los formularios de agregar taller
-    const forms = document.querySelectorAll('.add-workshop-form'); 
-
-    // Agregar el evento de envío a cada formulario
-    forms.forEach(form => {
-        handleWorkshopFormSubmit(form); 
-    });
-</script>
 {% endblock %}

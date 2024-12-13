@@ -3,10 +3,11 @@ from .models import Workshop, Block
 
 @admin.register(Workshop)
 class WorkshopAdmin(admin.ModelAdmin):
-    list_display = ('name', 'tutor', 'max_capacity')  # Campos que quieres mostrar en la lista
+    list_display = ('name', 'tutor', 'max_capacity', 'type')  # Campos que quieres mostrar en la lista
     search_fields = ('name',)  # Habilita la búsqueda por nombre
     list_filter = ('tutor',)  # Filtro lateral por tutor
     ordering = ('name',)  # Ordena por nombre
+
 
 # Definir un BlockAdmin para mostrar el ID y otros detalles
 @admin.register(Block)
