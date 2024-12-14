@@ -5,7 +5,6 @@ from .models import Schedule
 from students.models import Student
 from workshops.models import Block, Workshop
 
-
 def student_schedule(request, student_id):
     student = get_object_or_404(Student, student_id=student_id)
     is_high_school = student.grade > 5
@@ -30,7 +29,7 @@ def student_schedule(request, student_id):
     # Recuperar horarios del estudiante
     student_schedule = Schedule.objects.filter(student=student).select_related('block')
 
-    # Organizar datos en una estructura amigable para plantillas
+    # Organizar datos en una estructura amigable para la plantilla
     schedule_table = []
     for block_number in num_blocks:
         row = []
@@ -42,7 +41,7 @@ def student_schedule(request, student_id):
                     break
             row.append({
                 "day": day,
-                "block_number": block_number,  # Esto ahora siempre estará presente
+                "block_number": block_number,
                 "workshop": workshop_name,
             })
         schedule_table.append(row)
@@ -58,8 +57,6 @@ def student_schedule(request, student_id):
     return render(request, "schedules/schedule.html", context)
 
 
-
-
 def select_workshop(request, student_id, day, block_number):
     student = get_object_or_404(Student, student_id=student_id)
 
@@ -71,7 +68,7 @@ def select_workshop(request, student_id, day, block_number):
         workshops = Workshop.objects.filter(type__in=['primary', 'collective'])
 
     if request.method == "POST":
-        workshop_id = request.POST.get('workshop')  # ID del taller seleccionado
+        workshop_id = request.POST.get('workshop')
         workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
 
         # Recuperar el bloque correspondiente usando el taller y el número de bloque
@@ -79,7 +76,7 @@ def select_workshop(request, student_id, day, block_number):
             Block,
             block_number=block_number,
             day=day,
-            workshop=workshop  # Relación directa con el taller seleccionado
+            workshop=workshop
         )
 
         # Verificar capacidad del taller
@@ -94,14 +91,15 @@ def select_workshop(request, student_id, day, block_number):
             })
 
         # Crear la programación del taller
-        # Crear la programación del taller
-        Schedule.objects.create(
+        schedule_entry = Schedule.objects.create(
             student=student,
             block=block_obj
         )
 
+        # Agregar el estudiante al bloque
+        block_obj.students.add(student)
 
-        # Redirigir de vuelta al horario del estudiante
+        # Redirigir al horario del estudiante
         return HttpResponseRedirect(reverse('student_schedule', args=[student_id]))
 
     return render(request, 'schedules/select_workshop.html', {

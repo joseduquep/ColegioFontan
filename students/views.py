@@ -17,12 +17,16 @@ def main_menu(request):
 
     return render(request, 'students/main_menu.html', {'workshops': workshops,'students': students, 'query': query})
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import StudentRegistrationForm
 
 def register_student(request):
     if request.method == 'POST':
         form = StudentRegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
+            # Solo guardamos el estudiante, sin asignar bloques
+            form.save()  
             messages.success(request, "¡Estudiante registrado exitosamente!")
             return redirect('students.main_menu')
     else:

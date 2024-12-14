@@ -6,15 +6,15 @@ class Student(models.Model):
     lastname = models.CharField(max_length=100)
     id_number = models.IntegerField(unique=True)
     autonomy_level = models.IntegerField(
-        choices=[  # Cambiar los valores a enteros
+        choices=[
             (1, 'Nivel 1'),
             (2, 'Nivel 2'),
             (3, 'Nivel 3'),
         ],
-        default=1,  # Si no se especifica, por defecto se asigna "Nivel 1"
+        default=1,
     )
     extended_vacation = models.BooleanField(default=False)
-    grade = models.IntegerField(  # Cambiar los valores a enteros
+    grade = models.IntegerField(
         choices=[
             (1, '1'),
             (2, '2'),
@@ -26,9 +26,9 @@ class Student(models.Model):
             (8, '8'),
             (9, '9'),
             (10, '10'),
-            (11, '11'),  # Cambiar 'once' a 11 para que sea numérico
+            (11, '11'),
         ],
-        default=1,  # Por defecto se asigna "Primero"
+        default=1,
     )
     workshop = models.ForeignKey('workshops.Workshop', on_delete=models.SET_NULL, null=True, blank=True)
 
