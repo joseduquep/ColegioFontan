@@ -23,16 +23,18 @@
             <tbody>
                 {% for row in schedule_table %}
                 <tr>
-                    <td class="schedule-block">Bloque {{ row.0.block }}</td>
+                    <!-- El número del bloque -->
+                    <td class="schedule-block">Bloque {{ row.0.block_number }}</td>
                     {% for cell in row %}
-                    <td class="schedule-cell" data-block="{{ cell.block }}" data-day="{{ cell.day }}">
-                        {% if cell.day == "Friday" and cell.block > friday_blocks %}
+                    <td class="schedule-cell" data-block-number="{{ cell.block_number }}" data-day="{{ cell.day }}">
+                        {% if cell.day == "Friday" and cell.block_number > friday_blocks %}
                             <span class="no-block">-</span>
                         {% else %}
                             {% if cell.workshop %}
                                 <span class="workshop-name">{{ cell.workshop }}</span>
                             {% else %}
-                                <a href="{% url 'select_workshop' student.student_id cell.day cell.block %}" class="add-workshop-button btn">
+                                <a href="{% url 'select_workshop' student.student_id cell.day cell.block_number %}" 
+                                   class="add-workshop-button btn">
                                     Agregar Taller
                                 </a>
                             {% endif %}

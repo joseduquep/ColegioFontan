@@ -29,44 +29,45 @@ def create_workshop(request):
 
 def create_blocks(workshop, is_high_school):
     """
-    Crea bloques de horarios para un taller.
+    Crea bloques de horarios para un taller, incluyendo el número de bloque y el tipo.
     """
-    if is_high_school:
-        schedules = {
-            "Monday-Thursday": [
-                ("7:40", "9:10"),
-                ("9:40", "11:00"),
-                ("11:20", "12:40"),
-                ("13:20", "14:40"),
-            ],
-            "Friday": [
-                ("7:40", "9:10"),
-                ("9:50", "11:20"),
-                ("11:50", "13:20"),
-            ],
-        }
-    else:
-        schedules = {
-            "Monday-Thursday": [
-                ("7:40", "8:40"),
-                ("9:10", "10:20"),
-                ("10:40", "11:50"),
-                ("12:30", "13:30"),
-                ("13:50", "14:40"),
-            ],
-            "Friday": [
-                ("7:40", "8:40"),
-                ("9:10", "10:20"),
-                ("10:40", "11:50"),
-                ("12:20", "13:20"),
-            ],
-        }
-
-    # Convertir las horas a formato ISO válido
     def to_iso_time(hour_minute):
         if len(hour_minute.split(":")[0]) == 1:  # Si la hora tiene un solo dígito
             return f"0{hour_minute}"  # Agregar un cero inicial
         return hour_minute
+
+    if is_high_school:
+        schedules = {
+            "Monday-Thursday": [
+                ("7:40", "9:10"),  # 1
+                ("9:40", "11:00"),  # 2
+                ("11:20", "12:40"),  # 3
+                ("13:20", "14:40"),  # 4
+            ],
+            "Friday": [
+                ("7:40", "9:10"),  # 1
+                ("9:50", "11:20"),  # 2
+                ("11:50", "13:20"),  # 3
+            ],
+        }
+        block_type = 'high_school'
+    else:
+        schedules = {
+            "Monday-Thursday": [
+                ("7:40", "8:40"),  # 1
+                ("9:10", "10:20"),  # 2
+                ("10:40", "11:50"),  # 3
+                ("12:30", "13:30"),  # 4
+                ("13:50", "14:40"),  # 5
+            ],
+            "Friday": [
+                ("7:40", "8:40"),  # 1
+                ("9:10", "10:20"),  # 2
+                ("10:40", "11:50"),  # 3
+                ("12:20", "13:20"),  # 4
+            ],
+        }
+        block_type = 'primary'
 
     for day_group, time_slots in schedules.items():
         if day_group == "Monday-Thursday":
@@ -75,13 +76,17 @@ def create_blocks(workshop, is_high_school):
             days = ["Friday"]
 
         for day in days:
-            for start, end in time_slots:
+            for block_number, (start, end) in enumerate(time_slots, start=1):
                 Block.objects.create(
                     workshop=workshop,
                     day=day,
                     start_time=time.fromisoformat(to_iso_time(start)),
                     end_time=time.fromisoformat(to_iso_time(end)),
+                    block_number=block_number,  # Asignar el número de bloque
+                    type=block_type  # Asignar el tipo de bloque
                 )
+
+
 
 
 def list_workshops(request):
