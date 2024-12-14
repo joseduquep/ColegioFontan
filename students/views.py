@@ -24,8 +24,7 @@ def register_student(request):
         if form.is_valid():
             form.save()
             messages.success(request, "¡Estudiante registrado exitosamente!")
-            return redirect('students.main_menu')  # Cambia a la URL donde se mostrará la lista de estudiantes
+            return redirect('students.main_menu')
     else:
         form = StudentRegistrationForm()
-    
     return render(request, 'students/register_student.html', {'form': form})

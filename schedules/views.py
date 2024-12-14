@@ -6,7 +6,6 @@ from students.models import Student
 from workshops.models import Block, Workshop
 
 
-
 def student_schedule(request, student_id):
     student = get_object_or_404(Student, student_id=student_id)
     is_high_school = student.grade > 5
