@@ -1,6 +1,10 @@
+{% load static %}
 <nav class="navbar navbar-expand-lg navbar-dark custom-navbar-bg" style="height: 110px; position: fixed; width: 100%; z-index: 1000;">
   <div class="container-fluid">
-    <a class="navbar-brand ms-5 me-auto" style="font-size: 25px;" href="{% url 'students.main_menu' %}">Colegio Fontan</a>
+    <a class="navbar-brand ms-5 me-auto" style="font-size: 25px;" href="{% url 'students.main_menu' %}">
+      <img src="{% static 'images/logo.png' %}" alt="Colegio Fontán" style="height:50px; width:auto;">
+  </a>
+  
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
