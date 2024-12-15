@@ -34,11 +34,13 @@
             <a class="nav-link me-3" href="{% url 'accounts.logout' %}">Cerrar Sesión</a>
           </li>
         </li>
-        <li class="nav-item me-3">
-          <a class="nav-link me-3 space-left" href="">
-            <i class="fas fa-user fa-4x"></i>
-          </a>
-        </li>
+
+            <li class="nav-item me-3">
+      <a class="nav-link me-3 space-left" href="{% url 'profile' %}">
+        <i class="fas fa-user fa-4x"></i>
+      </a>
+    </li>
+
       </ul>
       {% else %}
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0 me-1">
