@@ -9,7 +9,6 @@
     <h4 class="workshop-title">{{ student.workshop }}</h4>
     <h5 class="grade-title">Grado {{ student.grade }}</h5>
 
-    <!-- Tabla de horario -->
     <div class="table-wrapper">
         <table class="schedule-table">
             <thead>
@@ -23,7 +22,6 @@
             <tbody>
                 {% for row in schedule_table %}
                 <tr>
-                    <!-- El número del bloque -->
                     <td class="schedule-block">Bloque {{ row.0.block_number }}</td>
                     {% for cell in row %}
                     <td class="schedule-cell" data-block-number="{{ cell.block_number }}" data-day="{{ cell.day }}">
@@ -31,10 +29,11 @@
                             <span class="no-block">-</span>
                         {% else %}
                             {% if cell.workshop %}
-                                <span class="workshop-name">{{ cell.workshop }}</span>
+                                <a href="{% url 'select_workshop' student.student_id cell.day cell.block_number %}" class="add-workshop-button btn edit-workshop-button">
+                                    {{ cell.workshop }}
+                                </a>
                             {% else %}
-                                <a href="{% url 'select_workshop' student.student_id cell.day cell.block_number %}" 
-                                   class="add-workshop-button btn">
+                                <a href="{% url 'select_workshop' student.student_id cell.day cell.block_number %}" class="add-workshop-button btn">
                                     Agregar Taller
                                 </a>
                             {% endif %}

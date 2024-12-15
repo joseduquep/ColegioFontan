@@ -5,7 +5,6 @@
     <h1>Seleccionar Taller para {{ student.name }} {{ student.lastname }}</h1>
     <h2>{{ day }} - Bloque {{ block_number }}</h2>
 
-
     {% if error %}
     <div class="alert alert-danger">
         {{ error }}
@@ -31,15 +30,7 @@
                 <tr>
                     <td>{{ workshop.name }}</td>
                     <td>{{ workshop.type }}</td>
-                    <td>
-                        {% if workshop.max_capacity %}
-                            {{ workshop.max_capacity }}
-                        {% elif workshop.capacity %}
-                            {{ workshop.capacity }}
-                        {% else %}
-                            N/A
-                        {% endif %}
-                    </td>
+                    <td>{{ workshop.current_capacity }} / {{ workshop.max_capacity }}</td>
                     <td>
                         <button type="submit" name="workshop" value="{{ workshop.workshop_id }}" class="btn btn-primary">
                             Seleccionar

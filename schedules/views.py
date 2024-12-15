@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from .models import Schedule
 from students.models import Student
@@ -9,7 +9,6 @@ def student_schedule(request, student_id):
     student = get_object_or_404(Student, student_id=student_id)
     is_high_school = student.grade > 5
 
-    # Definir horarios según el tipo de estudiante
     if is_high_school:
         schedule = {
             "Monday_Thursday": ["7:40-9:10", "9:40-11:00", "11:20-12:40", "1:20-2:40"],
@@ -26,10 +25,8 @@ def student_schedule(request, student_id):
     days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
     num_blocks = range(1, len(schedule["Monday_Thursday"]) + 1)
 
-    # Recuperar horarios del estudiante
     student_schedule = Schedule.objects.filter(student=student).select_related('block')
 
-    # Organizar datos en una estructura amigable para la plantilla
     schedule_table = []
     for block_number in num_blocks:
         row = []
@@ -60,18 +57,25 @@ def student_schedule(request, student_id):
 def select_workshop(request, student_id, day, block_number):
     student = get_object_or_404(Student, student_id=student_id)
 
-    # Determinar qué talleres mostrar basado en el grado del estudiante
     is_high_school = student.grade > 5
     if is_high_school:
         workshops = Workshop.objects.filter(type__in=['high_school', 'collective'])
     else:
         workshops = Workshop.objects.filter(type__in=['primary', 'collective'])
 
+    # Agregar atributo actual a cada workshop
+    for w in workshops:
+        block_obj = Block.objects.filter(workshop=w, day=day, block_number=block_number).first()
+        if block_obj:
+            current_capacity = Schedule.objects.filter(block=block_obj).count()
+            w.current_capacity = current_capacity
+        else:
+            w.current_capacity = 0
+
     if request.method == "POST":
         workshop_id = request.POST.get('workshop')
         workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
 
-        # Recuperar el bloque correspondiente usando el taller y el número de bloque
         block_obj = get_object_or_404(
             Block,
             block_number=block_number,
@@ -79,7 +83,6 @@ def select_workshop(request, student_id, day, block_number):
             workshop=workshop
         )
 
-        # Verificar capacidad del taller
         current_capacity = Schedule.objects.filter(block=block_obj).count()
         if current_capacity >= workshop.max_capacity:
             return render(request, 'schedules/select_workshop.html', {
@@ -90,16 +93,19 @@ def select_workshop(request, student_id, day, block_number):
                 'error': 'El taller seleccionado ha alcanzado su capacidad máxima.',
             })
 
-        # Crear la programación del taller
+        # Eliminar cualquier asignación previa del mismo bloque y día para este estudiante
+        existing_schedules = Schedule.objects.filter(student=student, block__day=day, block__block_number=block_number)
+        for sch in existing_schedules:
+            sch.block.students.remove(student)
+            sch.delete()
+
+        # Crear la nueva programación
         schedule_entry = Schedule.objects.create(
             student=student,
             block=block_obj
         )
-
-        # Agregar el estudiante al bloque
         block_obj.students.add(student)
 
-        # Redirigir al horario del estudiante
         return HttpResponseRedirect(reverse('student_schedule', args=[student_id]))
 
     return render(request, 'schedules/select_workshop.html', {
@@ -108,3 +114,4 @@ def select_workshop(request, student_id, day, block_number):
         'day': day,
         'block': block_number,
     })
+
