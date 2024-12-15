@@ -54,6 +54,13 @@ def student_schedule(request, student_id):
     return render(request, "schedules/schedule.html", context)
 
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from .models import Schedule
+from students.models import Student
+from workshops.models import Block, Workshop
+
 def select_workshop(request, student_id, day, block_number):
     student = get_object_or_404(Student, student_id=student_id)
 
@@ -67,7 +74,7 @@ def select_workshop(request, student_id, day, block_number):
     for w in workshops:
         block_obj = Block.objects.filter(workshop=w, day=day, block_number=block_number).first()
         if block_obj:
-            current_capacity = Schedule.objects.filter(block=block_obj).count()
+            current_capacity = block_obj.students.count()
             w.current_capacity = current_capacity
         else:
             w.current_capacity = 0
@@ -76,14 +83,22 @@ def select_workshop(request, student_id, day, block_number):
         workshop_id = request.POST.get('workshop')
         workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
 
-        block_obj = get_object_or_404(
-            Block,
+        block_obj = Block.objects.filter(
             block_number=block_number,
             day=day,
             workshop=workshop
-        )
+        ).first()
 
-        current_capacity = Schedule.objects.filter(block=block_obj).count()
+        if not block_obj:
+            return render(request, 'schedules/select_workshop.html', {
+                'student': student,
+                'workshops': workshops,
+                'day': day,
+                'block': block_number,
+                'error': 'Bloque no encontrado.',
+            })
+
+        current_capacity = block_obj.students.count()
         if current_capacity >= workshop.max_capacity:
             return render(request, 'schedules/select_workshop.html', {
                 'student': student,
