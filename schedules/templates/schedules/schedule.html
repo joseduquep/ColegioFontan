@@ -6,7 +6,11 @@
 
 <div class="schedule-container">
     <h3 class="schedule-title">Horario de {{ student.name }} {{ student.lastname }}</h3>
+    {% if student.workshop %}
     <h4 class="workshop-title">{{ student.workshop }}</h4>
+    {% else %}
+    <h4 class="workshop-title"> No hay taller asignado </h4>
+    {% endif %}
     <h5 class="grade-title">Grado {{ student.grade }}</h5>
 
     <div class="table-wrapper">
