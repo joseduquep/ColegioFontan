@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'schedules/styles.css' %}">
+
+<div class="schedule-container">
+    <h3 class="schedule-title">Horario del Tutor: {{ tutor.user.username }}</h3>
+
+    <!-- Puedes agregar más información sobre el tutor si deseas -->
+    <!-- <h4 class="workshop-title">Especialidad: {{ tutor.specialty }}</h4> -->
+    <!-- Ajusta el campo anterior según la información disponible en tu modelo de Tutor -->
+
+    <div class="table-wrapper">
+        <table class="schedule-table">
+            <thead>
+                <tr>
+                    <th>Bloque/Día</th>
+                    {% for day in days_of_week %}
+                        <th>{{ day }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in tutor_schedule_table %}
+                <tr>
+                    <td class="schedule-block">Bloque {{ row.0.block_number }}</td>
+                    {% for cell in row %}
+                    <td class="schedule-cell" data-block-number="{{ cell.block_number }}" data-day="{{ cell.day }}">
+                        {% if cell.workshop %}
+                            <!-- Si el tutor tiene un taller asignado en este bloque/día -->
+                            <span class="assigned-workshop">{{ cell.workshop }}</span>
+                        {% else %}
+                            <!-- Placeholder si no hay taller asignado, podrías poner un enlace si corresponde -->
+                            <a href="{% url 'select_block' tutor.tutor_id cell.day cell.block_number %}" class="btn btn-primary">Elegir Bloque</a>
+
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
