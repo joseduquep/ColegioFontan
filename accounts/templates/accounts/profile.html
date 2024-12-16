@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+  <h1 class="my-4">Perfil de {{ user.username }}</h1>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Información Personal</h5>
+        </div>
+        <div class="card-body">
+          <p><strong>Nombre de usuario:</strong> {{ user.username }}</p>
+          {% if user.first_name or user.last_name %}
+          <p><strong>Nombre Completo:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+          {% else %}
+          <p><strong>Nombre Completo:</strong> No disponible</p>
+          {% endif %}
+          <p><strong>Correo electrónico:</strong> {{ user.email|default:"No disponible" }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Actividad de la Cuenta</h5>
+        </div>
+        <div class="card-body">
+          <p><strong>Último inicio de sesión:</strong> 
+          {% if user.last_login %}
+            {{ user.last_login|date:"d/m/Y H:i" }}
+          {% else %}
+            Nunca ha iniciado sesión
+          {% endif %}
+          </p>
+          <p><strong>Fecha de registro:</strong> {{ user.date_joined|date:"d/m/Y H:i" }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <a href="{% url 'edit_profile' %}" class="btn btn-primary">Editar Perfil</a>
+  </div>
+</div>
+{% endblock %}
