@@ -21,11 +21,6 @@ class CustomUserCreationForm(UserCreationForm):
         widget=forms.RadioSelect,
         label="¿Eres Tutor?"
     )
-    photo = forms.ImageField(
-        required=False,
-        widget=forms.ClearableFileInput(attrs={'class': 'form-control'}),
-        help_text="Por favor sube una foto de perfil (solo si eres tutor)."
-    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -39,21 +34,12 @@ class CustomUserCreationForm(UserCreationForm):
     def clean(self):
         cleaned_data = super().clean()
         is_tutor = cleaned_data.get('is_tutor')
-        photo = cleaned_data.get('photo')
 
-        # Validar foto si el usuario es tutor
-        if is_tutor == 'yes' and not photo:
-            self.add_error('photo', 'La foto es obligatoria si eres tutor.')
-
-        # Configuración para staff si es tutor
         self.instance.is_staff = (is_tutor == 'yes')
 
         return cleaned_data
 
     def save(self, commit=True):
-        """
-        Guarda el formulario y crea un tutor si es necesario.
-        """
         user = super().save(commit=False)
 
         # Guardamos el usuario
@@ -64,7 +50,6 @@ class CustomUserCreationForm(UserCreationForm):
         if self.cleaned_data.get('is_tutor') == 'yes':
             tutor = Tutor(
                 user=user,
-                photo=self.cleaned_data.get('photo')  # Guardamos la foto
             )
             tutor.save()
 
@@ -72,7 +57,7 @@ class CustomUserCreationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'cedula', 'password1', 'password2', 'is_tutor', 'photo']
+        fields = ['username', 'email', 'cedula', 'password1', 'password2', 'is_tutor']
 
 
 class CustomErrorList(ErrorList):

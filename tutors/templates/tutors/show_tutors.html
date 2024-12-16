@@ -50,11 +50,8 @@
       {% for tutor in tutors %}
       <div class="col">
         <div class="card" style="width: 18rem;">
-          <img src="{% static 'images/DSC_1379.jpg' %}" class="card-img-top" alt="Imagen del tutor">
           <div class="card-body">
-            <h5 class="card-title">{{ tutor.user.username }}</h5>
-            <p class="card-text"><strong>Foto del Tutor:</strong><br>
-              <img src="{{ tutor.photo.url }}" alt="Foto del tutor" style="width: 100px; height: auto;">
+            <h4 class="card-title">{{ tutor.user.username }}</h5>
             </p>
             <p class="card-text"><strong>Taller:</strong>
               {% for workshop in tutor.workshops %}

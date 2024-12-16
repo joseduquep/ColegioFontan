@@ -16,12 +16,7 @@ class Tutor(models.Model):
         null=True,
         blank=True
     )
-    photo = models.ImageField(
-        upload_to="tutors_photos/",  # Los archivos se guardarán en media/tutors_photos/
-        null=True,
-        blank=True
-    )
-    
+
 
     def __str__(self):
         return f"Tutor: {self.user.username}"
