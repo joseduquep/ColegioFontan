@@ -21,9 +21,15 @@
                     {% for cell in row %}
                     <td class="schedule-cell" data-block-number="{{ cell.block_number }}" data-day="{{ cell.day }}">
                         {% if cell.workshop %}
-                            {{ cell.workshop }}
+                            <a href="{% url 'select_workshop' student.student_id cell.day cell.block_number %}" 
+                               class="btn btn-primary edit-workshop-button">
+                                {{ cell.workshop }}
+                            </a>
                         {% else %}
-                            <a href="{% url 'select_workshop' student.student_id cell.day cell.block_number %}" class="add-workshop-button btn">Agregar Taller</a>
+                            <a href="{% url 'select_workshop' student.student_id cell.day cell.block_number %}" 
+                               class="btn btn-secondary add-workshop-button">
+                                Agregar Taller
+                            </a>
                         {% endif %}
                     </td>
                     {% endfor %}
