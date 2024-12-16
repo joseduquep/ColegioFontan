@@ -4,6 +4,8 @@ from django.urls import reverse
 from .models import Schedule
 from students.models import Student
 from workshops.models import Block, Workshop
+from django.contrib.auth.decorators import login_required
+from tutors.models import Tutor
 
 def student_schedule(request, student_id):
     student = get_object_or_404(Student, student_id=student_id)
@@ -53,41 +55,21 @@ def student_schedule(request, student_id):
 
     return render(request, "schedules/schedule.html", context)
 
-
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-from .models import Schedule
-from students.models import Student
-from workshops.models import Block, Workshop
-
 def select_workshop(request, student_id, day, block_number):
     student = get_object_or_404(Student, student_id=student_id)
 
     is_high_school = student.grade > 5
-    if is_high_school:
-        workshops = Workshop.objects.filter(type__in=['high_school', 'collective'])
-    else:
-        workshops = Workshop.objects.filter(type__in=['primary', 'collective'])
+    workshops = Workshop.objects.filter(type__in=['high_school', 'collective']) if is_high_school else Workshop.objects.filter(type__in=['primary', 'collective'])
 
-    # Agregar atributo actual a cada workshop
     for w in workshops:
         block_obj = Block.objects.filter(workshop=w, day=day, block_number=block_number).first()
-        if block_obj:
-            current_capacity = block_obj.students.count()
-            w.current_capacity = current_capacity
-        else:
-            w.current_capacity = 0
+        w.current_capacity = block_obj.students.count() if block_obj else 0
 
     if request.method == "POST":
         workshop_id = request.POST.get('workshop')
         workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
 
-        block_obj = Block.objects.filter(
-            block_number=block_number,
-            day=day,
-            workshop=workshop
-        ).first()
+        block_obj = Block.objects.filter(block_number=block_number, day=day, workshop=workshop).first()
 
         if not block_obj:
             return render(request, 'schedules/select_workshop.html', {
@@ -108,17 +90,12 @@ def select_workshop(request, student_id, day, block_number):
                 'error': 'El taller seleccionado ha alcanzado su capacidad máxima.',
             })
 
-        # Eliminar cualquier asignación previa del mismo bloque y día para este estudiante
         existing_schedules = Schedule.objects.filter(student=student, block__day=day, block__block_number=block_number)
         for sch in existing_schedules:
             sch.block.students.remove(student)
             sch.delete()
 
-        # Crear la nueva programación
-        schedule_entry = Schedule.objects.create(
-            student=student,
-            block=block_obj
-        )
+        schedule_entry = Schedule.objects.create(student=student, block=block_obj)
         block_obj.students.add(student)
 
         return HttpResponseRedirect(reverse('student_schedule', args=[student_id]))
@@ -130,3 +107,41 @@ def select_workshop(request, student_id, day, block_number):
         'block': block_number,
     })
 
+@login_required
+def select_block(request, tutor_id, day, block_number):
+    tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
+
+    blocks = Block.objects.filter(day=day, block_number=block_number)
+
+    for b in blocks:
+        b.current_capacity = b.students.count()
+
+    if request.method == "POST":
+        block_id = request.POST.get('block_id')
+        block_obj = get_object_or_404(Block, block_id=block_id, day=day, block_number=block_number)
+
+        current_capacity = block_obj.students.count()
+        if current_capacity >= block_obj.workshop.max_capacity:
+            return render(request, 'schedules/select_block.html', {
+                'tutor': tutor,
+                'blocks': blocks,
+                'day': day,
+                'block_number': block_number,
+                'error': 'El bloque seleccionado ha alcanzado su capacidad máxima.',
+            })
+
+        existing_schedules = Schedule.objects.filter(tutor=tutor, block__day=day, block__block_number=block_number)
+        for sch in existing_schedules:
+            sch.block.students.remove(*sch.block.students.all())
+            sch.delete()
+
+        schedule_entry = Schedule.objects.create(tutor=tutor, block=block_obj)
+
+        return HttpResponseRedirect(reverse('tutor_schedule', args=[tutor_id]))
+
+    return render(request, 'schedules/select_block.html', {
+        'tutor': tutor,
+        'blocks': blocks,
+        'day': day,
+        'block_number': block_number,
+    })
