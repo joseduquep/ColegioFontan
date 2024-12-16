@@ -3,7 +3,7 @@
   <div class="container-fluid">
     <a class="navbar-brand ms-5 me-auto" style="font-size: 25px;" href="{% url 'students.main_menu' %}">
       <img src="{% static 'images/logo.png' %}" alt="Colegio Fontán" style="height:50px; width:auto;">
-  </a>
+    </a>
   
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -20,33 +20,34 @@
         </li>  
         <li class="nav-item me-3">
           {% if search_type == 'tutors' %}
-          <form class="d-flex" action="{% url 'tutors.show_tutors' %}" method="GET"> <!-- Especificar action correctamente -->
-            <input class="form-control me-2" type="search" placeholder="Buscar tutores" aria-label="Search" name="query"> <!-- name="query" -->
+          <form class="d-flex" action="{% url 'tutors.show_tutors' %}" method="GET">
+            <input class="form-control me-2" type="search" placeholder="Buscar tutores" aria-label="Search" name="query">
             <button class="btn btn-outline-light" type="submit">Buscar</button>
           </form>
           {% else %}
-          <form class="d-flex" action="{% url 'students.main_menu' %}" method="GET"> <!-- Especificar action correctamente -->
-            <input class="form-control me-2" type="search" placeholder="Buscar estudiantes" aria-label="Search" name="query"> <!-- name="query" -->
+          <form class="d-flex" action="{% url 'students.main_menu' %}" method="GET">
+            <input class="form-control me-2" type="search" placeholder="Buscar estudiantes" aria-label="Search" name="query">
             <button class="btn btn-outline-light" type="submit">Buscar</button>
           </form>
           {% endif %}
-          <li class="nav-item me-3">
-            <a class="nav-link me-3" href="{% url 'accounts.logout' %}">Cerrar Sesión</a>
-          </li>
         </li>
 
-            <li class="nav-item me-3">
-      <a class="nav-link me-3 space-left" href="{% url 'profile' %}">
-        <i class="fas fa-user fa-4x"></i>
-      </a>
-    </li>
-
+        <li class="nav-item me-3">
+          <div class="dropdown">
+            <a class="nav-link dropdown-toggle me-3" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-user fa-2x"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="{% url 'profile' %}">Ver perfil</a></li>
+              <li><a class="dropdown-item" href="{% url 'accounts.logout' %}">Cerrar sesión</a></li>
+            </ul>
+          </div>
+        </li>
       </ul>
       {% else %}
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0 me-1">
         <li class="nav-item me-3">
           <a class="nav-link me-3" href="{% url 'accounts.login' %}">Iniciar Sesión</a>
-          
         </li>
         <li class="nav-item me-3">
           <a class="nav-link me-3" href="{% url 'accounts.signup' %}">Registrarse</a>
@@ -54,6 +55,5 @@
       </ul>
       {% endif %}
     </div>
-    
   </div>
 </nav>
