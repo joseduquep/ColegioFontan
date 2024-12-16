@@ -109,3 +109,11 @@ def students_by_workshop(request, workshop_id):
     })
 
 
+def show_blocks(request):
+    blocks = Block.objects.all()
+    blocks_with_students = []
+    for block in blocks:
+        students = block.students.all()
+        blocks_with_students.append({'block': block, 'students': students})
+
+    return render(request, 'workshops/show_blocks.html', {'blocks_with_students': blocks_with_students})
