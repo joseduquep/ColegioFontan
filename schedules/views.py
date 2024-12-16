@@ -55,15 +55,21 @@ def student_schedule(request, student_id):
 
     return render(request, "schedules/schedule.html", context)
 
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from workshops.models import Block, Workshop
+from students.models import Student
+from .models import Schedule
+
 def select_workshop(request, student_id, day, block_number):
     student = get_object_or_404(Student, student_id=student_id)
-
     is_high_school = student.grade > 5
     workshops = Workshop.objects.filter(type__in=['high_school', 'collective']) if is_high_school else Workshop.objects.filter(type__in=['primary', 'collective'])
 
-    for w in workshops:
-        block_obj = Block.objects.filter(workshop=w, day=day, block_number=block_number).first()
-        w.current_capacity = block_obj.students.count() if block_obj else 0
+    for workshop in workshops:
+        block_obj = Block.objects.filter(workshop=workshop, day=day, block_number=block_number).first()
+        workshop.current_capacity = block_obj.students.count() if block_obj else 0
 
     if request.method == "POST":
         workshop_id = request.POST.get('workshop')
@@ -80,8 +86,7 @@ def select_workshop(request, student_id, day, block_number):
                 'error': 'Bloque no encontrado.',
             })
 
-        current_capacity = block_obj.students.count()
-        if current_capacity >= workshop.max_capacity:
+        if block_obj.students.count() >= workshop.max_capacity:
             return render(request, 'schedules/select_workshop.html', {
                 'student': student,
                 'workshops': workshops,
@@ -91,9 +96,9 @@ def select_workshop(request, student_id, day, block_number):
             })
 
         existing_schedules = Schedule.objects.filter(student=student, block__day=day, block__block_number=block_number)
-        for sch in existing_schedules:
-            sch.block.students.remove(student)
-            sch.delete()
+        for schedule in existing_schedules:
+            schedule.block.students.remove(student)
+            schedule.delete()
 
         schedule_entry = Schedule.objects.create(student=student, block=block_obj)
         block_obj.students.add(student)
@@ -106,6 +111,7 @@ def select_workshop(request, student_id, day, block_number):
         'day': day,
         'block': block_number,
     })
+
 
 @login_required
 def select_block(request, tutor_id, day, block_number):

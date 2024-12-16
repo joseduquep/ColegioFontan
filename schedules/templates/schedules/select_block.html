@@ -1,9 +1,8 @@
 {% extends 'base.html' %}
-{% load static %}
 
 {% block content %}
 <div class="container">
-    <h1>Seleccionar Bloque para el Tutor: {{ tutor.user.username }}</h1>
+    <h1>Seleccionar Taller para {{ student.name }} {{ student.lastname }}</h1>
     <h2>{{ day }} - Bloque {{ block_number }}</h2>
 
     {% if error %}
@@ -14,44 +13,29 @@
 
     <form method="POST">
         {% csrf_token %}
-        <input type="hidden" name="day" value="{{ day }}">
-        <input type="hidden" name="block_number" value="{{ block_number }}">
-        
         <table class="table">
             <thead>
                 <tr>
                     <th>Taller</th>
                     <th>Tipo</th>
                     <th>Capacidad</th>
-                    <th>Horario</th>
                     <th>Acción</th>
                 </tr>
             </thead>
             <tbody>
-                {% for block in blocks %}
+                {% for workshop in workshops %}
                 <tr>
-                    <td>{{ block.workshop.name }}</td>
-                    <td>{{ block.type }}</td>
-                    <td>{{ block.current_capacity }} / {{ block.workshop.max_capacity }}</td>
-                    <td>{{ block.start_time }} - {{ block.end_time }}</td>
+                    <td>{{ workshop.name }}</td>
+                    <td>{{ workshop.type }}</td>
+                    <td>{{ workshop.current_capacity }} / {{ workshop.max_capacity }}</td>
                     <td>
-                        <button type="submit" name="block_id" value="{{ block.block_id }}" class="btn btn-primary">
-                            Seleccionar
-                        </button>
+                        <button type="submit" name="workshop" value="{{ workshop.workshop_id }}" class="btn btn-primary">Seleccionar</button>
                     </td>
                 </tr>
                 {% endfor %}
-                {% if blocks|length == 0 %}
-                <tr>
-                    <td colspan="5">No hay bloques disponibles para este día y bloque.</td>
-                </tr>
-                {% endif %}
             </tbody>
         </table>
     </form>
-
-    <a href="{% url 'tutor_schedule' tutor.tutor_id %}" class="btn btn-secondary">
-        Volver al Horario
-    </a>
+    <a href="{% url 'student_schedule' student.student_id %}" class="btn btn-secondary">Volver al Horario</a>
 </div>
 {% endblock %}
