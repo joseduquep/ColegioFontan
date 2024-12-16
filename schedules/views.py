@@ -55,12 +55,6 @@ def student_schedule(request, student_id):
 
     return render(request, "schedules/schedule.html", context)
 
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-from workshops.models import Block, Workshop
-from students.models import Student
-from .models import Schedule
 
 def select_workshop(request, student_id, day, block_number):
     student = get_object_or_404(Student, student_id=student_id)

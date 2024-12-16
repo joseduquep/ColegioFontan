@@ -10,7 +10,15 @@
                 <tr>
                     <th>Bloque/Día</th>
                     {% for day in days_of_week %}
-                        <th>{{ day }}</th>
+                        <th>
+                            {% if day == "Monday" %} Lunes
+                            {% elif day == "Tuesday" %} Martes
+                            {% elif day == "Wednesday" %} Miércoles
+                            {% elif day == "Thursday" %} Jueves
+                            {% elif day == "Friday" %} Viernes
+                            {% else %} {{ day }}
+                            {% endif %}
+                        </th>
                     {% endfor %}
                 </tr>
             </thead>
