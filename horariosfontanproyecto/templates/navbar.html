@@ -31,11 +31,16 @@
           </form>
           {% endif %}
         </li>
-            <li class="nav-item me-3">
-      <a class="nav-link me-3 space-left" href="{% url 'tutor_profile' %}">
-        <i class="fas fa-user fa-4x"></i>
-      </a>
-    </li>
+           <!-- Dropdown para el perfil y cerrar sesión -->
+        <li class="nav-item dropdown ms-2">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user fa-lg"></i> <!-- Icono de usuario -->
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="{% url 'tutor_profile' %}">Ver Perfil</a></li>
+            <li><a class="dropdown-item" href="{% url 'accounts.logout' %}">Cerrar Sesión</a></li>
+          </ul>
+        </li>
       </ul>
       {% else %}
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0 me-1">
