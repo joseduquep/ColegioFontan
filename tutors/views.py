@@ -4,6 +4,9 @@ from django.shortcuts import render, get_object_or_404
 from workshops.models import Workshop
 from .models import Tutor
 from django.db.models import Q  # Importar Q para consultas complejas
+from tutors.models import Tutor
+from workshops.models import Workshop, Block
+from schedules.models import Schedule
 
 # Vista para mostrar los tutores y los workshops
 def show_tutors(request):
@@ -21,10 +24,7 @@ def show_tutors(request):
     return render(request, 'tutors/show_tutors.html', {'workshops': workshops, 'tutors': tutors, 'query': query, 'search_type': 'tutors'})
 
 # Vista para mostrar el horario del tutor
-from django.shortcuts import render, get_object_or_404
-from tutors.models import Tutor
-from workshops.models import Workshop, Block
-from schedules.models import Schedule
+
 
 def tutor_schedule(request, tutor_id):
     tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
