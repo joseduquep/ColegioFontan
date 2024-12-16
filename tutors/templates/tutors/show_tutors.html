@@ -30,11 +30,13 @@
                 <img src="{{ tutor.photo.url }}" alt="Foto del tutor" style="width: 100px; height: auto;">
               </p>
               <p class="card-text"><strong>Taller:</strong>
-                {% for workshop in tutor.workshops %}
-                  <br>{{ workshop.name }}
-                {% empty %}
-                  <br>No tiene Taller asignados.
-                {% endfor %}
+                {% if tutor.workshops.count > 0 %}
+                  {% for workshop in tutor.workshops.all %}
+                    <br>{{ workshop.name }}
+                  {% endfor %}
+                {% else %}
+                  <br>No tiene Talleres asignados.
+                {% endif %}
               </p>
               <a href="{% url 'tutor_schedule' tutor_id=tutor.tutor_id %}" class="btn btn-primary">Ver Horario</a>
             </div>
@@ -52,13 +54,14 @@
         <div class="card" style="width: 18rem;">
           <div class="card-body">
             <h4 class="card-title">{{ tutor.user.username }}</h5>
-            </p>
             <p class="card-text"><strong>Taller:</strong>
-              {% for workshop in tutor.workshops %}
-                <br>{{ workshop.name }}
-              {% empty %}
-                <br>No tiene Taller asignados.
-              {% endfor %}
+              {% if tutor.workshops.count > 0 %}
+                {% for workshop in tutor.workshops.all %}
+                  <br>{{ workshop.name }}
+                {% endfor %}
+              {% else %}
+                <br>No tiene Talleres asignados.
+              {% endif %}
             </p>
             <a href="{% url 'tutor_schedule' tutor_id=tutor.tutor_id %}" class="btn btn-primary">Ver Horario</a>
           </div>

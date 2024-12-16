@@ -12,7 +12,8 @@ class Workshop(models.Model):
         'tutors.Tutor',
         on_delete=models.SET_NULL,
         null=True,
-        blank=True
+        blank=True,
+        related_name='workshops'  # Esta línea permite acceder a los talleres desde el tutor
     )
     max_capacity = models.IntegerField(default=25)
     type = models.CharField(
@@ -23,6 +24,7 @@ class Workshop(models.Model):
 
     def __str__(self):
         return f"{self.name} {self.tutor or 'Sin asignar'}"
+
 
 
 class Block(models.Model):
