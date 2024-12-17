@@ -2,14 +2,16 @@
 
 {% block content %}
 <h1>Bloques de Tiempo</h1>
-<table class="table table-striped">
-  <thead>
+<table class="table table-striped table-bordered">
+  <thead class="table-dark">
     <tr>
       <th>Bloque</th>
       <th>Día</th>
       <th>Hora de Inicio</th>
       <th>Hora de Fin</th>
       <th>Estudiantes</th>
+      <th>Taller</th>
+      <th>Tipo de Taller</th>
     </tr>
   </thead>
   <tbody>
@@ -23,13 +25,15 @@
           {% if item.students %}
             <ul class="list-unstyled mb-0">
               {% for student in item.students %}
-                <li>{{ student.name }}</li>
+                <li>{{ student.name }} {{ student.lastname }}</li>
               {% endfor %}
             </ul>
           {% else %}
             <p class="text-muted mb-0">No hay estudiantes asignados</p>
           {% endif %}
         </td>
+        <td>{{ item.block.workshop.name }}</td>
+        <td>{{ item.block.workshop.get_type_display }}</td>
       </tr>
     {% endfor %}
   </tbody>
