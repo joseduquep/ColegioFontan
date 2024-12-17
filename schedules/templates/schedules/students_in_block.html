@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Estudiantes del Bloque {{ block.block_number }} - {{ block.day }}</h2>
+
+<p><strong>Tutor:</strong> {{ tutor.user.username }}</p>
+<p><strong>Taller:</strong> {{ block.workshop.name }}</p>
+
+{% if students %}
+    <ul>
+        {% for student in students %}
+            <li>{{ student.name }} {{ student.lastname}}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No hay estudiantes asignados a este bloque.</p>
+{% endif %}
+
+
+{% endblock %}

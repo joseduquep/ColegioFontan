@@ -103,30 +103,28 @@ def select_block(request, tutor_id, day, block_number):
     tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
     blocks = Block.objects.filter(day=day, block_number=block_number)
 
-    for block in blocks:
-        block.current_capacity = block.students.count()
-
-    if request.method == "POST":
-        block_id = request.POST.get('block_id')
-        block = get_object_or_404(Block, block_id=block_id, day=day, block_number=block_number)
-
-        if block.students.count() >= block.workshop.max_capacity:
-            return render(request, 'schedules/select_block.html', {
-                'tutor': tutor,
-                'blocks': blocks,
-                'day': day,
-                'block_number': block_number,
-                'error': 'El bloque seleccionado ha alcanzado su capacidad máxima.',
-            })
-
-        Schedule.objects.filter(tutor=tutor, block__day=day, block__block_number=block_number).delete()
-        Schedule.objects.create(tutor=tutor, block=block)
-
-        return HttpResponseRedirect(reverse('tutor_schedule', args=[tutor_id]))
-
-    return render(request, 'schedules/select_block.html', {
+    return render(request, 'schedules/students_by_block.html', {
         'tutor': tutor,
         'blocks': blocks,
         'day': day,
         'block_number': block_number,
+    })
+
+
+def students_in_block(request, tutor_id, day, block_number):
+    
+    tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
+    block = get_object_or_404(
+        Block,
+        workshop__tutor=tutor,  
+        day=day,
+        block_number=block_number
+    )
+
+    students = block.students.all()
+
+    return render(request, 'schedules/students_in_block.html', {
+        'tutor': tutor,
+        'block': block,
+        'students': students
     })
