@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
-{% block content %}
 {% load static %}
+{% block content %}
+<head><link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
 <div class="container-home text-center mt-5">
     <h1 class="mb-4">Bienvenido a Horarios Fontan</h1>
-    <div class="d-flex justify-content-center gap-3">
-        
+    <div class="d-flex justify-content-center">
+        <!--<img src="{% static 'images/fotofontan.jpeg' %}" alt="Colegio Fontan" 
+             class="img-fluid" 
+             style="width: 80%; max-height: 600px; object-fit: cover; border-radius: 10px;">
+             -->
     </div>
 </div>
-
 {% endblock %}

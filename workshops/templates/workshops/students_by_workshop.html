@@ -2,38 +2,33 @@
 {% load static %}
 
 {% block content %}
-
 <div class="container-fluid">
   <nav class="vertical-navbar" style="height: 100vh; overflow-y: auto;">
-    <div class="container">
-      <ul>
-        {% for workshop in workshops %}
-        <li class="nav-item">
-          <!-- Modifica el enlace para redirigir -->
+    <ul>
+      {% for workshop in workshops %}
+        <li>
           <a class="nav-link" href="{% url 'workshops:students_by_workshop' workshop.workshop_id %}">
             {{ workshop.name }}
           </a>
         </li>
-        {% endfor %}
-      </ul>
-    </div>
+      {% endfor %}
+    </ul>
   </nav>
 </div>
-
 
 <div class="container">
   <h1>{{ workshop.name }}</h1>
   <div class="row row-cols-1 row-cols-md-3 g-4">
     {% for student in students %}
       <div class="col">
-        <div class="card" style="width: 18rem;">
+        <div class="card h-100">
           <img src="{% static 'images/DSC_1379.jpg' %}" class="card-img-top" alt="Imagen del estudiante">
           <div class="card-body">
             <h5 class="card-title">{{ student.name }} {{ student.lastname }}</h5>
-            <p class="card-text"><strong>Cédula:</strong> {{ student.id_number }}</p>
-            <p class="card-text"><strong>Nivel de Autonomía:</strong> {{ student.autonomy_level }}</p>
-            <p class="card-text"><strong>Grado:</strong> {{ student.grade }}</p>
-            <p class="card-text"><strong>Workshop:</strong> {{ student.workshop.name }}</p>
+            <p><strong>Cédula:</strong> {{ student.id_number }}</p>
+            <p><strong>Nivel de Autonomía:</strong> {{ student.autonomy_level }}</p>
+            <p><strong>Grado:</strong> {{ student.grade }}</p>
+            <p><strong>Workshop:</strong> {{ student.workshop.name }}</p>
             <a href="{% url 'student_schedule' student_id=student.student_id %}" class="btn btn-primary">Ver Horario</a>
           </div>
         </div>

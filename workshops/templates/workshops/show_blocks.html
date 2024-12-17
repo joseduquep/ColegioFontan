@@ -1,37 +1,37 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>Bloques de Tiempo</h1>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Bloque</th>
-                <th>Día</th>
-                <th>Hora de Inicio</th>
-                <th>Hora de Fin</th>
-                <th>Estudiantes</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in blocks_with_students %}
-                <tr>
-                    <td>{{ item.block.block_number }}</td>
-                    <td>{{ item.block.day }}</td>
-                    <td>{{ item.block.start_time }}</td>
-                    <td>{{ item.block.end_time }}</td>
-                    <td>
-                        {% if item.students %}
-                            <ul>
-                                {% for student in item.students %}
-                                    <li>{{ student.name }}</li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p>No hay estudiantes asignados</p>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<h1>Bloques de Tiempo</h1>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Bloque</th>
+      <th>Día</th>
+      <th>Hora de Inicio</th>
+      <th>Hora de Fin</th>
+      <th>Estudiantes</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in blocks_with_students %}
+      <tr>
+        <td>{{ item.block.block_number }}</td>
+        <td>{{ item.block.day }}</td>
+        <td>{{ item.block.start_time }}</td>
+        <td>{{ item.block.end_time }}</td>
+        <td>
+          {% if item.students %}
+            <ul class="list-unstyled mb-0">
+              {% for student in item.students %}
+                <li>{{ student.name }}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted mb-0">No hay estudiantes asignados</p>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
 {% endblock %}

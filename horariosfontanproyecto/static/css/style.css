@@ -248,3 +248,27 @@
   text-decoration: none;
   cursor: pointer;
 }
+
+.full-page-background {
+  background-image: url('/static/images/fotofontan.jpeg'); /* Ruta de la imagen */
+  background-size: cover; /* La imagen cubre toda la página */
+  background-position: center; /* Centra la imagen */
+  background-repeat: no-repeat; /* Evita que se repita */
+  height: 100vh; /* Altura del viewport completo */
+  width: 100%;
+  position: relative;
+}
+
+.overlay-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.overlay-content h1, .overlay-content p {
+  background: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente para el texto */
+  padding: 10px 20px;
+  border-radius: 5px;
+}

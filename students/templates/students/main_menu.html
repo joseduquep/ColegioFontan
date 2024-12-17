@@ -8,7 +8,6 @@
       <ul>
         {% for workshop in workshops %}
         <li class="nav-item">
-          <!-- Modifica el enlace para redirigir -->
           <a class="nav-link" href="{% url 'workshops:students_by_workshop' workshop.workshop_id %}">
             {{ workshop.name }}
           </a>

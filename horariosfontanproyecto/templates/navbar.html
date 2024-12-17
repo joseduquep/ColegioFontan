@@ -12,15 +12,34 @@
       </a>
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0 me-1">
         <li class="nav-item me-3">
-          <a class="nav-link me-3" href="{% url 'workshops:show_blocks' %}">Ver Bloques</a>
+          <a class="nav-link me-3" href="{% url 'workshops:show_blocks' %}">Bloques</a>
         </li>
+        
         <li class="nav-item me-3">
-          <a class="nav-link me-3" href="{% url 'tutors.show_tutors' %}">Ver Tutores</a>
+          <a class="nav-link me-3" href="{% url 'tutors.show_tutors' %}">Tutores</a>
         </li>
         
         <li class="nav-item me-3">
           <a class="nav-link me-3" href="{% url 'students.register_student' %}">Registrar Estudiantes</a>
-        </li>  
+        </li>
+        <li class="nav-item dropdown ms-2">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Talleres
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="{% url 'workshops:list_workshops' %}">Ver talleres</a></li>
+            <li><a class="dropdown-item" href="{% url 'workshops:create_workshop' %}">Crear taller</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown ms-2">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user fa-lg"></i> <!-- Icono de usuario -->
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="{% url 'tutor_profile' %}">Ver Perfil</a></li>
+            <li><a class="dropdown-item" href="{% url 'accounts.logout' %}">Cerrar Sesión</a></li>
+          </ul>
+        </li>
         <li class="nav-item me-3">
           {% if search_type == 'tutors' %}
           <form class="d-flex" action="{% url 'tutors.show_tutors' %}" method="GET">
@@ -35,15 +54,7 @@
           {% endif %}
         </li>
            <!-- Dropdown para el perfil y cerrar sesión -->
-        <li class="nav-item dropdown ms-2">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-user fa-lg"></i> <!-- Icono de usuario -->
-          </a>
-          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" href="{% url 'tutor_profile' %}">Ver Perfil</a></li>
-            <li><a class="dropdown-item" href="{% url 'accounts.logout' %}">Cerrar Sesión</a></li>
-          </ul>
-        </li>
+        
       </ul>
       {% else %}
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0 me-1">
