@@ -1,9 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
-from django.forms.utils import ErrorList
-from django.utils.safestring import mark_safe
-from django.contrib.auth.models import User  # Usamos el modelo User de Django
-from tutors.models import Tutor  # Asegúrate de importar el modelo Tutor
+from django.contrib.auth.models import User  # Modelo User de Django
+from tutors.models import Tutor  # Importar modelo Tutor
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(
@@ -24,44 +22,28 @@ class CustomUserCreationForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Estilos del formulario
-        for fieldname in ['username', 'password1', 'password2', 'email', 'cedula']:
-            self.fields[fieldname].help_text = None
-            self.fields[fieldname].widget.attrs.update({
-                'class': 'form-control'
-            })
+        # Aplicar estilos uniformemente a todos los campos
+        for fieldname in self.fields:
+            self.fields[fieldname].widget.attrs.update({'class': 'form-control'})
 
     def clean(self):
         cleaned_data = super().clean()
         is_tutor = cleaned_data.get('is_tutor')
 
+        # Configurar `is_staff` según el rol de tutor
         self.instance.is_staff = (is_tutor == 'yes')
 
         return cleaned_data
 
     def save(self, commit=True):
-        user = super().save(commit=False)
-
-        # Guardamos el usuario
-        if commit:
-            user.save()
+        user = super().save(commit=commit)
 
         # Si es tutor, crear la instancia de Tutor
         if self.cleaned_data.get('is_tutor') == 'yes':
-            tutor = Tutor(
-                user=user,
-            )
-            tutor.save()
+            Tutor.objects.create(user=user)
 
         return user
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'cedula', 'password1', 'password2', 'is_tutor']
-
-
-class CustomErrorList(ErrorList):
-    def __str__(self):
-        if not self:
-            return ''
-        return mark_safe(''.join([f'<div class="alert alert-danger" role="alert">{e}</div>' for e in self]))
+        fields = ['username', 'first_name', 'last_name', 'email', 'cedula', 'password1', 'password2', 'is_tutor']

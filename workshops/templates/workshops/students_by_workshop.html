@@ -2,38 +2,45 @@
 {% load static %}
 
 {% block content %}
-<div class="container-fluid">
-  <nav class="vertical-navbar" style="height: 100vh; overflow-y: auto;">
-    <ul>
-      {% for workshop in workshops %}
-        <li>
-          <a class="nav-link" href="{% url 'workshops:students_by_workshop' workshop.workshop_id %}">
-            {{ workshop.name }}
-          </a>
-        </li>
-      {% endfor %}
-    </ul>
-  </nav>
-</div>
 
 <div class="container">
-  <h1>{{ workshop.name }}</h1>
-  <div class="row row-cols-1 row-cols-md-3 g-4">
-    {% for student in students %}
-      <div class="col">
-        <div class="card h-100">
-          <img src="{% static 'images/DSC_1379.jpg' %}" class="card-img-top" alt="Imagen del estudiante">
-          <div class="card-body">
-            <h5 class="card-title">{{ student.name }} {{ student.lastname }}</h5>
-            <p><strong>Cédula:</strong> {{ student.id_number }}</p>
-            <p><strong>Nivel de Autonomía:</strong> {{ student.autonomy_level }}</p>
-            <p><strong>Grado:</strong> {{ student.grade }}</p>
-            <p><strong>Workshop:</strong> {{ student.workshop.name }}</p>
-            <a href="{% url 'student_schedule' student_id=student.student_id %}" class="btn btn-primary">Ver Horario</a>
+  <h1 class="text-center my-4">{{ workshop.name }}</h1>
+
+  <div class="text-center mb-4">
+    <p class="fs-5">
+      <strong>Tutor:</strong> 
+      {% if workshop.tutor %}
+        {{ workshop.tutor.user.first_name }} {{ workshop.tutor.user.last_name }}
+      {% else %}
+        <span class="text-muted">No asignado</span>
+      {% endif %}
+    </p>
+  </div>
+
+  <h3 class="mb-3">Estudiantes:</h3>
+
+  {% if students %}
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+      {% for student in students %}
+        <div class="col">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">{{ student.name }} {{ student.lastname }}</h5>
+              <p><strong>Cédula:</strong> {{ student.id_number }}</p>
+              <p><strong>Nivel de Autonomía:</strong> {{ student.autonomy_level }}</p>
+              <p><strong>Grado:</strong> {{ student.grade }}</p>
+              <p><strong>Workshop:</strong> {{ student.workshop.name }}</p>
+              <a href="{% url 'student_schedule' student_id=student.student_id %}" class="btn btn-primary">Ver Horario</a>
+            </div>
           </div>
         </div>
-      </div>
-    {% endfor %}
-  </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-warning text-center" role="alert">
+      No hay estudiantes asignados a este taller.
+    </div>
+  {% endif %}
 </div>
+
 {% endblock %}

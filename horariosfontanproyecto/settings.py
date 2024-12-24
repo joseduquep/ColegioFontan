@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
-# Application definition
+# Application definitionINSTALLED_APPS += ['django_celery_beat']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'tutors',
     'workshops',
     'schedules',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [

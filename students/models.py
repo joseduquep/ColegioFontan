@@ -1,6 +1,11 @@
 from django.db import models
 
 class Student(models.Model):
+    STATUS_CHOICES = [
+        ('present', 'Presente'),
+        ('absent', 'Ausente'),
+        ('neutral', 'No llamado'),
+    ]
     student_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
     lastname = models.CharField(max_length=100)
@@ -29,6 +34,11 @@ class Student(models.Model):
             (11, '11'),
         ],
         default=1,
+    )
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='neutral'
     )
     workshop = models.ForeignKey('workshops.Workshop', on_delete=models.SET_NULL, null=True, blank=True)
 

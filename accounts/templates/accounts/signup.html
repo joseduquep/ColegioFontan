@@ -17,6 +17,16 @@
                                 <span style="color:blue;" class="form-text text-muted"><small>Debe ser 20 caracteres o menos. Solo letras, números y @/./+/-/_</small></span>
                             </div>
                             <div class="form-group">
+                                <label>Nombre: </label>
+                                {{ template_data.form.first_name}} 
+                            </div>
+                            <div class="form-group">
+                                <label>Apellido </label>
+                                {{ template_data.form.last_name}} 
+
+                            </div>
+
+                            <div class="form-group">
                                 {{ template_data.form.email.label_tag }}
                                 {{ template_data.form.email }}
                                 <span class="form-text text-muted"><small>Debe ser un correo que termine en @colegiofontan.edu.co.</small></span>

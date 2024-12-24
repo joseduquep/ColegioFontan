@@ -1,15 +1,26 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Lista de Talleres</h1>
+<div class="container mt-4">
+  <h1 class="text-center mb-4">Lista de Talleres</h1>
 
-<ul class="list-group">
-  {% for workshop in workshops %}
-    <li class="list-group-item">
-      {{ workshop.name }} - {{ workshop.type }}
-    </li>
-  {% empty %}
-    <li class="list-group-item text-muted">No hay talleres registrados.</li>
-  {% endfor %}
-</ul>
+  <div class="list-group">
+    {% for workshop in workshops %}
+      <a 
+        href="{% url 'workshops:students_by_workshop' workshop.workshop_id %}" 
+        class="list-group-item list-group-item-action py-4"
+      >
+        <h5 class="mb-1">{{ workshop.name }}</h5>
+        <p class="mb-0 text-muted">
+          <strong>Tutor:</strong> 
+          {% if workshop.tutor %}
+            {{ workshop.tutor.user.first_name }} {{ workshop.tutor.user.last_name }}
+          {% else %}
+            No asignado
+          {% endif %}
+        </p>
+      </a>
+    {% endfor %}
+  </div>
+</div>
 {% endblock %}

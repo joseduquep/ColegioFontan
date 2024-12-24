@@ -66,6 +66,7 @@ def tutor_profile(request):
 
 
 
+
 @login_required
 def edit_tutor_profile(request):
     if hasattr(request.user, 'tutor_profile'):
@@ -83,8 +84,11 @@ def edit_tutor_profile(request):
             # Obtener taller seleccionado
             selected_workshop_id = request.POST.get('workshop')
             if selected_workshop_id:
-                # Desasignar taller previo del tutor
-                Workshop.objects.filter(tutor=tutor).update(tutor=None)
+                # Desasignar taller previo del tutor si existe
+                current_workshop = Workshop.objects.filter(tutor=tutor).first()
+                if current_workshop:
+                    current_workshop.tutor = None
+                    current_workshop.save()
 
                 # Asignar nuevo taller al tutor
                 selected_workshop = get_object_or_404(Workshop, workshop_id=selected_workshop_id)
@@ -107,10 +111,7 @@ def edit_tutor_profile(request):
 
             return redirect('tutor_profile')
 
-    return render(request, 'accounts/profile_edit.html', {
+    return render(request, 'accounts/profile.html', {
         'user': request.user,
         'tutor': tutor if hasattr(request.user, 'tutor_profile') else None,
     })
-
-
-

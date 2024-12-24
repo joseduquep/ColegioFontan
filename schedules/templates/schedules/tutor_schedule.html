@@ -5,7 +5,8 @@
 <link rel="stylesheet" href="{% static 'schedules/styles.css' %}">
 
 <div class="schedule-container">
-    <h3 class="schedule-title">Horario del Tutor: {{ tutor.user.username }}</h3>
+    <h2 class="schedule-title">Horario de {{ tutor.user.first_name}} {{ tutor.user.last_name}}</h2>
+    <h3 class="schedule-title"> {{workshop.name}} </h3>
 
     <!-- Puedes agregar más información sobre el tutor si deseas -->
     <!-- <h4 class="workshop-title">Especialidad: {{ tutor.specialty }}</h4> -->
@@ -29,7 +30,7 @@
                     <td class="schedule-cell" data-block-number="{{ cell.block_number }}" data-day="{{ cell.day }}">
                         {% if cell.block_number %}
                             <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}" class="btn btn-primary">
-                                Ver bloque
+                                Ver estudiantes
                             </a>
                         {% else %}
                             <span>Sin bloque</span>

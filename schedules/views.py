@@ -1,12 +1,16 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-
+from django.http import JsonResponse
 from .models import Schedule
 from students.models import Student
 from workshops.models import Block, Workshop
 from tutors.models import Tutor
+import logging
+
+# Configuración básica de logging
+logger = logging.getLogger(__name__)
 
 
 # Función auxiliar: Determinar horario y talleres disponibles
@@ -111,20 +115,31 @@ def select_block(request, tutor_id, day, block_number):
     })
 
 
+@login_required
 def students_in_block(request, tutor_id, day, block_number):
-    
     tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
     block = get_object_or_404(
         Block,
-        workshop__tutor=tutor,  
+        workshop__tutor=tutor,
         day=day,
         block_number=block_number
     )
 
-    students = block.students.all()
+    if request.method == "POST":
+        student_id = request.POST.get("student_id")
+        status = request.POST.get("status")
+        if student_id and status:
+            student = get_object_or_404(Student, student_id=student_id)
+            student.status = status
+            student.save()
 
-    return render(request, 'schedules/students_in_block.html', {
-        'tutor': tutor,
-        'block': block,
-        'students': students
+    # Aseguramos que todos los datos necesarios se envían al template
+    students = block.students.all().order_by("-status", "name")
+    return render(request, "schedules/students_in_block.html", {
+        "tutor": tutor,
+        "block": block,
+        "block_day": block.day,
+        "block_number": block.block_number,
+        "workshop": block.workshop,
+        "students": students,
     })

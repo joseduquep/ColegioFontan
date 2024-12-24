@@ -5,6 +5,7 @@ from workshops.models import Workshop, Block
 from tutors.models import Tutor
 from schedules.models import Schedule
 
+
 def show_tutors(request):
     workshops = Workshop.objects.all()
     query = request.GET.get('query', '')
