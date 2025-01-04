@@ -29,64 +29,67 @@ def tutor_schedule(request, tutor_id):
     tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
 
     schedule = {
-        "Monday_Thursday": ["7:40-8:40", "9:10-10:20", "10:40-11:50", "12:30-1:30", "1:50-2:40"],
-        "Friday": ["7:40-8:40", "9:10-10:20", "10:40-11:50", "12:20-1:20"],
+        "Monday_Thursday": ["7:40-8:40", "9:10-10:20", "10:40-11:50", "12:30-1:30"],
+        "Friday": ["7:40-8:40", "9:10-10:20", "10:40-11:50"],
     }
     days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-    num_blocks = range(1, len(schedule["Monday_Thursday"]) + 1)
 
+    # Define el número de bloques para cada día
+    blocks_per_day = {
+        "Monday": 4,
+        "Tuesday": 4,
+        "Wednesday": 4,
+        "Thursday": 4,
+        "Friday": 3,
+    }
+
+    # Generar horario de Bachillerato
     tutor_schedules = Schedule.objects.filter(block__workshop__tutor=tutor).select_related('block', 'block__workshop')
-
     tutor_schedule_table = []
-    for block_number in num_blocks:
+    for block_number in range(1, 5):  # Solo hasta 4 bloques para Bachillerato
         row = []
         for day in days_of_week:
-            workshop_name = next(
-                (entry.block.workshop.name for entry in tutor_schedules
-                 if entry.block.block_number == block_number and entry.block.day == day),
-                None
-            )
-            row.append({
-                "day": day,
-                "block_number": block_number,
-                "workshop": workshop_name,
-            })
+            if block_number > blocks_per_day[day]:
+                row.append({"day": day, "block_number": None, "workshop": None})
+            else:
+                workshop_name = next(
+                    (entry.block.workshop.name for entry in tutor_schedules
+                     if entry.block.block_number == block_number and entry.block.day == day),
+                    None
+                )
+                row.append({
+                    "day": day,
+                    "block_number": block_number,
+                    "workshop": workshop_name,
+                })
         tutor_schedule_table.append(row)
 
-    # Obtener los talleres del tutor
-    workshops = tutor.workshops.all()
-
-    # Filtrar los talleres por tipo
-    primary_workshops = workshops.filter(type='primary')
-
-    # Obtener los bloques de horario para primaria
+    # Generar horario de Primaria
+    primary_workshops = tutor.workshops.filter(type='primary')
     primary_schedule = Block.objects.filter(workshop__in=primary_workshops)
-
-    # Generar la tabla de horario para primaria
     primary_schedule_table = []
-    for block_number in num_blocks:
+    for block_number in range(1, 6):  # Hasta 5 bloques para Primaria
         row = []
         for day in days_of_week:
-            if day == "Friday" and block_number == 4:
-                workshop_name = None
+            if (day == "Friday" and block_number > 4) or (day != "Friday" and block_number > 5):
+                row.append({"day": day, "block_number": None, "workshop": None})
             else:
                 workshop_name = next(
                     (block.workshop.name for block in primary_schedule
                      if block.block_number == block_number and block.day == day),
                     None
                 )
-            row.append({
-                "day": day,
-                "block_number": block_number,
-                "workshop": workshop_name,
-            })
+                row.append({
+                    "day": day,
+                    "block_number": block_number,
+                    "workshop": workshop_name,
+                })
         primary_schedule_table.append(row)
 
     context = {
         "tutor": tutor,
         "tutor_schedule_table": tutor_schedule_table,
         "days_of_week": days_of_week,
-        "num_blocks": num_blocks,
         "primary_schedule_table": primary_schedule_table,
     }
 

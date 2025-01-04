@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="{% static 'schedules/styles.css' %}">
 
 <div class="schedule-container">
-    <h2 class="schedule-title">Horario de {{ tutor.user.first_name}} {{ tutor.user.last_name}}</h2>
+    <h2 class="schedule-title">Horario de {{ tutor.user.first_name }} {{ tutor.user.last_name }}</h2>
 
     <div class="table-wrapper">
         <h3>Bachillerato</h3>
@@ -23,7 +23,7 @@
                 <tr>
                     <td class="schedule-block">Bloque {{ row.0.block_number }}</td>
                     {% for cell in row %}
-                    <td class="schedule-cell" data-block-number="{{ cell.block_number }}" data-day="{{ cell.day }}">
+                    <td class="schedule-cell">
                         {% if cell.block_number %}
                             <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}" class="btn btn-primary">
                                 Ver estudiantes
@@ -32,7 +32,6 @@
                             <span>Sin bloque</span>
                         {% endif %}
                     </td>
-                    
                     {% endfor %}
                 </tr>
                 {% endfor %}
@@ -56,7 +55,7 @@
                 <tr>
                     <td class="schedule-block">Bloque {{ row.0.block_number }}</td>
                     {% for cell in row %}
-                    <td class="schedule-cell" data-block-number="{{ cell.block_number }}" data-day="{{ cell.day }}">
+                    <td class="schedule-cell">
                         {% if cell.block_number %}
                             <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}" class="btn btn-primary">
                                 Ver estudiantes
@@ -65,7 +64,6 @@
                             <span>Sin bloque</span>
                         {% endif %}
                     </td>
-                    
                     {% endfor %}
                 </tr>
                 {% endfor %}
