@@ -6,13 +6,9 @@
 
 <div class="schedule-container">
     <h2 class="schedule-title">Horario de {{ tutor.user.first_name}} {{ tutor.user.last_name}}</h2>
-    <h3 class="schedule-title"> {{workshop.name}} </h3>
-
-    <!-- Puedes agregar más información sobre el tutor si deseas -->
-    <!-- <h4 class="workshop-title">Especialidad: {{ tutor.specialty }}</h4> -->
-    <!-- Ajusta el campo anterior según la información disponible en tu modelo de Tutor -->
 
     <div class="table-wrapper">
+        <h3>Bachillerato</h3>
         <table class="schedule-table">
             <thead>
                 <tr>
@@ -24,6 +20,39 @@
             </thead>
             <tbody>
                 {% for row in tutor_schedule_table %}
+                <tr>
+                    <td class="schedule-block">Bloque {{ row.0.block_number }}</td>
+                    {% for cell in row %}
+                    <td class="schedule-cell" data-block-number="{{ cell.block_number }}" data-day="{{ cell.day }}">
+                        {% if cell.block_number %}
+                            <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}" class="btn btn-primary">
+                                Ver estudiantes
+                            </a>
+                        {% else %}
+                            <span>Sin bloque</span>
+                        {% endif %}
+                    </td>
+                    
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-wrapper">
+        <h3>Primaria</h3>
+        <table class="schedule-table">
+            <thead>
+                <tr>
+                    <th>Bloque/Día</th>
+                    {% for day in days_of_week %}
+                        <th>{{ day }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in primary_schedule_table %}
                 <tr>
                     <td class="schedule-block">Bloque {{ row.0.block_number }}</td>
                     {% for cell in row %}

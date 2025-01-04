@@ -26,6 +26,7 @@ def show_tutors(request):
 
 def tutor_schedule(request, tutor_id):
     tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
+
     schedule = {
         "Monday_Thursday": ["7:40-8:40", "9:10-10:20", "10:40-11:50", "12:30-1:30", "1:50-2:40"],
         "Friday": ["7:40-8:40", "9:10-10:20", "10:40-11:50", "12:20-1:20"],
@@ -51,11 +52,38 @@ def tutor_schedule(request, tutor_id):
             })
         tutor_schedule_table.append(row)
 
+    # Obtener los talleres del tutor
+    workshops = tutor.workshops.all()
+
+    # Filtrar los talleres por tipo
+    primary_workshops = workshops.filter(type='primary')
+
+    # Obtener los bloques de horario para primaria
+    primary_schedule = Block.objects.filter(workshop__in=primary_workshops)
+
+    # Generar la tabla de horario para primaria
+    primary_schedule_table = []
+    for block_number in num_blocks:
+        row = []
+        for day in days_of_week:
+            workshop_name = next(
+                (block.workshop.name for block in primary_schedule
+                 if block.block_number == block_number and block.day == day),
+                None
+            )
+            row.append({
+                "day": day,
+                "block_number": block_number,
+                "workshop": workshop_name,
+            })
+        primary_schedule_table.append(row)
+
     context = {
         "tutor": tutor,
         "tutor_schedule_table": tutor_schedule_table,
         "days_of_week": days_of_week,
         "num_blocks": num_blocks,
+        "primary_schedule_table": primary_schedule_table,
     }
 
     return render(request, "schedules/tutor_schedule.html", context)
