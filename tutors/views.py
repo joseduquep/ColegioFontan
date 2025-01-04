@@ -24,6 +24,7 @@ def show_tutors(request):
         'search_type': 'tutors'
     })
 
+
 def tutor_schedule(request, tutor_id):
     tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
 
@@ -66,11 +67,14 @@ def tutor_schedule(request, tutor_id):
     for block_number in num_blocks:
         row = []
         for day in days_of_week:
-            workshop_name = next(
-                (block.workshop.name for block in primary_schedule
-                 if block.block_number == block_number and block.day == day),
-                None
-            )
+            if day == "Friday" and block_number == 4:
+                workshop_name = None
+            else:
+                workshop_name = next(
+                    (block.workshop.name for block in primary_schedule
+                     if block.block_number == block_number and block.day == day),
+                    None
+                )
             row.append({
                 "day": day,
                 "block_number": block_number,
