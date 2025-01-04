@@ -1,3 +1,4 @@
+#models.py de la app workshops
 from django.db import models
 
 class Workshop(models.Model):

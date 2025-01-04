@@ -13,7 +13,7 @@
           <div class="card" style="width: 18rem;">
             <div class="card-body">
               <h4 class="card-title">{{ tutor.user.first_name }} {{tutor.user.last_name }}</h5>
-          
+                <h5 class="card-text"><strong>{{ tutor.user.email}}</strong></h5>
                 {% if tutor.workshops.count > 0 %}
                   {% for workshop in tutor.workshops.all %}
                     <p class="card-text"><strong>{{ workshop.name}}</strong>

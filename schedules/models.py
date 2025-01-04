@@ -1,3 +1,4 @@
+# models.py de la app schedules
 from django.db import models
 
 class Schedule(models.Model):
