@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+  <a href="{% url 'home.index' %}">Inicio</a>
+  <span>></span>
+  <span>Tutores</span>
+{% endblock %}
 {% load static %}
 
 {% block content %}

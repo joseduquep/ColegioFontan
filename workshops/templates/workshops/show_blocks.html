@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
-
+{% block breadcrumb %}
+  <a href="{% url 'home.index' %}">Inicio</a>
+  <span>></span>
+  <span>Bloques de Tiempo</span>
+{% endblock %}
 {% block content %}
 <h1>Bloques de Tiempo</h1>
 <table class="table table-striped table-bordered">

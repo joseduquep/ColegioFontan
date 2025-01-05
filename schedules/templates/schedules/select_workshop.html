@@ -1,5 +1,13 @@
 {% extends 'base.html' %}
-
+{% block breadcrumb %}
+  <a href="{% url 'home.index' %}">Inicio</a>
+  <span>></span>
+  <a href="{% url 'students.main_menu' %}">Estudiantes</a>
+  <span>></span>
+  <a href="{% url 'student_schedule' student.student_id %}">Horario</a>
+  <span>></span>
+  <span>Seleccionar Taller</span>
+{% endblock %}
 {% block content %}
 <div class="container">
     <h1>Seleccionar Taller para {{ student.name }} {{ student.lastname }}</h1>

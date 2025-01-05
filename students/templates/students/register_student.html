@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
-
+{% block breadcrumb %}
+  <a href="{% url 'home.index' %}">Inicio</a>
+  <span>></span>
+  <span>Registrar Estudiante</span>
+{% endblock %}
 {% block content %}
 <div class="container mt-5">
     <h2>Registrar Estudiante</h2>
