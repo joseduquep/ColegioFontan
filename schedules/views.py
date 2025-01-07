@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -117,13 +117,16 @@ def select_block(request, tutor_id, day, block_number):
 
 @login_required
 def students_in_block(request, tutor_id, day, block_number):
+    print("funcion students_in_block funcionando")
     tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
-    block = get_object_or_404(
-        Block,
+    block = Block.objects.filter(
         workshop__tutor=tutor,
         day=day,
-        block_number=block_number
-    )
+        block_number=block_number).first()
+
+    if not block:
+        raise Http404("No se encontró el bloque correspondiente.")
+
 
     if request.method == "POST":
         student_id = request.POST.get("student_id")

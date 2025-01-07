@@ -61,7 +61,9 @@ def list_workshops(request):
 
 
 def students_by_workshop(request, workshop_id):
+    print("cargando funcion de estudiantes por taller")
     workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
+    print("cargando funcion de estudiantes por taller")
     students = Student.objects.filter(workshop=workshop)
     return render(request, 'workshops/students_by_workshop.html', {
         'workshop': workshop,
@@ -71,6 +73,7 @@ def students_by_workshop(request, workshop_id):
 
 
 def show_blocks(request):
+    print("HOLA")
     blocks_with_students = [
         {'block': block, 'students': block.students.all()}
         for block in Block.objects.all()
