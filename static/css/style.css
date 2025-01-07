@@ -1,0 +1,274 @@
+.custom-navbar-bg {
+  background-color: #064463 !important;
+}
+
+.vertical-navbar {
+  position: fixed;
+  top: 110px;
+  left: 0;
+  bottom: 0;
+  width: 230px;
+  background-color: #1C5471;
+  overflow-y: hidden; /* Cambiado a hidden para evitar doble scroll */
+  z-index: 1000;
+}
+
+.vertical-navbar .scroll-container {
+  max-height: calc(100vh - 110px); /* Ajusta la altura para el scroll */
+  overflow-y: auto;
+}
+
+.vertical-navbar ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: block;
+}
+
+.vertical-navbar ul li {
+  padding-bottom: 25px;
+}
+
+
+.vertical-navbar ul li a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 20px;
+  padding: 15px; /* Padding uniforme */
+  display: block; /* Asegura que el enlace ocupe toda el área del elemento */
+}
+
+.vertical-navbar ul li a:hover {
+  background-color: #064463;
+  border-radius: 5px; /* Añade un borde redondeado al hover */
+}
+
+.container {
+  padding-top: 60px; /* Ajusta según la altura de la barra de navegación */
+}
+
+.container-principal {
+  max-width: 90%; 
+  padding-left: 2rem;  
+  padding-right: 2rem;
+  margin-left: 250px; /* Añade margen para evitar superposición con la barra lateral */
+}
+
+.btn-custom {
+  background-color: #064463;
+  border-color: #064463;
+  color: white;
+  
+}
+
+.btn-custom:hover {
+    background-color: #1C5471;
+    border-color: #1C5471;
+    color: white;
+}
+
+.btn-custom-modify {
+  background-color: #1C5471;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.btn-custom-modify:hover {
+  background-color: #163E59;
+  transform: scale(1.05);
+  color: #f4f4f4;
+}
+
+.profile-image-container {
+  width: 100%; 
+  max-width: 230px; 
+  height: 300px; 
+  overflow: hidden; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px; 
+}
+
+.profile-image-container img {
+  width: auto; 
+  height: 100%; 
+  object-fit: cover; 
+}
+
+
+.custom-toggle-btn{
+    background-color: #064463;
+    border-color: #064463;
+    color: white;
+}
+  
+.custom-toggle-btn:hover {
+    background-color: #1C5471;
+    border-color: #1C5471;
+    color: white;
+}
+
+
+.btn-home {
+    padding: 1rem 2rem; /* Botones más grandes */
+    font-size: 1.5rem; /* Tamaño del texto del botón */
+    border-radius: 0.5rem;
+    background-color: #064463; /* Color azul */
+    color: white;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.btn-home:hover{
+  background-color: #1C5471;
+}
+
+.container-home {
+  max-width: 90%; 
+  padding-left: 2rem;  
+  padding-right: 2rem;
+  padding-top: 240px;
+}
+
+
+.container-home h1{
+  font-size: 55px;
+}
+
+
+/* Tabla principal del horario */
+.schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px auto;
+  text-align: center;
+  background-color: #f9f9f9;
+}
+
+/* Encabezado de la tabla */
+.schedule-table thead th {
+  background-color: #007bff;
+  color: white;
+  padding: 10px;
+  font-size: 1.2em;
+  border: 1px solid #ddd;
+}
+
+/* Celdas de la tabla */
+.schedule-table tbody td {
+  padding: 15px;
+  border: 1px solid #ddd;
+  vertical-align: middle;
+  font-size: 1em;
+}
+
+/* Botones para agregar talleres */
+.schedule-table tbody td button {
+  padding: 8px 12px;
+  font-size: 0.9em;
+  border: none;
+  background-color: #28a745;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+/* Botón al pasar el mouse */
+.schedule-table tbody td button:hover {
+  background-color: #218838;
+}
+
+/* Espaciado entre bloques */
+.schedule-table tbody td {
+  height: 60px;
+}
+
+/* Bloques de la izquierda (números de bloque) */
+.schedule-table tbody th {
+  background-color: #f1f1f1;
+  color: #333;
+  padding: 15px;
+  font-weight: bold;
+  border: 1px solid #ddd;
+}
+
+/* Ajustes para que sea responsivo */
+@media (max-width: 768px) {
+  .schedule-table {
+      font-size: 0.8em;
+  }
+
+  .schedule-table tbody td button {
+      font-size: 0.8em;
+      padding: 6px 10px;
+  }
+}
+
+
+
+/* Modal estilos básicos */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.full-page-background {
+  background-image: url('/static/images/fotofontan.jpeg'); /* Ruta de la imagen */
+  background-size: cover; /* La imagen cubre toda la página */
+  background-position: center; /* Centra la imagen */
+  background-repeat: no-repeat; /* Evita que se repita */
+  height: 100vh; /* Altura del viewport completo */
+  width: 100%;
+  position: relative;
+}
+
+.overlay-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.overlay-content h1, .overlay-content p {
+  background: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente para el texto */
+  padding: 10px 20px;
+  border-radius: 5px;
+}
