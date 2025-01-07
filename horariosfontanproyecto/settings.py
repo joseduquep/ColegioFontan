@@ -139,7 +139,10 @@ if not DEBUG:
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Ruta donde se recopilarán los archivos estáticos
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'horariosfontanproyecto/static'),  # Carpeta con archivos estáticos personalizados
+    os.path.join(BASE_DIR, 'horariosfontanproyecto/static'),
+    "/home/special.polls.com/polls/static",
+    "/home/polls.com/polls/static",
+    "/opt/webfiles/common", # Carpeta con archivos estáticos personalizados
 ]
 
 
