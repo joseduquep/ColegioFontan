@@ -7,6 +7,7 @@ click-didyoumean==0.3.1
 click-plugins==1.1.1
 click-repl==0.3.0
 cron-descriptor==1.4.5
+dj-database-url==2.3.0
 Django==5.0
 django-celery-beat==2.7.0
 django-timezone-field==7.0
@@ -17,6 +18,7 @@ python-crontab==3.2.0
 python-dateutil==2.9.0.post0
 six==1.17.0
 sqlparse==0.5.2
+typing_extensions==4.12.2
 tzdata==2024.2
 vine==5.1.0
 wcwidth==0.2.13
