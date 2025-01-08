@@ -7,5 +7,8 @@ def index(request):
   return render(request, 'home/index.html')
 
 
+def home(request):
+   return render(request, 'home/home.html')
+
 def handler404(request, exception):
     return render(request, '404.html', status=404)

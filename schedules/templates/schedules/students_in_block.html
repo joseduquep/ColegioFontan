@@ -1,4 +1,11 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}
+  <a href="{% url 'home.home' %}">Inicio</a>
+  <span>></span>
+  <a href="{% url 'tutors.show_tutors' %}">Tutores</a>
+  <span>></span>
+  <span>Bloque {{ block_id }}</span>
+{% endblock %}
 {% block content %}
 <div class="container mt-4">
 

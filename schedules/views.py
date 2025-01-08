@@ -82,6 +82,7 @@ def select_workshop(request, student_id, day, block_number):
         if not block or block.students.count() >= workshop.max_capacity:
             return render(request, 'schedules/select_workshop.html', {
                 'student': student,
+                'student_id': student_id,
                 'workshops': workshops,
                 'day': day,
                 'block': block_number,
@@ -96,6 +97,7 @@ def select_workshop(request, student_id, day, block_number):
 
     return render(request, 'schedules/select_workshop.html', {
         'student': student,
+        'student_id': student_id,
         'workshops': workshops,
         'day': day,
         'block': block_number,
@@ -141,6 +143,7 @@ def students_in_block(request, tutor_id, day, block_number):
     return render(request, "schedules/students_in_block.html", {
         "tutor": tutor,
         "block": block,
+        "block_id": block.block_id,
         "block_day": block.day,
         "block_number": block.block_number,
         "workshop": block.workshop,

@@ -88,6 +88,7 @@ def tutor_schedule(request, tutor_id):
 
     context = {
         "tutor": tutor,
+        "tutor_id": tutor_id,
         "tutor_schedule_table": tutor_schedule_table,
         "days_of_week": days_of_week,
         "primary_schedule_table": primary_schedule_table,

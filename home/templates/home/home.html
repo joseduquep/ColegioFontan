@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block breadcrumb %}
+  <a href="{% url 'home.home' %}">Inicio</a>
+  <span>></span>
+{% endblock %}
+{% load static %}
+
+{% block content %}
+<style>
+  .icon-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .icon-container i {
+    font-size: 5rem;
+    margin-bottom: 1rem;
+  }
+
+  .btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.5rem;
+    border-radius: 0.5rem;
+  }
+</style>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-6 icon-container">
+      <i class="fas fa-chalkboard-teacher"></i>
+      <a href="{% url 'tutors.show_tutors' %}" class="btn btn-primary btn-lg">Ver Tutores</a>
+    </div>
+    <div class="col-md-6 icon-container">
+      <i class="fas fa-user-graduate"></i>
+      <a href="{% url 'students.student_list' %}" class="btn btn-primary btn-lg">Ver Estudiantes</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
