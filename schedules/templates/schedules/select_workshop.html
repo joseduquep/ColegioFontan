@@ -2,7 +2,7 @@
 {% block breadcrumb %}
   <a href="{% url 'home.index' %}">Inicio</a>
   <span>></span>
-  <a href="{% url 'students.main_menu' %}">Estudiantes</a>
+  <a href="{% url 'student_schedule' student.student_id %}">Estudiantes</a>
   <span>></span>
   <a href="{% url 'student_schedule' student.student_id %}">Horario</a>
   <span>></span>
