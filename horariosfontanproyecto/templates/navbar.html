@@ -42,6 +42,27 @@
 .vertical-navbar ul li a:hover {
   background-color: #064463;
   border-radius: 5px; /* Añade un borde redondeado al hover */
+  text-decoration: underline; /* Añade subrayado al pasar el mouse */
+}
+
+/* Estilos para los enlaces de la navbar horizontal */
+.navbar-nav .nav-link {
+    color: #fff; /* Color del texto */
+    text-decoration: none; /* Quita subrayado por defecto */
+}
+
+.navbar-nav .nav-link:hover {
+    text-decoration: underline; /* Subrayado al pasar el mouse */
+}
+
+/* Estilos para los enlaces del dropdown */
+.dropdown-menu .dropdown-item {
+    color: #000; /* Color del texto, ajusta según tu diseño */
+    text-decoration: none; /* Quita subrayado por defecto */
+}
+
+.dropdown-menu .dropdown-item:hover {
+    text-decoration: underline; /* Subrayado al pasar el mouse */
 }
 
 .container {
@@ -282,7 +303,7 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       {% if user.is_authenticated %}
-      <a class="navbar-brand ms-5 me-auto" style="font-size: 25px;" href="{% url 'students.main_menu' %}">
+      <a class="navbar-brand ms-5 me-auto" style="font-size: 25px;" href="{% url 'students.student_list' %}">
         <img src="{% static 'images/logo.png' %}" alt="Colegio Fontán" style="height:50px; width:auto;">
       </a>
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0 me-1">
@@ -322,7 +343,7 @@
             <button class="btn btn-outline-light" type="submit">Buscar</button>
           </form>
           {% else %}
-          <form class="d-flex" action="{% url 'students.main_menu' %}" method="GET">
+          <form class="d-flex" action="{% url 'students.student_list' %}" method="GET">
             <input class="form-control me-2" type="search" placeholder="Buscar estudiantes" aria-label="Search" name="query">
             <button class="btn btn-outline-light" type="submit">Buscar</button>
           </form>

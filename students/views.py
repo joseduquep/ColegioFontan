@@ -5,7 +5,7 @@ from .models import Student
 from workshops.models import Workshop
 from django.db.models import Q
 
-def main_menu(request):
+def student_list(request):
     workshops = Workshop.objects.all()
     query = request.GET.get('query')  # Obtenemos la consulta de búsqueda
 
@@ -17,7 +17,7 @@ def main_menu(request):
     else:
         students = Student.objects.all()
 
-    return render(request, 'students/main_menu.html', {'workshops': workshops, 'students': students, 'query': query})
+    return render(request, 'students/student_list.html', {'workshops': workshops, 'students': students, 'query': query})
 
 def register_student(request):
     if request.method == 'POST':
@@ -29,7 +29,7 @@ def register_student(request):
                 # adicional, este es un buen lugar para hacerlo.
                 form.save()
                 messages.success(request, "¡Estudiante registrado exitosamente!")
-                return redirect('students.main_menu')
+                return redirect('students.student_list')
             except Exception as e:
                 messages.error(request, f"Ocurrió un error al registrar al estudiante: {str(e)}")
                 return redirect('students.register_student')

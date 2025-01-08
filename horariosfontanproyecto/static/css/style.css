@@ -134,9 +134,34 @@
   max-width: 90%; 
   padding-left: 2rem;  
   padding-right: 2rem;
-  padding-top: 240px;
+  padding-top: 240px; /* Ajusta según sea necesario */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centra horizontalmente en la columna */
 }
 
+.image-container {
+  width: 100%; /* Asegura que el contenedor ocupe el ancho disponible */
+  display: flex;
+  justify-content: center; /* Centra la imagen horizontalmente */
+  margin-bottom: 20px;
+}
+
+.responsive-image {
+  max-width: 100%; /* La imagen no será más ancha que su contenedor */
+  height: auto; /* La altura se ajusta automáticamente para mantener la proporción */
+  display: block; /* Elimina el espacio extra debajo de la imagen */
+  border-radius: 10px;
+  object-fit: contain;
+  max-height: 600px;
+}
+
+/* Media queries para responsividad */
+@media (max-width: 768px) {
+  .container-home {
+    padding-top: 150px; /* Ajusta el padding superior en pantallas pequeñas */
+  }
+}
 
 .container-home h1{
   font-size: 55px;

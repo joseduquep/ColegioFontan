@@ -60,7 +60,7 @@ def student_schedule(request, student_id):
         "workshops": workshops,
     }
 
-    return render(request, "schedules/schedule.html", context)
+    return render(request, "schedules/student_schedule.html", context)
 
 
 def get_block_capacity(workshops, day, block_number):
