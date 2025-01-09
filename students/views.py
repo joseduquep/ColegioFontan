@@ -6,18 +6,24 @@ from workshops.models import Workshop
 from django.db.models import Q
 
 def student_list(request):
+    query = request.GET.get('query', '').strip()  # Elimina espacios en blanco en la búsqueda
     workshops = Workshop.objects.all()
-    query = request.GET.get('query')  # Obtenemos la consulta de búsqueda
 
-    # Corregimos la lógica de búsqueda
     if query:
         students = Student.objects.filter(
-            Q(name__icontains=query) | Q(lastname__icontains=query)
+            Q(name__icontains=query) | 
+            Q(lastname__icontains=query)
         )
     else:
         students = Student.objects.all()
 
-    return render(request, 'students/student_list.html', {'workshops': workshops, 'students': students, 'query': query})
+    return render(request, 'students/student_list.html', {
+        'workshops': workshops,
+        'students': students,
+        'query': query,
+        'search_type': 'students',
+    })
+
 
 def register_student(request):
     if request.method == 'POST':
