@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 {% block breadcrumb %}
   <a href="{% url 'home.home' %}">Inicio</a>
-  <span>></span>
+  <span>/</span>
   <a href="{% url 'student_schedule' student.student_id %}">Estudiantes</a>
-  <span>></span>
+  <span>/</span>
   <a href="{% url 'student_schedule' student.student_id %}">{{ student.name }} #{{ student.student_id }}</a>
-  <span>></span>
+  <span>/</span>
   <span>Seleccionar Taller</span>
 {% endblock %}
 {% block content %}

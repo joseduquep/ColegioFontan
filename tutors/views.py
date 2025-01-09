@@ -17,11 +17,17 @@ def show_tutors(request):
         )
     else:
         tutors = Tutor.objects.all()
+    
+    # Obtener el tipo de Workshop para cada workshop
+    for workshop in workshops:
+        workshop.type = workshop.type
+
     return render(request, 'tutors/show_tutors.html', {
         'workshops': workshops,
         'tutors': tutors,
         'query': query,
-        'search_type': 'tutors'
+        'search_type': 'tutors',
+        'workshops': workshops 
     })
 
 

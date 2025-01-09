@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block breadcrumb %}
   <a href="{% url 'home.home' %}">Inicio</a>
-  <span>></span>
+  <span>/</span>
   <span>Tutores</span>
 {% endblock %}
 {% load static %}
@@ -48,6 +48,7 @@
               {% if tutor.workshops.count > 0 %}
                 {% for workshop in tutor.workshops.all %}
                   <p class="card-text"><strong>{{ workshop.name}}</strong>
+                  <p class="card-text">Tipo: <strong>{{ workshop.type}}</strong>
                 {% endfor %}
               {% else %}
                 <br>No tiene Talleres asignados.
