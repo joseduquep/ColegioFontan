@@ -32,6 +32,16 @@ def student_schedule(request, student_id):
     student = get_object_or_404(Student, student_id=student_id)
     schedule, workshops = get_schedule_and_workshops(student)
 
+    # Si se pasa el workshop_id en la URL, actualizar el taller base
+    workshop_id = request.GET.get('workshop_id')
+    if workshop_id:
+        try:
+            workshop = Workshop.objects.get(id=workshop_id)
+            student.workshop = workshop
+            student.save()
+        except Workshop.DoesNotExist:
+            pass
+
     days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
     num_blocks = range(1, len(schedule["Monday_Thursday"]) + 1)
     student_schedule = Schedule.objects.filter(student=student).select_related('block')
