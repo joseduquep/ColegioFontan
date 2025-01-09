@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% block title %}Menú{% endblock %}
 {% block breadcrumb %}
   <a href="{% url 'home.home' %}">Inicio</a>
   <span>/</span>
@@ -11,6 +12,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-bottom: 2rem; /* Espacio entre los contenedores */
   }
 
   .icon-container i {
@@ -25,15 +27,22 @@
   }
 </style>
 
-<div class="container">
+<div class="container text-center"> 
   <div class="row">
-    <div class="col-md-6 icon-container">
+
+    <div class="col-md-4 icon-container">
+      <i class="fas fa-user-graduate"></i>
+      <a href="{% url 'students.student_list' %}" class="btn btn-primary btn-lg">Ver Estudiantes</a>
+    </div>
+    
+    <div class="col-md-4 icon-container">
       <i class="fas fa-chalkboard-teacher"></i>
       <a href="{% url 'tutors.show_tutors' %}" class="btn btn-primary btn-lg">Ver Tutores</a>
     </div>
-    <div class="col-md-6 icon-container">
-      <i class="fas fa-user-graduate"></i>
-      <a href="{% url 'students.student_list' %}" class="btn btn-primary btn-lg">Ver Estudiantes</a>
+    
+    <div class="col-md-4 icon-container">
+      <i class="fas fa-calendar-alt"></i> 
+      <a href="{% url 'workshops:show_blocks' %}" class="btn btn-primary btn-lg">Ver Bloques</a>
     </div>
   </div>
 </div>
