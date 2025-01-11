@@ -2,7 +2,7 @@
 {% block breadcrumb %}
   <a href="{% url 'home.home' %}">Inicio</a>
   <span>/</span>
-  <span>Bloques de Tiempo</span>
+  <a href="{% url 'workshops:show_blocks' %}">Bloques de tiempo</a>
 {% endblock %}
 {% block content %}
 <h1>Bloques de Tiempo</h1>

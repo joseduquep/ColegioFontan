@@ -3,7 +3,7 @@
 {% block breadcrumb %}
 <a href="{% url 'home.home' %}">Inicio</a>
   <span>/</span>
-  <span>Estudiantes</span>
+  <a href="{% url 'students.student_list' %}">Lista estudiantes</a>
 {% endblock %}
 {% load static %}
 
