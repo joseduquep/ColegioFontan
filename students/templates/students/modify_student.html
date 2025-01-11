@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Modificar Perfil Estudiante{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Modificar Perfil</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="name">Nombre</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ student.name }}" required>
+        </div>
+        <div class="form-group">
+            <label for="lastname">Apellido</label>
+            <input type="text" class="form-control" id="lastname" name="lastname" value="{{ student.lastname }}" required>
+        </div>
+        <div class="form-group">
+            <label for="id_number">Número de Identificación</label>
+            <input type="number" class="form-control" id="id_number" name="id_number" value="{{ student.id_number }}" required>
+        </div>
+        <div class="form-group">
+            <label for="autonomy_level">Nivel de Autonomía</label>
+            <select class="form-control" id="autonomy_level" name="autonomy_level">
+                <option value="1" {% if student.autonomy_level == 1 %}selected{% endif %}>Nivel 1</option>
+                <option value="2" {% if student.autonomy_level == 2 %}selected{% endif %}>Nivel 2</option>
+                <option value="3" {% if student.autonomy_level == 3 %}selected{% endif %}>Nivel 3</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="grade">Grado</label>
+            <select class="form-control" id="grade" name="grade">
+                {% for i in grades_range %}
+                    <option value="{{ i }}" {% if student.grade == i %}selected{% endif %}>{{ i }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="workshop">Taller Base</label>
+            <select class="form-control" id="workshop" name="workshop">
+                <option value="">-- Seleccionar Taller --</option>
+                {% for workshop in workshops %}
+                    <option value="{{ workshop.workshop_id }}" {% if student.workshop == workshop %}selected{% endif %}>
+                        {{ workshop.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" id="extended_vacation" name="extended_vacation" {% if student.extended_vacation %}checked{% endif %}>
+            <label class="form-check-label" for="extended_vacation">Vacaciones Extendidas</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+    </form>
+</div>
+{% endblock %}
