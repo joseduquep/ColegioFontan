@@ -99,12 +99,20 @@ def select_workshop(request, student_id, day, block_number):
                 'error': 'Bloque no encontrado o capacidad máxima alcanzada.',
             })
 
+        # Actualiza el horario del estudiante en el bloque
         Schedule.objects.filter(student=student, block__day=day, block__block_number=block_number).delete()
         Schedule.objects.create(student=student, block=block)
         block.students.add(student)
 
+        # Si el bloque es el "Taller base" (lunes, bloque 1), actualiza el taller base
+        if day == 'Monday' and block_number == 1:
+            student.workshop = workshop
+            student.save()
+
+        # Redirigir al horario del estudiante
         return HttpResponseRedirect(reverse('student_schedule', args=[student_id]))
 
+    # Si no es POST, renderiza el formulario para seleccionar taller
     return render(request, 'schedules/select_workshop.html', {
         'student': student,
         'student_id': student_id,
@@ -112,6 +120,8 @@ def select_workshop(request, student_id, day, block_number):
         'day': day,
         'block': block_number,
     })
+
+
 
 
 @login_required
