@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .forms import StudentRegistrationForm
 from .models import Student
@@ -45,3 +45,34 @@ def register_student(request):
         form = StudentRegistrationForm()
 
     return render(request, 'students/register_student.html', {'form': form})
+
+
+def modify_student(request, student_id):
+    student = get_object_or_404(Student, student_id=student_id)
+    workshops = Workshop.objects.all()
+
+    if request.method == 'POST':
+        # Actualizar los datos del estudiante
+        student.name = request.POST.get('name', student.name)
+        student.lastname = request.POST.get('lastname', student.lastname)
+        student.id_number = request.POST.get('id_number', student.id_number)
+        student.autonomy_level = request.POST.get('autonomy_level', student.autonomy_level)
+        student.grade = request.POST.get('grade', student.grade)
+        student.extended_vacation = 'extended_vacation' in request.POST
+
+        # Actualizar el taller base si se selecciona
+        workshop_id = request.POST.get('workshop')
+        if workshop_id:
+            student.workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
+        student.save()
+
+        return redirect('students.student_list')  # Redirigir a la lista de estudiantes
+
+    # Agregar rango de grados al contexto
+    grades_range = range(1, 12)
+
+    return render(request, 'students/modify_student.html', {
+        'student': student,
+        'workshops': workshops,
+        'grades_range': grades_range,  # Pasamos el rango aquí
+    })
