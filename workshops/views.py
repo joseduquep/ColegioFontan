@@ -3,7 +3,7 @@ from .forms import WorkshopForm
 from .models import Workshop, Block
 from datetime import time
 from students.models import Student
-
+from django.contrib import messages
 
 def create_workshop(request):
     if request.method == 'POST':
@@ -17,7 +17,9 @@ def create_workshop(request):
             elif workshop.type == 'collective':
                 create_blocks(workshop, is_high_school=True)
                 create_blocks(workshop, is_high_school=False)
+            messages.success(request, '¡El taller se ha creado correctamente!')
             return redirect('workshops:list_workshops')
+        
     else:
         form = WorkshopForm()
     return render(request, 'workshops/create_workshop.html', {'form': form})
@@ -72,10 +74,20 @@ def students_by_workshop(request, workshop_id):
     })
 
 
+from django.core.paginator import Paginator
+
 def show_blocks(request):
-    print("HOLA")
     blocks_with_students = [
         {'block': block, 'students': block.students.all()}
         for block in Block.objects.all()
     ]
-    return render(request, 'workshops/show_blocks.html', {'blocks_with_students': blocks_with_students})
+
+    # Paginación: Dividimos en grupos de 10 bloques (o cualquier número que prefieras)
+    paginator = Paginator(blocks_with_students, 50)  # 10 bloques por página
+    page_number = request.GET.get('page')  # Página actual
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'workshops/show_blocks.html', {
+        'blocks_with_students': page_obj,  # Pasamos solo la página actual
+    })
+

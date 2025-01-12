@@ -4,6 +4,8 @@ from .forms import StudentRegistrationForm
 from .models import Student
 from workshops.models import Workshop
 from django.db.models import Q
+from django.core.paginator import Paginator
+
 
 def student_list(request):
     query = request.GET.get('query', '').strip()  # Elimina espacios en blanco en la búsqueda
@@ -17,9 +19,14 @@ def student_list(request):
     else:
         students = Student.objects.all()
 
+    # Paginación: Dividimos en grupos de 30 estudiantes
+    paginator = Paginator(students, 30)  # 30 estudiantes por página
+    page_number = request.GET.get('page')  # Página actual
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'students/student_list.html', {
         'workshops': workshops,
-        'students': students,
+        'students': page_obj,  # Pasamos solo la página actual
         'query': query,
         'search_type': 'students',
     })

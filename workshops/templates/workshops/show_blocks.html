@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block breadcrumb %}
-  <a href="{% url 'home.home' %}">Inicio</a>
-  <span>/</span>
-  <a href="{% url 'workshops:show_blocks' %}">Bloques de tiempo</a>
+<a href="{% url 'home.home' %}">Inicio</a>
+<span>/</span>
+<a href="{% url 'workshops:show_blocks' %}">Bloques de tiempo</a>
 {% endblock %}
 {% block content %}
 <h1>Bloques de Tiempo</h1>
@@ -42,4 +42,29 @@
     {% endfor %}
   </tbody>
 </table>
+
+<!-- Paginación -->
+<nav aria-label="Navegación de páginas" class="mt-4">
+  <ul class="pagination justify-content-center">
+    {% if blocks_with_students.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ blocks_with_students.previous_page_number }}" aria-label="Anterior">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+    {% endif %}
+    {% for num in blocks_with_students.paginator.page_range %}
+      <li class="page-item {% if blocks_with_students.number == num %}active{% endif %}">
+        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+      </li>
+    {% endfor %}
+    {% if blocks_with_students.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ blocks_with_students.next_page_number }}" aria-label="Siguiente">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
 {% endblock %}

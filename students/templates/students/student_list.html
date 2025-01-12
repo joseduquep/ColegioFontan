@@ -2,57 +2,60 @@
 {% block title %}Lista estudiantes{% endblock %}
 {% block breadcrumb %}
 <a href="{% url 'home.home' %}">Inicio</a>
-  <span>/</span>
-  <a href="{% url 'students.student_list' %}">Lista estudiantes</a>
+<span>/</span>
+<a href="{% url 'students.student_list' %}">Lista estudiantes</a>
 {% endblock %}
 {% load static %}
 
 {% block content %}
 
-
 <div class="container">
   <div class="row row-cols-1 row-cols-md-3 g-4">
-    {% if query %}
-      {% if students %}
-        {% for student in students %}
-          <div class="col">
-            <div class="card" style="width: 18rem;">              
-              <div class="card-body">
-                <h4 class="card-title">{{ student.name }} {{ student.lastname }}</h5>
-                <p class="card-text"><strong>Cédula:</strong> {{ student.id_number }}</p>
-                <p class="card-text"><strong>Nivel de Autonomía:</strong> {{ student.autonomy_level }}</p>
-                <p class="card-text"><strong>Grado:</strong> {{ student.grade }}</p>
-                <p class="card-text"><strong>Workshop:</strong> {{ student.workshop.name }}</p>
-                <p class="card-text"><strong>Nivel de autonomia:</strong> {{ student.autonomy_level }}</p>
-                <a href="{% url 'student_schedule' student_id=student.student_id %}" class="btn btn-primary">Ver Horario</a>
-                <a href="{% url 'students.modify_student' student_id=student.student_id %}" class="btn btn-warning">Modificar Perfil</a>
-              </div>
-            </div>
-          </div>
-        {% endfor %}
-      {% else %}
-        <div class="col">
-          <h2>No se encontraron resultados para "{{ query }}"</h2>
-        </div>
-      {% endif %}
-    {% else %}
+    {% if students %}
       {% for student in students %}
         <div class="col">
           <div class="card" style="width: 18rem;">
             <div class="card-body">
-              <h4 class="card-title">{{ student.name }} {{ student.lastname }}</h5>
+              <h4 class="card-title">{{ student.name }} {{ student.lastname }}</h4>
               <p class="card-text"><strong>Cédula:</strong> {{ student.id_number }}</p>
               <p class="card-text"><strong>Nivel de Autonomía:</strong> {{ student.autonomy_level }}</p>
               <p class="card-text"><strong>Grado:</strong> {{ student.grade }}</p>
               <p class="card-text"><strong>Taller base:</strong> {{ student.workshop.name }}</p>
-              <p class="card-text"><strong>Nivel de autonomia:</strong> {{ student.autonomy_level }}</p>
               <a href="{% url 'students.modify_student' student_id=student.student_id %}" class="btn btn-warning">Modificar Perfil</a>
               <a href="{% url 'student_schedule' student_id=student.student_id %}" class="btn btn-primary">Ver Horario</a>
             </div>
           </div>
         </div>
       {% endfor %}
+    {% else %}
+      <h2>No hay estudiantes disponibles</h2>
     {% endif %}
   </div>
+
+  <!-- Paginación -->
+  <nav aria-label="Navegación de páginas" class="mt-4">
+    <ul class="pagination justify-content-center">
+      {% if students.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ students.previous_page_number }}&query={{ query }}" aria-label="Anterior">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+      {% endif %}
+      {% for num in students.paginator.page_range %}
+        <li class="page-item {% if students.number == num %}active{% endif %}">
+          <a class="page-link" href="?page={{ num }}&query={{ query }}">{{ num }}</a>
+        </li>
+      {% endfor %}
+      {% if students.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ students.next_page_number }}&query={{ query }}" aria-label="Siguiente">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
 </div>
+
 {% endblock %}

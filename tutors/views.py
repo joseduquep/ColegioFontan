@@ -5,25 +5,6 @@ from workshops.models import Workshop, Block
 from tutors.models import Tutor
 from schedules.models import Schedule
 
-from .forms import TutorRegistrationForm, UserForm
-
-def register_tutor(request):
-    if request.method == 'POST':
-        user_form = UserForm(request.POST)
-        tutor_form = TutorRegistrationForm(request.POST)
-        if user_form.is_valid() and tutor_form.is_valid():
-            user = user_form.save()
-            tutor = tutor_form.save(commit=False)
-            tutor.user = user
-            tutor.save()
-            # ... redirección o mensaje de éxito ...
-    else:
-        user_form = UserForm()
-        tutor_form = TutorRegistrationForm()
-    return render(request, 'tutors/register_tutor.html', {
-        'user_form': user_form,
-        'tutor_form': tutor_form
-    })
 
 
 

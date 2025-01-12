@@ -64,19 +64,14 @@
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
         {% if user.is_authenticated %}
           <li class="nav-item">
+            <a class="nav-link" href="{% url 'accounts.signup' %}">Registrar Perfil</a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link" href="{% url 'workshops:show_blocks' %}">Bloques</a>
           </li>
-
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="tutoresDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Tutores
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="tutoresDropdown">
-              <li><a class="dropdown-item" href="{% url 'tutors.show_tutors' %}">Ver Tutores</a></li>
-              <li><a class="dropdown-item" href="{% url 'tutors.register_tutor' %}">Crear Tutor</a></li> {## Aquí debes ajustar la URL a la vista para crear tutores ##}
-            </ul>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'tutors.show_tutors' %}">Tutores</a>
           </li>
-
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="estudiantesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               Estudiantes
@@ -117,9 +112,6 @@
         {% else %}
           <li class="nav-item">
             <a class="nav-link" href="{% url 'accounts.login' %}">Iniciar Sesión</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'accounts.signup' %}">Registrarse</a>
           </li>
         {% endif %}
       </ul>

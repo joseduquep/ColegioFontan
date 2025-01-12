@@ -7,7 +7,7 @@ from tutors.models import Tutor
 from workshops.models import Workshop
 from django.http import Http404
 from django.contrib.auth.models import User
-
+from django.contrib import messages
 def login(request):
     template_data = {}
     template_data['title'] = 'Login'
@@ -33,7 +33,8 @@ def signup(request):
         form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('accounts.login')
+            messages.success(request, '¡Tu perfil se ha registrado correctamente!')
+            return redirect('home.home')
         else:
             template_data['form'] = form
             return render(request, 'accounts/signup.html', {'template_data': template_data})

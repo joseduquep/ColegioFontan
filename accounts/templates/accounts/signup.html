@@ -12,12 +12,12 @@
             <div class="col-md-8">
                 <div class="card shadow p-3 mb-4 rounded">
                     <div class="card-body">
-                        <h2>Registro</h2>
+                        <h2>Registro Perfil</h2>
                         <hr />
                         <form method="POST" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="form-group">
-                                <label>Usuario: </label>
+                                <label>Nombre de usuario: </label>
                                 {{ template_data.form.username }} 
                                 <span style="color:blue;" class="form-text text-muted"><small>Debe ser 20 caracteres o menos. Solo letras, números y @/./+/-/_</small></span>
                             </div>
@@ -55,8 +55,17 @@
                                 {{ template_data.form.password2 }}
                             </div>
                             <div class="form-group">
-                                <label for="id_is_tutor">¿Eres Tutor?</label><br />
-                                {{ template_data.form.is_tutor }}
+                                <label>¿Eres Tutor?</label><br />
+                                <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-outline-primary {% if template_data.form.is_tutor.value == 'yes' %}active{% endif %}">
+                                        <input type="radio" name="is_tutor" value="yes" autocomplete="off" 
+                                            {% if template_data.form.is_tutor.value == 'yes' %}checked{% endif %}> Sí
+                                    </label>
+                                    <label class="btn btn-outline-secondary {% if template_data.form.is_tutor.value == 'no' %}active{% endif %}">
+                                        <input type="radio" name="is_tutor" value="no" autocomplete="off" 
+                                            {% if template_data.form.is_tutor.value == 'no' %}checked{% endif %}> No
+                                    </label>
+                                </div>
                             </div>
                             <!-- Campo para subir la imagen -->
                             <br>
