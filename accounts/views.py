@@ -8,7 +8,10 @@ from workshops.models import Workshop
 from django.http import Http404
 from django.contrib.auth.models import User
 from django.contrib import messages
+from students.models import Student
+
 def login(request):
+    
     template_data = {}
     template_data['title'] = 'Login'
     if request.method == 'GET':

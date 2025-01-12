@@ -1,5 +1,6 @@
 #models.py de la app students
 from django.db import models
+from django.utils.timezone import now
 
 class Student(models.Model):
     STATUS_CHOICES = [
@@ -42,6 +43,11 @@ class Student(models.Model):
         default='neutral'
     )
     workshop = models.ForeignKey('workshops.Workshop', on_delete=models.SET_NULL, null=True, blank=True)
+    last_reset = models.DateTimeField(default=now) 
+
+
 
     def __str__(self):
         return f"{self.name} {self.lastname} (ID: {self.student_id}) (Grado: {self.grade})"
+
+
