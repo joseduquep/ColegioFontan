@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
+from django.http import HttpResponseRedirect
 from django.contrib import messages
 from .forms import StudentRegistrationForm
 from .models import Student
@@ -83,3 +85,17 @@ def modify_student(request, student_id):
         'workshops': workshops,
         'grades_range': grades_range,  # Pasamos el rango aquí
     })
+
+
+def confirm_delete_student(request, student_id):
+    student = get_object_or_404(Student, student_id=student_id)
+    return render(request, 'students/confirm_delete_student.html', {'student': student})
+
+
+def delete_student(request, student_id):
+    student = get_object_or_404(Student, student_id=student_id)
+    if request.method == 'POST':
+        student.delete()
+        messages.success(request, f"El estudiante {student.name} {student.lastname} ha sido eliminado.")
+        return redirect('students.student_list')  # Redirige a la lista de estudiantes
+    return redirect('students.modify_student', student_id=student_id)  # Si no es POST, regresa a modificar

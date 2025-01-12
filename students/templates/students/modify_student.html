@@ -1,12 +1,19 @@
 {% extends 'base.html' %}
 
 {% block title %}Modificar Perfil Estudiante{% endblock %}
-
+{% block breadcrumb %}
+<a href="{% url 'home.home' %}">Inicio</a>
+  <span>/</span>
+  <a href="{% url 'students.student_list' %}">Lista estudiantes</a>
+  <span>/</span>
+  <a href="{% url 'students.modify_student' student.student_id %}"><strong> id# {{student.student_id}}</strong></a>
+{% endblock %}
 {% block content %}
 <div class="container">
     <h2>Modificar Perfil</h2>
     <form method="POST">
         {% csrf_token %}
+        <!-- Campos para modificar el perfil -->
         <div class="form-group">
             <label for="name">Nombre</label>
             <input type="text" class="form-control" id="name" name="name" value="{{ student.name }}" required>
@@ -52,6 +59,11 @@
             <label class="form-check-label" for="extended_vacation">Vacaciones Extendidas</label>
         </div>
         <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+    </form>
+    <hr>
+    <form action="{% url 'students.confirm_delete_student' student.student_id %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger mt-3">Eliminar Estudiante</button>
     </form>
 </div>
 {% endblock %}

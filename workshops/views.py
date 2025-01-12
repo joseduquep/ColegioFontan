@@ -1,9 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from .forms import WorkshopForm
 from .models import Workshop, Block
 from datetime import time
 from students.models import Student
 from django.contrib import messages
+from tutors.models import Tutor
+
 
 def create_workshop(request):
     if request.method == 'POST':
@@ -59,7 +62,7 @@ def create_blocks(workshop, is_high_school):
 
 def list_workshops(request):
     workshops = Workshop.objects.all()
-    return render(request, 'workshops/list.html', {'workshops': workshops})
+    return render(request, 'workshops/workshops_list.html', {'workshops': workshops})
 
 
 def students_by_workshop(request, workshop_id):
@@ -81,8 +84,6 @@ def show_blocks(request):
         {'block': block, 'students': block.students.all()}
         for block in Block.objects.all()
     ]
-
-    # Paginación: Dividimos en grupos de 10 bloques (o cualquier número que prefieras)
     paginator = Paginator(blocks_with_students, 50)  # 10 bloques por página
     page_number = request.GET.get('page')  # Página actual
     page_obj = paginator.get_page(page_number)
@@ -90,4 +91,46 @@ def show_blocks(request):
     return render(request, 'workshops/show_blocks.html', {
         'blocks_with_students': page_obj,  # Pasamos solo la página actual
     })
+
+
+
+def modify_workshop(request, workshop_id):
+    workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
+    tutors = Tutor.objects.all()  # Listar todos los tutores disponibles
+
+    if request.method == 'POST':
+        # Actualizar los datos del taller
+        workshop.name = request.POST.get('name', workshop.name)
+        workshop.type = request.POST.get('type', workshop.type)
+        workshop.max_capacity = request.POST.get('max_capacity', workshop.max_capacity)
+        
+        # Asignar tutor al taller (si se selecciona)
+        tutor_id = request.POST.get('tutor')
+        if tutor_id:
+            workshop.tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
+        else:
+            workshop.tutor = None  # Eliminar tutor asignado si no se selecciona ninguno
+
+        workshop.save()
+        messages.success(request, f"{workshop.name} modificado exitosamente.")
+        return redirect('workshops:list_workshops')
+
+    return render(request, 'workshops/modify_workshop.html', {
+        'workshop': workshop,
+        'tutors': tutors,
+    })
+
+
+def confirm_delete_workshop(request, workshop_id):
+    workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
+    return render(request, 'workshops/confirm_delete_workshop.html', {'workshop': workshop})
+
+
+def delete_workshop(request, workshop_id):
+    workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
+    if request.method == 'POST':
+        workshop.delete()
+        messages.success(request, f"{workshop.name} eliminado exitosamente.")
+        return redirect('workshops:list_workshops')
+    return redirect('workshops:modify_workshop', workshop_id=workshop_id)
 

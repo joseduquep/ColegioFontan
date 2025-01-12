@@ -70,7 +70,8 @@
             <a class="nav-link" href="{% url 'workshops:show_blocks' %}">Bloques</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'tutors.show_tutors' %}">Tutores</a>
+            <a class="nav-link" href="{% url 'tutors.tutors_list' %}">Tutores</a>
+
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="estudiantesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -103,7 +104,7 @@
           </li>
 
           <li class="nav-item">
-            <form class="d-flex" action="{% if search_type == 'tutors' %}{% url 'tutors.show_tutors' %}{% else %}{% url 'students.student_list' %}{% endif %}" method="GET">
+            <form class="d-flex" action="{% if search_type == 'tutors' %}{% url 'tutors.tutors_list' %}{% else %}{% url 'students.student_list' %}{% endif %}" method="GET">
               <input class="form-control me-2" type="search" placeholder="Buscar..." aria-label="Buscar" name="query">
               <button class="btn btn-outline-light" type="submit">Buscar</button>
             </form>

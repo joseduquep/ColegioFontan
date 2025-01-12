@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Modificar Taller{% endblock %}
+{% block breadcrumb %}
+<a href="{% url 'home.home' %}">Inicio</a>
+<span>/</span>
+<a href="{% url 'workshops:list_workshops' %}">Lista de Talleres</a>
+<span>/</span>
+<a href="{% url 'workshops:modify_workshop' workshop.workshop_id %}">Modificar Taller</a>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Modificar Taller</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="name">Nombre del Taller</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ workshop.name }}" required>
+        </div>
+        <div class="form-group">
+            <label for="type">Tipo de Taller</label>
+            <select class="form-control" id="type" name="type">
+                <option value="primary" {% if workshop.type == 'primary' %}selected{% endif %}>Primaria</option>
+                <option value="high_school" {% if workshop.type == 'high_school' %}selected{% endif %}>Bachillerato</option>
+                <option value="collective" {% if workshop.type == 'collective' %}selected{% endif %}>Colectivo</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="max_capacity">Capacidad Máxima</label>
+            <input type="number" class="form-control" id="max_capacity" name="max_capacity" value="{{ workshop.max_capacity }}" required>
+        </div>
+        <div class="form-group">
+            <label for="tutor">Tutor Asignado</label>
+            <select class="form-control" id="tutor" name="tutor">
+                <option value="">-- Sin asignar --</option>
+                {% for tutor in tutors %}
+                    <option value="{{ tutor.tutor_id }}" {% if tutor == workshop.tutor %}selected{% endif %}>
+                        {{ tutor.user.first_name }} {{ tutor.user.last_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+    </form>
+    <hr>
+    <form action="{% url 'workshops:confirm_delete_workshop' workshop.workshop_id %}" method="GET">
+        <button type="submit" class="btn btn-danger">Eliminar Taller</button>
+    </form>
+</div>
+{% endblock %}
