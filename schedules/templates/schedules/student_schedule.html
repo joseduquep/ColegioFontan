@@ -5,8 +5,10 @@
   <span>/</span>
   <a href="{% url 'students.student_list' %}">Estudiantes</a>
   <span>/</span>
+  <a href="{% url 'workshops:list_workshops' %}">Lista de Talleres</a>
+  <span>/</span>
   <a href="{% url 'student_schedule' student.student_id %}">{{ student.name }} #{{ student.student_id }}</a>
-{% endblock %}
+  {% endblock %}
 
 {% load static %}
 

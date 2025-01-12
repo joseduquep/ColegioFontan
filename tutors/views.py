@@ -1,10 +1,9 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
-
 from workshops.models import Workshop, Block
 from tutors.models import Tutor
 from schedules.models import Schedule
-
+from django.contrib import messages
 from .forms import TutorRegistrationForm, UserForm
 
 def register_tutor(request):
@@ -27,7 +26,7 @@ def register_tutor(request):
 
 
 
-def show_tutors(request):
+def tutors_list(request):
     query = request.GET.get('query', '').strip()  # Elimina espacios en blanco en la búsqueda
     workshops = Workshop.objects.all()
 
@@ -40,7 +39,7 @@ def show_tutors(request):
     else:
         tutors = Tutor.objects.all()
 
-    return render(request, 'tutors/show_tutors.html', {
+    return render(request, 'tutors/tutors_list.html', {
         'workshops': workshops,
         'tutors': tutors,
         'query': query,
@@ -118,3 +117,45 @@ def tutor_schedule(request, tutor_id):
     }
 
     return render(request, "schedules/tutor_schedule.html", context)
+
+
+def modify_tutor(request, tutor_id):
+    tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
+    workshops = Workshop.objects.all()
+
+    if request.method == 'POST':
+        # Actualizar datos del usuario asociado
+        user = tutor.user
+        user.first_name = request.POST.get('first_name', user.first_name)
+        user.last_name = request.POST.get('last_name', user.last_name)
+        user.email = request.POST.get('email', user.email)
+        user.save()
+
+        # Actualizar talleres asignados al tutor
+        workshop_ids = request.POST.getlist('workshops')  # Lista de IDs de talleres seleccionados
+        valid_workshop_ids = [wid for wid in workshop_ids if wid.strip()]  # Filtrar IDs válidos
+        tutor.workshops.set(Workshop.objects.filter(workshop_id__in=valid_workshop_ids))
+
+        tutor.save()
+        messages.success(request, "¡Tutor modificado exitosamente!")
+        return redirect('tutors.tutors_list')
+
+    return render(request, 'tutors/modify_tutor.html', {
+        'tutor': tutor,
+        'workshops': workshops,
+    })
+
+
+
+def confirm_delete_tutor(request, tutor_id):
+    tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
+    return render(request, 'tutors/confirm_delete_tutor.html', {'tutor': tutor})
+
+
+def delete_tutor(request, tutor_id):
+    tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
+    if request.method == 'POST':
+        tutor.delete()
+        messages.success(request, f"El tutor {tutor.user.first_name} {tutor.user.last_name} ha sido eliminado.")
+        return redirect('tutors.tutors_list')
+    return redirect('tutors.modify_tutor', tutor_id=tutor_id)

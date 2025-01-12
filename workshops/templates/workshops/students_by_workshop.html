@@ -4,7 +4,7 @@
   <span>/</span>
   <a href="{% url 'workshops:list_workshops' %}">Lista de Talleres</a>
   <span>/</span>
-  <span>Estudiantes por Taller</span>
+  <a href="{% url 'workshops:students_by_workshop' workshop.workshop_id %}">Lista estudiantes {{ workshop.name }}</a>
 {% endblock %}
 {% load static %}
 

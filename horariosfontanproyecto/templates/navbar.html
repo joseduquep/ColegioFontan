@@ -72,7 +72,7 @@
               Tutores
             </a>
             <ul class="dropdown-menu" aria-labelledby="tutoresDropdown">
-              <li><a class="dropdown-item" href="{% url 'tutors.show_tutors' %}">Ver Tutores</a></li>
+              <li><a class="dropdown-item" href="{% url 'tutors.tutors_list' %}">Ver Tutores</a></li>
               <li><a class="dropdown-item" href="{% url 'tutors.register_tutor' %}">Crear Tutor</a></li> {## Aquí debes ajustar la URL a la vista para crear tutores ##}
             </ul>
           </li>
@@ -108,7 +108,7 @@
           </li>
 
           <li class="nav-item">
-            <form class="d-flex" action="{% if search_type == 'tutors' %}{% url 'tutors.show_tutors' %}{% else %}{% url 'students.student_list' %}{% endif %}" method="GET">
+            <form class="d-flex" action="{% if search_type == 'tutors' %}{% url 'tutors.tutors_list' %}{% else %}{% url 'students.student_list' %}{% endif %}" method="GET">
               <input class="form-control me-2" type="search" placeholder="Buscar..." aria-label="Buscar" name="query">
               <button class="btn btn-outline-light" type="submit">Buscar</button>
             </form>
