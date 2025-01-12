@@ -43,19 +43,27 @@ def student_schedule(request, student_id):
             pass
 
     days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-    num_blocks = range(1, len(schedule["Monday_Thursday"]) + 1)
-    student_schedule = Schedule.objects.filter(student=student).select_related('block')
+    blocks_per_day = {
+        "Monday": 5,
+        "Tuesday": 5,
+        "Wednesday": 5,
+        "Thursday": 5,
+        "Friday": 4,  # Solo hasta 4 bloques el viernes
+    }
+    num_blocks = range(1, max(blocks_per_day.values()) + 1)
 
+    # Generar la tabla del horario
+    student_schedule = Schedule.objects.filter(student=student).select_related('block')
     schedule_table = [
         [
             {
                 "day": day,
-                "block_number": block_number,
+                "block_number": block_number if block_number <= blocks_per_day[day] else None,
                 "workshop": next(
                     (entry.block.workshop.name for entry in student_schedule
                      if entry.block.block_number == block_number and entry.block.day == day),
                     None
-                ),
+                ) if block_number <= blocks_per_day[day] else None,
             }
             for day in days_of_week
         ]
@@ -71,6 +79,7 @@ def student_schedule(request, student_id):
     }
 
     return render(request, "schedules/student_schedule.html", context)
+
 
 
 def get_block_capacity(workshops, day, block_number):
