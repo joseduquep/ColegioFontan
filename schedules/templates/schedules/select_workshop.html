@@ -3,7 +3,7 @@
 {% block breadcrumb %}
   <a href="{% url 'home.home' %}">Inicio</a>
   <span>/</span>
-  <a href="{% url 'student_schedule' student.student_id %}">Estudiantes</a>
+  <a href="{% url 'students.student_list' %}">Estudiantes</a>
   <span>/</span>
   <a href="{% url 'student_schedule' student.student_id %}">{{ student.name }} #{{ student.student_id }}</a>
   <span>/</span>

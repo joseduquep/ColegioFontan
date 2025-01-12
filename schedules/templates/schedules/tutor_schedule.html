@@ -4,8 +4,9 @@
   <a href="{% url 'home.home' %}">Inicio</a>
   <span>/</span>
   <a href="{% url 'tutors.tutors_list' %}">Tutores</a>
-  <span>></span>
-  <span>Tutor: {{ tutor_id }}</span>
+  <span>/</span>
+  <a href="{% url 'tutor_schedule' tutor_id=tutor_id  %}">Tutor: {{ tutor_id }}</a>
+  <span></span>
 {% endblock %}
 {% load static %}
 

@@ -162,6 +162,7 @@ def students_in_block(request, tutor_id, day, block_number):
     students = block.students.all().order_by("-status", "name")
     return render(request, "schedules/students_in_block.html", {
         "tutor": tutor,
+        'tutor_id': tutor.tutor_id,
         "block": block,
         "block_id": block.block_id,
         "block_day": block.day,
