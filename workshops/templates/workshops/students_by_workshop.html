@@ -23,7 +23,9 @@
       {% endif %}
     </p>
   </div>
-
+  <div class="text-center">
+    <a href="{% url 'workshops:modify_workshop' workshop_id=workshop.workshop_id %}" class="btn btn-primary">Modificar taller</a>
+  </div>
   <h3 class="mb-3">Estudiantes:</h3>
 
   {% if students %}
@@ -38,6 +40,7 @@
               <p><strong>Grado:</strong> {{ student.grade }}</p>
               <p><strong>Taller:</strong> {{ student.workshop.name }}</p>
               <a href="{% url 'student_schedule' student_id=student.student_id %}" class="btn btn-primary">Ver Horario</a>
+              
             </div>
           </div>
         </div>
@@ -48,6 +51,7 @@
       No hay estudiantes asignados a este taller.
     </div>
   {% endif %}
+
 </div>
 
 {% endblock %}

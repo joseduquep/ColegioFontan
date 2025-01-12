@@ -4,7 +4,7 @@
   <span>/</span>
   <a href="{% url 'students.student_list' %}">Estudiantes</a>
   <span>/</span>
-  <span>Lista talleres</span>
+  <a href="{% url 'workshops:list_workshops' %}">Lista talleres</a>
 {% endblock %}
 {% block content %}
 <div class="container mt-4">
@@ -13,9 +13,7 @@
   <div class="list-group">
     {% for workshop in workshops %}
       <a 
-        href="{% url 'workshops:students_by_workshop' workshop.workshop_id %}" 
-        class="list-group-item list-group-item-action py-4"
-      >
+        href="{% url 'workshops:students_by_workshop' workshop.workshop_id %}" class="list-group-item list-group-item-action py-4">
         <h5 class="mb-1">{{ workshop.name }}</h5>
         <p class="mb-0 text-muted">
           <strong>Tutor:</strong> 
