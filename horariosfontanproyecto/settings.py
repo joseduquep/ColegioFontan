@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'tutors',
     'workshops',
     'schedules',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [

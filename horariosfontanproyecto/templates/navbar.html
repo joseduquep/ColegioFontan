@@ -64,15 +64,18 @@
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
         {% if user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'accounts.signup' %}">Registrar Perfil</a>
+            <a class="nav-link" href="{% url 'students.absent_students' %}">Estudiantes ausentes</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'accounts.signup' %}">Registrar perfil</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{% url 'workshops:show_blocks' %}">Bloques</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{% url 'tutors.tutors_list' %}">Tutores</a>
-
           </li>
+          
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="estudiantesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               Estudiantes
@@ -108,11 +111,6 @@
               <input class="form-control me-2" type="search" placeholder="Buscar..." aria-label="Buscar" name="query">
               <button class="btn btn-outline-light" type="submit">Buscar</button>
             </form>
-          </li>
-
-        {% else %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'accounts.login' %}">Iniciar Sesión</a>
           </li>
         {% endif %}
       </ul>

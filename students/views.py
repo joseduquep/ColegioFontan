@@ -99,3 +99,19 @@ def delete_student(request, student_id):
         messages.success(request, f"El estudiante {student.name} {student.lastname} ha sido eliminado.")
         return redirect('students.student_list')  # Redirige a la lista de estudiantes
     return redirect('students.modify_student', student_id=student_id)  # Si no es POST, regresa a modificar
+
+
+def absent_students(request):
+    
+    workshops = Workshop.objects.all()
+    students = Student.objects.filter(status='absent')
+
+    
+    paginator = Paginator(students, 30)  
+    page_number = request.GET.get('page')  
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'students/absent_students.html', {
+        'workshops': workshops,
+        'students': page_obj,  
+    })

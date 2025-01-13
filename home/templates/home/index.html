@@ -1,39 +1,63 @@
 {% extends 'base.html' %}
 {% block title %}Página principal{% endblock %}
 
-{% load static %}
 {% block content %}
 <style>
+  /* Asegurarse de que el body y el contenedor principal no tengan padding/margin */
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
   .container-home {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: calc(100vh - 180px); /* Ajusta la altura mínima según el tamaño del footer */
+    min-height: calc(100vh - 120px); /* Ajusta según navbar y footer */
+    text-align: center;
+    padding: 0; /* Eliminar cualquier padding adicional */
+    margin: 0 auto; /* Centrar el contenedor horizontalmente */
+    box-sizing: border-box; /* Asegura que el padding no desplace el contenido */
+    width: 100%; /* Asegura que ocupe todo el ancho disponible */
   }
 
-  .image-container {
-    max-width: 300px; /* Ajusta el ancho máximo de la imagen */
-    width: 100%;
-  }
-
-  .responsive-image {
-    width: 100%;
-    height: auto;
-  }
-
+  /* Estilo del título */
   h1 {
-    font-size: 2.5rem;
-    margin-top: 2rem;
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: #333; /* Texto oscuro */
+    margin-bottom: 2rem;
+  }
+
+  /* Estilo del botón */
+  .btn-primary {
+    background-color: #064463; /* Color principal del botón */
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.8rem;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    cursor: pointer;
+  }
+
+  /* Hover del botón */
+  .btn-primary:hover {
+    background-color: #1C5471;
+    transform: scale(1.05); /* Ligero zoom */
+  }
+
+  /* Botón al hacer clic */
+  .btn-primary:active {
+    transform: scale(1); /* Sin efecto al presionar */
   }
 </style>
 
-<div class="container-home text-center mt-5">
-    <h1 class="mb-4">Bienvenido a Horarios Fontan</h1>
-  <div class="image-container">
-    <img src="{% static 'images/logo.png' %}" alt="Colegio Fontan" class="responsive-image">
-  </div>
-  <br>
-  
+<div class="container-home">
+  <h1>Bienvenidos a Horarios Fontan</h1>
+  <a href="{% url 'accounts.login' %}" class="btn-primary">Iniciar Sesión</a>
 </div>
 {% endblock %}
