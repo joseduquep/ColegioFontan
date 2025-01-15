@@ -10,15 +10,17 @@ class StudentRegistrationForm(forms.ModelForm):
             'id_number', 
             'autonomy_level', 
             'grade', 
-            'workshop'
+            'workshop',
+            'rotation_workshop'
         ]
         labels = {
             'name': 'Nombre',
             'lastname': 'Apellido',
-            'id_number': 'Número de Identificación',
-            'autonomy_level': 'Nivel de Autonomía',
+            'id_number': 'Número de identificación',
+            'autonomy_level': 'Nivel de autonomía',
             'grade': 'Grado',
             'workshop': 'Taller',
+            'rotation_workshop': 'Taller de rotación'
         }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su nombre'}),
@@ -27,6 +29,7 @@ class StudentRegistrationForm(forms.ModelForm):
             'autonomy_level': forms.Select(attrs={'class': 'form-control'}),
             'grade': forms.Select(attrs={'class': 'form-control'}),
             'workshop': forms.Select(attrs={'class': 'form-control'}),
+            'rotation_workshop': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el taller de rotación'}),
         }
 
     # Validación personalizada si se necesita

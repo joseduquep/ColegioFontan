@@ -12,7 +12,17 @@
 {% block content %}
 <div class="container">
     <h1>Seleccionar Taller para {{ student.name }} {{ student.lastname }}</h1>
-    <h2>{{ day }} - Bloque {{ block_number }}</h2>
+    <h2>Escoger taller para Bloque {{ block_number }} - 
+        {% if day == "Monday" %}Lunes
+        {% elif day == "Tuesday" %}Martes
+        {% elif day == "Wednesday" %}Miércoles
+        {% elif day == "Thursday" %}Jueves
+        {% elif day == "Friday" %}Viernes
+        {% elif day == "Saturday" %}Sábado
+        {% elif day == "Sunday" %}Domingo
+        {% else %}{{ day }}
+        {% endif %}
+    </h2>
 
     {% if error %}
     <div class="alert alert-danger">

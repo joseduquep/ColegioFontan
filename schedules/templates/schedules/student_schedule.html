@@ -45,15 +45,21 @@
                         {% if cell.block_number %}
                             {% if cell.workshop %}
                                 <a href="{% url 'select_workshop' student.student_id cell.day cell.block_number %}" 
-                                   class="btn btn-primary edit-workshop-button">
-                                    {{ cell.workshop }}
+                                    class="btn btn-primary edit-workshop-button">
+                                    {{ cell.workshop.name }} 
+                                    {% if cell.tutor %}
+                                        ({{ cell.tutor }})
+                                    {% else %}
+                                        (No asignado)
+                                    {% endif %}
                                 </a>
                             {% else %}
                                 <a href="{% url 'select_workshop' student.student_id cell.day cell.block_number %}" 
-                                   class="btn btn-secondary add-workshop-button">
-                                    Agregar Taller
+                                class="btn btn-secondary add-workshop-button">
+                            Agregar Taller
                                 </a>
                             {% endif %}
+                    
                         {% else %}
                             <span>Sin bloque</span>
                         {% endif %}

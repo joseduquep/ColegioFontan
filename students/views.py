@@ -67,7 +67,9 @@ def modify_student(request, student_id):
         student.id_number = request.POST.get('id_number', student.id_number)
         student.autonomy_level = request.POST.get('autonomy_level', student.autonomy_level)
         student.grade = request.POST.get('grade', student.grade)
+        student.rotation_workshop = request.POST.get('rotation_workshop', student.rotation_workshop)
         student.extended_vacation = 'extended_vacation' in request.POST
+        
 
         # Actualizar el taller base si se selecciona
         workshop_id = request.POST.get('workshop')

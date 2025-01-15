@@ -44,7 +44,7 @@ class Student(models.Model):
     )
     workshop = models.ForeignKey('workshops.Workshop', on_delete=models.SET_NULL, null=True, blank=True)
     last_reset = models.DateTimeField(default=now) 
-
+    rotation_workshop = models.CharField(max_length=200, blank=True, null=True)
 
 
     def __str__(self):

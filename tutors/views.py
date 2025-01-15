@@ -88,13 +88,18 @@ def tutor_schedule(request, tutor_id):
                     "workshop": workshop_name,
                 })
         primary_schedule_table.append(row)
-
+    has_primary = tutor.workshops.filter(type="primary").exists()
+    has_highschool = tutor.workshops.filter(type="high_school").exists()
+    has_collective = tutor.workshops.filter(type="collective").exists()
     context = {
         "tutor": tutor,
         "tutor_id": tutor_id,
         "tutor_schedule_table": tutor_schedule_table,
         "days_of_week": days_of_week,
         "primary_schedule_table": primary_schedule_table,
+        "has_primary": has_primary,
+        "has_highschool": has_highschool,
+        "has_collective": has_collective, 
     }
 
     return render(request, "schedules/tutor_schedule.html", context)

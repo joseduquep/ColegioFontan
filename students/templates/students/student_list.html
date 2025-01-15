@@ -21,6 +21,7 @@
               <p class="card-text"><strong>Nivel de Autonomía:</strong> {{ student.autonomy_level }}</p>
               <p class="card-text"><strong>Grado:</strong> {{ student.grade }}</p>
               <p class="card-text"><strong>Taller base:</strong> {{ student.workshop.name }}</p>
+              <p class="card-text"><strong>Taller de rotación:</strong> {{ student.rotation_workshop }}</p>
               <a href="{% url 'students.modify_student' student_id=student.student_id %}" class="btn btn-warning">Modificar Perfil</a>
               <a href="{% url 'student_schedule' student_id=student.student_id %}" class="btn btn-primary">Ver Horario</a>
             </div>

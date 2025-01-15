@@ -16,68 +16,140 @@
 <div class="schedule-container">
     <h2 class="schedule-title">Horario de {{ tutor.user.first_name }} {{ tutor.user.last_name }}</h2>
 
-    <div class="table-wrapper">
-        <h3>Bachillerato</h3>
-        <table class="schedule-table">
-            <thead>
-                <tr>
-                    <th>Bloque/Día</th>
-                    {% for day in days_of_week %}
-                        <th>{{ day }}</th>
+    {% if has_collective %}
+        <!-- Mostrar ambos horarios para talleres colectivos -->
+        <div class="table-wrapper">
+            <h3>Bachillerato</h3>
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Bloque/Día</th>
+                        {% for day in days_of_week %}
+                            <th>{{ day }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in tutor_schedule_table %}
+                    <tr>
+                        <td class="schedule-block">Bloque {{ row.0.block_number }}</td>
+                        {% for cell in row %}
+                        <td class="schedule-cell">
+                            {% if cell.block_number %}
+                                <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}" class="btn btn-primary">
+                                    Ver estudiantes
+                                </a>
+                            {% else %}
+                                <span>Sin bloque</span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
                     {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in tutor_schedule_table %}
-                <tr>
-                    <td class="schedule-block">Bloque {{ row.0.block_number }}</td>
-                    {% for cell in row %}
-                    <td class="schedule-cell">
-                        {% if cell.block_number %}
-                            <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}" class="btn btn-primary">
-                                Ver estudiantes
-                            </a>
-                        {% else %}
-                            <span>Sin bloque</span>
-                        {% endif %}
-                    </td>
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                </tbody>
+            </table>
+        </div>
 
-    <div class="table-wrapper">
-        <h3>Primaria</h3>
-        <table class="schedule-table">
-            <thead>
-                <tr>
-                    <th>Bloque/Día</th>
-                    {% for day in days_of_week %}
-                        <th>{{ day }}</th>
+        <div class="table-wrapper">
+            <h3>Primaria</h3>
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Bloque/Día</th>
+                        {% for day in days_of_week %}
+                            <th>{{ day }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in primary_schedule_table %}
+                    <tr>
+                        <td class="schedule-block">Bloque {{ row.0.block_number }}</td>
+                        {% for cell in row %}
+                        <td class="schedule-cell">
+                            {% if cell.block_number %}
+                                <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}" class="btn btn-primary">
+                                    Ver estudiantes
+                                </a>
+                            {% else %}
+                                <span>Sin bloque</span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
                     {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in primary_schedule_table %}
-                <tr>
-                    <td class="schedule-block">Bloque {{ row.0.block_number }}</td>
-                    {% for cell in row %}
-                    <td class="schedule-cell">
-                        {% if cell.block_number %}
-                            <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}" class="btn btn-primary">
-                                Ver estudiantes
-                            </a>
-                        {% else %}
-                            <span>Sin bloque</span>
-                        {% endif %}
-                    </td>
+                </tbody>
+            </table>
+        </div>
+    {% elif has_primary %}
+        <!-- Mostrar solo el horario de primaria -->
+        <div class="table-wrapper">
+            <h3>Primaria</h3>
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Bloque/Día</th>
+                        {% for day in days_of_week %}
+                            <th>{{ day }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in primary_schedule_table %}
+                    <tr>
+                        <td class="schedule-block">Bloque {{ row.0.block_number }}</td>
+                        {% for cell in row %}
+                        <td class="schedule-cell">
+                            {% if cell.block_number %}
+                                <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}" class="btn btn-primary">
+                                    Ver estudiantes
+                                </a>
+                            {% else %}
+                                <span>Sin bloque</span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
                     {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                </tbody>
+            </table>
+        </div>
+    {% elif has_highschool %}
+        <!-- Mostrar solo el horario de bachillerato -->
+        <div class="table-wrapper">
+            <h3>Bachillerato</h3>
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Bloque/Día</th>
+                        {% for day in days_of_week %}
+                            <th>{{ day }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in tutor_schedule_table %}
+                    <tr>
+                        <td class="schedule-block">Bloque {{ row.0.block_number }}</td>
+                        {% for cell in row %}
+                        <td class="schedule-cell">
+                            {% if cell.block_number %}
+                                <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}" class="btn btn-primary">
+                                    Ver estudiantes
+                                </a>
+                            {% else %}
+                                <span>Sin bloque</span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No hay horarios asociados a este tutor.</p>
+    {% endif %}
 </div>
+
 {% endblock %}

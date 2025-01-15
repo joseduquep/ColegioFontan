@@ -43,13 +43,25 @@ def student_schedule(request, student_id):
             pass
 
     days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-    blocks_per_day = {
-        "Monday": 5,
-        "Tuesday": 5,
-        "Wednesday": 5,
-        "Thursday": 5,
-        "Friday": 4,  # Solo hasta 4 bloques el viernes
-    }
+
+    # Definir bloques según el grado
+    if student.grade > 5:
+        blocks_per_day = {
+            "Monday": 4,
+            "Tuesday": 4,
+            "Wednesday": 4,
+            "Thursday": 4,
+            "Friday": 3,
+        }
+    else:
+        blocks_per_day = {
+            "Monday": 5,
+            "Tuesday": 5,
+            "Wednesday": 5,
+            "Thursday": 5,
+            "Friday": 4,
+        }
+
     num_blocks = range(1, max(blocks_per_day.values()) + 1)
 
     # Generar la tabla del horario
@@ -60,8 +72,13 @@ def student_schedule(request, student_id):
                 "day": day,
                 "block_number": block_number if block_number <= blocks_per_day[day] else None,
                 "workshop": next(
-                    (entry.block.workshop.name for entry in student_schedule
+                    (entry.block.workshop for entry in student_schedule
                      if entry.block.block_number == block_number and entry.block.day == day),
+                    None
+                ) if block_number <= blocks_per_day[day] else None,
+                "tutor": next(
+                    (entry.block.workshop.tutor.user.get_full_name() for entry in student_schedule
+                     if entry.block.block_number == block_number and entry.block.day == day and entry.block.workshop.tutor),
                     None
                 ) if block_number <= blocks_per_day[day] else None,
             }
@@ -79,6 +96,7 @@ def student_schedule(request, student_id):
     }
 
     return render(request, "schedules/student_schedule.html", context)
+
 
 
 
@@ -128,7 +146,9 @@ def select_workshop(request, student_id, day, block_number):
         'workshops': workshops,
         'day': day,
         'block': block_number,
+        'block_number': block_number,
     })
+
 
 
 
