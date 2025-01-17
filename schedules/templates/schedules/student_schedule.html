@@ -69,11 +69,6 @@
                 {% endfor %}
             </tbody>
         </table>
-        <div>
-            <a class="btn btn-secondary" href="{% url 'select_workshop' student.student_id 'Monday' 1 %}">
-                Taller base: {{ student.workshop.name|default:"No asignado" }}
-            </a>
-        </div>
     </div>
 </div>
 

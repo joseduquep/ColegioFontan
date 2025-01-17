@@ -131,11 +131,6 @@ def select_workshop(request, student_id, day, block_number):
         Schedule.objects.create(student=student, block=block)
         block.students.add(student)
 
-        # Si el bloque es el "Taller base" (lunes, bloque 1), actualiza el taller base
-        if day == 'Monday' and block_number == 1:
-            student.workshop = workshop
-            student.save()
-
         # Redirigir al horario del estudiante
         return HttpResponseRedirect(reverse('student_schedule', args=[student_id]))
 
