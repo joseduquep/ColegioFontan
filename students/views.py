@@ -74,11 +74,19 @@ def modify_student(request, student_id):
         # Actualizar el taller base si se selecciona
         workshop_id = request.POST.get('workshop')
         if workshop_id:
-            student.workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
-        student.save()
+            workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
 
-        return redirect('students.student_list')  # Redirigir a la lista de estudiantes
-
+            # Verificar si el taller tiene capacidad disponible
+            current_student_count = Student.objects.filter(workshop=workshop).count()
+            if current_student_count < workshop.max_capacity:
+                student.workshop = workshop
+                student.save()
+                messages.success(request, f"Taller base actualizado a {workshop.name}.")
+            else:
+                messages.error(
+                    request,
+                    f"El taller '{workshop.name}' ha alcanzado su capacidad máxima ({workshop.max_capacity})."
+                )
     # Agregar rango de grados al contexto
     grades_range = range(1, 12)
 
