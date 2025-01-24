@@ -12,11 +12,14 @@ def tutors_list(request):
     workshops = Workshop.objects.all()
 
     if query:
-        tutors = Tutor.objects.filter(
-            Q(user__username__icontains=query) |
-            Q(user__first_name__icontains=query) |
-            Q(user__last_name__icontains=query)
-        )
+        keywords = query.split()
+
+        filters = Q()
+        for keyword in keywords:
+            filters |= Q(user__first_name__icontains=keyword) | Q(user__last_name__icontains=keyword)
+    
+        tutors = Tutor.objects.filter(filters)
+
     else:
         tutors = Tutor.objects.all()
 

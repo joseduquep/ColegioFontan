@@ -13,11 +13,18 @@ def student_list(request):
     query = request.GET.get('query', '').strip()  # Elimina espacios en blanco en la búsqueda
     workshops = Workshop.objects.all()
 
+
     if query:
-        students = Student.objects.filter(
-            Q(name__icontains=query) | 
-            Q(lastname__icontains=query)
-        )
+        keywords = query.split()
+
+    # Crear un filtro dinámico para buscar en nombre y apellido
+        filters = Q()
+        for keyword in keywords:
+            filters |= Q(name__icontains=keyword) | Q(lastname__icontains=keyword)
+    
+    # Aplicar el filtro
+        students = Student.objects.filter(filters)
+
     else:
         students = Student.objects.all()
 
