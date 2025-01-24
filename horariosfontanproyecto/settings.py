@@ -30,6 +30,10 @@ ALLOWED_HOSTS = ["*"]
 print("DEBUG:", DEBUG)
 print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://horariosistemafontan.online',
+    'https://www.horariosistemafontan.online'
+]
 
 
 # Application definitionINSTALLED_APPS += ['django_celery_beat']
