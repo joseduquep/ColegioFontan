@@ -23,9 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-oqd^oz@mj@5s!1!jw&xqj!g-ctw@g$0m&g1_9fq5xx__9tn482'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ["*",'horariosistemafontan.online', 'www.horariosistemafontan.online', '45.56.115.110']
+ALLOWED_HOSTS = ["*"]
+
+print("DEBUG:", DEBUG)
+print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
 
 
 
@@ -125,6 +128,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'  # Ruta pública de archivos estáticos
 
+STATIC_ROOT = '/var/www/django_app/static/'
+
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'horariosfontanproyecto/static'),  # Ruta a tus archivos estáticos
     BASE_DIR / "static",
@@ -138,3 +144,49 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'  # URL base para archivos subidos
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Carpeta donde se almacenarán los archivos
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'file_disallowed': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': 'disallowed_hosts.log',
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django.security.DisallowedHost': {
+            'handlers': ['file_disallowed'],
+            'propagate': False,
+            'level': 'ERROR',
+        },
+    }
+}
+# Configuración de cookies de sesión
+
+SESSION_COOKIE_AGE = 86400  # Tiempo de vida de la cookie de sesión en segundos (1 día)
+SESSION_COOKIE_HTTPONLY = True  # Impide que JavaScript acceda a la cookie
+SESSION_COOKIE_SECURE = True  # Solo se envía la cookie a través de HTTPS (si lo tienes configurado)
+SESSION_COOKIE_SAMESITE = 'Strict'  # Restringe el envío de la cookie a solicitudes del mismo sitio
+SESSION_COOKIE_DOMAIN = 'horariosistemafontan.online' # Dominio para el que es válida la cookie
