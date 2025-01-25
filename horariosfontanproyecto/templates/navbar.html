@@ -60,9 +60,6 @@
       <a class="navbar-brand ms-3" href="{% url 'home.home' %}">
         <img src="{% static 'images/logo.png' %}" alt="Colegio Fontán">
       </a>
-      <button class="btn btn-secondary back-button" onclick="window.history.back()">
-        <i class="fas fa-arrow-left"></i> Volver
-      </button>
       {% endif %}
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
         {% if user.is_authenticated %}
