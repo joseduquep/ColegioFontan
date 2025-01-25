@@ -16,6 +16,7 @@ django-timezone-field==7.0
 gunicorn==23.0.0
 h11==0.14.0
 kombu==5.4.2
+MarkupSafe==3.0.2
 packaging==24.2
 pillow==11.0.0
 prompt_toolkit==3.0.48
@@ -30,4 +31,5 @@ tzlocal==5.2
 uvicorn==0.34.0
 vine==5.1.0
 wcwidth==0.2.13
+Werkzeug==2.3.6
 whitenoise==6.8.2
