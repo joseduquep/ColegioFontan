@@ -12,15 +12,17 @@
 <div class="container">
   <div class="row row-cols-1 row-cols-md-3 g-4">
     {% if students %}
-      
+
       {% for student in students %}
         <div class="col">
           <div class="card" style="width: 18rem;">
             <div class="card-body">
-              <h4 class="card-title">{{ student.name }} {{ student.lastname }}
-              {% if student.extended_vacation %}
+              <h4 class="card-title">
+                {{ student.name }} {{ student.lastname }}
+                {% if student.extended_vacation %}
                   <span style="color: red; font-size: 0.9rem;">(Está en vacaciones autorizadas)</span>
-              {% endif %} </h4>
+                {% endif %}
+              </h4>
               <p class="card-text"><strong>Cédula:</strong> {{ student.id_number }}</p>
               <p class="card-text"><strong>Nivel de Autonomía:</strong> {{ student.autonomy_level }}</p>
               <p class="card-text"><strong>Grado:</strong> {{ student.grade }}</p>
