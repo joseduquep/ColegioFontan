@@ -13,6 +13,7 @@ env/
 
 # Database
 db.sqlite3
+*.sqlite3
 
 # Static and media
 staticfiles/
