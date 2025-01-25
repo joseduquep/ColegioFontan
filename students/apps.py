@@ -13,3 +13,15 @@ class StudentsConfig(AppConfig):
         print("Iniciando el programador...")  # Debug: Verifica si esto aparece
         from students.scheduler import start_scheduler
         start_scheduler()
+
+
+
+
+
+    
+    
+
+   
+
+        
+       

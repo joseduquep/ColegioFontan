@@ -13,6 +13,7 @@ def reset_student_status():
 
 def start_scheduler():
     scheduler = BackgroundScheduler(daemon=True)
-    scheduler.add_job(reset_student_status, 'cron', hour=2, minute=13)
+    scheduler.add_job(reset_student_status, 'cron', hour=16, minute=15)
     scheduler.start()
     print("Programador iniciado...")  # Debug
+

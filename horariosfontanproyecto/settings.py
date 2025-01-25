@@ -194,3 +194,5 @@ SESSION_COOKIE_HTTPONLY = True  # Impide que JavaScript acceda a la cookie
 SESSION_COOKIE_SECURE = True  # Solo se envía la cookie a través de HTTPS (si lo tienes configurado)
 SESSION_COOKIE_SAMESITE = 'Strict'  # Restringe el envío de la cookie a solicitudes del mismo sitio
 SESSION_COOKIE_DOMAIN = 'horariosistemafontan.online' # Dominio para el que es válida la cookie
+
+
