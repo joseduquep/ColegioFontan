@@ -18,3 +18,4 @@ db.sqlite3
 # Static and media
 staticfiles/
 media/
+nohup.out
