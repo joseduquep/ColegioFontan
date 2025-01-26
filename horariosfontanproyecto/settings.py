@@ -170,7 +170,7 @@ LOGGING = {
         'file_disallowed': {
             'level': 'ERROR',
             'class': 'logging.FileHandler',
-            'filename': 'disallowed_hosts.log',
+            'filename': '/var/www/django_app/ColegioFontan/ColegioFontan/logs/disallowed_hosts.log',
             'formatter': 'verbose'
         },
     },
