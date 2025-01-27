@@ -134,7 +134,7 @@ def select_workshop(request, student_id, day, block_number):
 
         is_high_school = student.grade > 5
         block_type = 'high_school' if is_high_school else 'primary'
-        block = Block.objects.filter(block_number=block_number,day=day,workshop=workshop,type=block_type).first()
+        block = Block.objects.filter(block_number=block_number, day=day, workshop=workshop, type=block_type).first()
 
         if not block or block.students.count() >= workshop.max_capacity:
             return render(request, 'schedules/select_workshop.html', {
@@ -146,10 +146,15 @@ def select_workshop(request, student_id, day, block_number):
                 'error': 'Bloque no encontrado o capacidad máxima alcanzada.',
             })
 
-        # Actualiza el horario del estudiante en el bloque
-        Schedule.objects.filter(student=student, block__day=day, block__block_number=block_number).delete()
+        # Elimina al estudiante de cualquier bloque previo en el mismo día y bloque
+        previous_schedule = Schedule.objects.filter(student=student, block__day=day, block__block_number=block_number)
+        for schedule in previous_schedule:
+            schedule.block.students.remove(student)  # Remueve el estudiante del bloque anterior
+            schedule.delete()  # Elimina el registro del horario
+
+        # Asigna al estudiante al nuevo bloque
         Schedule.objects.create(student=student, block=block)
-        block.students.add(student)
+        block.students.add(student)  # Relaciona al estudiante con el bloque
 
         # Redirigir al horario del estudiante
         return HttpResponseRedirect(reverse('student_schedule', args=[student_id]))
@@ -163,6 +168,7 @@ def select_workshop(request, student_id, day, block_number):
         'block': block_number,
         'block_number': block_number,
     })
+
 
 
 
