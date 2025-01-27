@@ -10,6 +10,18 @@
 {% endblock %}
 {% load static %}
 
+{% extends 'base.html' %}
+{% block title %}{{tutor.user.first_name}} {{ tutor.user.last_name }}{% endblock %}
+{% block breadcrumb %}
+  <a href="{% url 'home.home' %}">Inicio</a>
+  <span>/</span>
+  <a href="{% url 'tutors.tutors_list' %}">Tutores</a>
+  <span>/</span>
+  <a href="{% url 'tutor_schedule' tutor_id=tutor_id  %}">Tutor: {{ tutor_id }}</a>
+  <span></span>
+{% endblock %}
+{% load static %}
+
 {% block content %}
 <link rel="stylesheet" href="{% static 'schedules/styles.css' %}">
 
@@ -36,7 +48,7 @@
                         {% for cell in row %}
                         <td class="schedule-cell">
                             {% if cell.block_number %}
-                                <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}" class="btn btn-primary">
+                                <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}?type=high_school" class="btn btn-primary">
                                     Ver estudiantes
                                 </a>
                             {% else %}
@@ -68,7 +80,7 @@
                         {% for cell in row %}
                         <td class="schedule-cell">
                             {% if cell.block_number %}
-                                <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}" class="btn btn-primary">
+                                <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}?type=primary" class="btn btn-primary">
                                     Ver estudiantes
                                 </a>
                             {% else %}
@@ -101,7 +113,7 @@
                         {% for cell in row %}
                         <td class="schedule-cell">
                             {% if cell.block_number %}
-                                <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}" class="btn btn-primary">
+                                <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}?type=primary" class="btn btn-primary">
                                     Ver estudiantes
                                 </a>
                             {% else %}
@@ -134,7 +146,7 @@
                         {% for cell in row %}
                         <td class="schedule-cell">
                             {% if cell.block_number %}
-                                <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}" class="btn btn-primary">
+                                <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}?type=high_school" class="btn btn-primary">
                                     Ver estudiantes
                                 </a>
                             {% else %}

@@ -12,12 +12,15 @@ def tutors_list(request):
     workshops = Workshop.objects.all()
 
     if query:
+    # Dividir la query en palabras clave separadas por espacios
         keywords = query.split()
 
+    # Crear un filtro dinámico para buscar en nombre y apellido
         filters = Q()
         for keyword in keywords:
             filters |= Q(user__first_name__icontains=keyword) | Q(user__last_name__icontains=keyword)
     
+    # Aplicar el filtro
         tutors = Tutor.objects.filter(filters)
 
     else:
@@ -40,7 +43,7 @@ def tutor_schedule(request, tutor_id):
     }
     days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
 
-    # Define el número de bloques para cada día
+    # Definir bloques por día para primaria y bachillerato
     blocks_per_day = {
         "Monday": 4,
         "Tuesday": 4,
@@ -49,8 +52,8 @@ def tutor_schedule(request, tutor_id):
         "Friday": 3,
     }
 
-    # Generar horario de Bachillerato
-    tutor_schedules = Schedule.objects.filter(block__workshop__tutor=tutor).select_related('block', 'block__workshop')
+    # Generar horario de Bachillerato (solo bloques de tipo high_school)
+    highschool_blocks = Block.objects.filter(workshop__tutor=tutor, type="high_school").select_related("workshop")
     tutor_schedule_table = []
     for block_number in range(1, 5):  # Solo hasta 4 bloques para Bachillerato
         row = []
@@ -58,42 +61,36 @@ def tutor_schedule(request, tutor_id):
             if block_number > blocks_per_day[day]:
                 row.append({"day": day, "block_number": None, "workshop": None})
             else:
-                workshop_name = next(
-                    (entry.block.workshop.name for entry in tutor_schedules
-                     if entry.block.block_number == block_number and entry.block.day == day),
-                    None
-                )
+                block_entry = highschool_blocks.filter(block_number=block_number, day=day).first()
                 row.append({
                     "day": day,
                     "block_number": block_number,
-                    "workshop": workshop_name,
+                    "workshop": block_entry.workshop.name if block_entry else None,
                 })
         tutor_schedule_table.append(row)
 
-    # Generar horario de Primaria
-    primary_workshops = tutor.workshops.filter(type='primary')
-    primary_schedule = Block.objects.filter(workshop__in=primary_workshops)
+    # Generar horario de Primaria (solo bloques de tipo primary)
+    primary_blocks = Block.objects.filter(workshop__tutor=tutor, type="primary").select_related("workshop")
     primary_schedule_table = []
     for block_number in range(1, 6):  # Hasta 5 bloques para Primaria
         row = []
         for day in days_of_week:
+            # Validar el límite de bloques para viernes y días regulares
             if (day == "Friday" and block_number > 4) or (day != "Friday" and block_number > 5):
                 row.append({"day": day, "block_number": None, "workshop": None})
             else:
-                workshop_name = next(
-                    (block.workshop.name for block in primary_schedule
-                     if block.block_number == block_number and block.day == day),
-                    None
-                )
+                block_entry = primary_blocks.filter(block_number=block_number, day=day).first()
                 row.append({
                     "day": day,
                     "block_number": block_number,
-                    "workshop": workshop_name,
+                    "workshop": block_entry.workshop.name if block_entry else None,
                 })
         primary_schedule_table.append(row)
+
     has_primary = tutor.workshops.filter(type="primary").exists()
     has_highschool = tutor.workshops.filter(type="high_school").exists()
     has_collective = tutor.workshops.filter(type="collective").exists()
+
     context = {
         "tutor": tutor,
         "tutor_id": tutor_id,
@@ -102,10 +99,12 @@ def tutor_schedule(request, tutor_id):
         "primary_schedule_table": primary_schedule_table,
         "has_primary": has_primary,
         "has_highschool": has_highschool,
-        "has_collective": has_collective, 
+        "has_collective": has_collective,
     }
 
     return render(request, "schedules/tutor_schedule.html", context)
+
+
 
 
 def modify_tutor(request, tutor_id):

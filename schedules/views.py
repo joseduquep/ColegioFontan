@@ -100,21 +100,41 @@ def student_schedule(request, student_id):
 
 
 
-def get_block_capacity(workshops, day, block_number):
+def get_block_capacity(workshops, day, block_number, student_grade):
+    """
+    Calcula la capacidad de cada bloque teniendo en cuenta si el estudiante es de primaria o bachillerato.
+    """
     for workshop in workshops:
-        block = Block.objects.filter(workshop=workshop, day=day, block_number=block_number).first()
+        # Determinar el tipo de bloque según el taller y el grado del estudiante
+        block_type = (
+            "high_school" if workshop.type == "high_school" or (workshop.type == "collective" and student_grade > 5)
+            else "primary"
+        )
+        
+        # Filtrar el bloque correspondiente
+        block = Block.objects.filter(
+            workshop=workshop, 
+            day=day, 
+            block_number=block_number, 
+            type=block_type  # Verificar el tipo del bloque
+        ).first()
+        
+        # Asignar la capacidad actual
         workshop.current_capacity = block.students.count() if block else 0
 
 
 def select_workshop(request, student_id, day, block_number):
     student = get_object_or_404(Student, student_id=student_id)
     _, workshops = get_schedule_and_workshops(student)
-    get_block_capacity(workshops, day, block_number)
+    get_block_capacity(workshops, day, block_number, student.grade)
 
     if request.method == "POST":
         workshop_id = request.POST.get('workshop')
         workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
-        block = Block.objects.filter(block_number=block_number, day=day, workshop=workshop).first()
+
+        is_high_school = student.grade > 5
+        block_type = 'high_school' if is_high_school else 'primary'
+        block = Block.objects.filter(block_number=block_number,day=day,workshop=workshop,type=block_type).first()
 
         if not block or block.students.count() >= workshop.max_capacity:
             return render(request, 'schedules/select_workshop.html', {
@@ -164,11 +184,13 @@ def select_block(request, tutor_id, day, block_number):
 @login_required
 def students_in_block(request, tutor_id, day, block_number):
     print("funcion students_in_block funcionando")
+    block_type = request.GET.get("type")
     tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
     block = Block.objects.filter(
         workshop__tutor=tutor,
         day=day,
-        block_number=block_number).first()
+        block_number=block_number,
+        type=block_type).first()
 
     if not block:
         raise Http404("No se encontró el bloque correspondiente.")

@@ -133,4 +133,3 @@ def delete_workshop(request, workshop_id):
         messages.success(request, f"{workshop.name} eliminado exitosamente.")
         return redirect('workshops:list_workshops')
     return redirect('workshops:modify_workshop', workshop_id=workshop_id)
-
