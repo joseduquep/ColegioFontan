@@ -46,7 +46,6 @@ def signup(request):
         template_data['form'] = form
         return render(request, 'accounts/signup.html', {'template_data': template_data})
 
-
 @login_required
 def tutor_profile(request):
     # Verifica si el usuario tiene un perfil de tutor
