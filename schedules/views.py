@@ -173,7 +173,6 @@ def select_workshop(request, student_id, day, block_number):
 
 
 
-
 @login_required
 def select_block(request, tutor_id, day, block_number):
     tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
@@ -189,18 +188,19 @@ def select_block(request, tutor_id, day, block_number):
 
 @login_required
 def students_in_block(request, tutor_id, day, block_number):
-    print("funcion students_in_block funcionando")
     block_type = request.GET.get("type")
     tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
+
+    # Filtrar por bloque asociado al tutor
     block = Block.objects.filter(
-        workshop__tutor=tutor,
-        day=day,
-        block_number=block_number,
-        type=block_type).first()
+        day=day, 
+        block_number=block_number, 
+        type=block_type, 
+        workshop__tutor=tutor
+    ).first()
 
     if not block:
         raise Http404("No se encontró el bloque correspondiente.")
-
 
     if request.method == "POST":
         student_id = request.POST.get("student_id")
