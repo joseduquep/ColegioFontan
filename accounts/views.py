@@ -1,3 +1,4 @@
+
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
@@ -9,6 +10,7 @@ from django.http import Http404
 from django.contrib.auth.models import User
 from django.contrib import messages
 from students.models import Student
+from django.contrib.auth import update_session_auth_hash
 
 def login(request):
     
@@ -77,12 +79,28 @@ def edit_tutor_profile(request):
         tutor = get_object_or_404(Tutor, user=request.user)
 
         if request.method == 'POST':
-            # Actualizar nombre, apellido, y correo
+            # Actualizar datos del usuario
             tutor.user.username = request.POST.get('username', tutor.user.username)
             tutor.user.first_name = request.POST.get('name', tutor.user.first_name)
             tutor.user.last_name = request.POST.get('lastname', tutor.user.last_name)
             tutor.user.email = request.POST.get('email', tutor.user.email)
             tutor.user.save()
+
+            # Cambio de contraseña
+            current_password = request.POST.get('current_password')
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+
+            if current_password and new_password:
+                if not request.user.check_password(current_password):
+                    messages.error(request, "La contraseña actual es incorrecta.")
+                elif new_password != confirm_password:
+                    messages.error(request, "Las nuevas contraseñas no coinciden.")
+                else:
+                    request.user.set_password(new_password)
+                    request.user.save()
+                    update_session_auth_hash(request, request.user)  # Mantener sesión activa
+                    messages.success(request, "Contraseña cambiada correctamente.")
 
             # Obtener taller seleccionado
             selected_workshop_id = request.POST.get('workshop')
@@ -105,12 +123,28 @@ def edit_tutor_profile(request):
         user = get_object_or_404(User, pk=request.user.pk)
 
         if request.method == 'POST':
-            # Actualizar nombre, apellido, y correo
+            # Actualizar datos del usuario
             user.username = request.POST.get('username', user.username)
             user.first_name = request.POST.get('name', user.first_name)
             user.last_name = request.POST.get('lastname', user.last_name)
             user.email = request.POST.get('email', user.email)
             user.save()
+
+            # Cambio de contraseña
+            current_password = request.POST.get('current_password')
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+
+            if current_password and new_password:
+                if not user.check_password(current_password):
+                    messages.error(request, "La contraseña actual es incorrecta.")
+                elif new_password != confirm_password:
+                    messages.error(request, "Las nuevas contraseñas no coinciden.")
+                else:
+                    user.set_password(new_password)
+                    user.save()
+                    update_session_auth_hash(request, user)  # Mantener sesión activa
+                    messages.success(request, "Contraseña cambiada correctamente.")
 
             return redirect('tutor_profile')
 

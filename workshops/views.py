@@ -133,3 +133,22 @@ def delete_workshop(request, workshop_id):
         messages.success(request, f"{workshop.name} eliminado exitosamente.")
         return redirect('workshops:list_workshops')
     return redirect('workshops:modify_workshop', workshop_id=workshop_id)
+
+
+def list_by_workshop(request, workshop_id):
+    workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
+
+    if request.method == "POST":
+        student_id = request.POST.get("student_id")
+        status = request.POST.get("status")
+        if student_id and status:
+            student = get_object_or_404(Student, student_id=student_id)
+            student.status = status
+            student.save()
+
+    # Filtrar estudiantes que pertenecen a este taller
+    students = Student.objects.filter(workshop=workshop).order_by("-status", "name")
+    return render(request, "workshops/list_by_workshop.html", {
+        "workshop": workshop,
+        "students": students,
+    })

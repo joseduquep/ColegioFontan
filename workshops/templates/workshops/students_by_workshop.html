@@ -26,6 +26,10 @@
   <div class="text-center">
     <a href="{% url 'workshops:modify_workshop' workshop_id=workshop.workshop_id %}" class="btn btn-primary">Modificar taller</a>
   </div>
+  <br>
+  <div class="text-center">
+    <a href="{% url 'workshops:list_by_workshop' workshop_id=workshop.workshop_id %}" class="btn btn-primary">Llamar a lista</a>
+  </div>
   <h3 class="mb-3">Estudiantes:</h3>
 
   {% if students %}

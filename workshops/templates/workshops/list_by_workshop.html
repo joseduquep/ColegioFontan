@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Estudiantes del Taller {% endblock %}
+{% block breadcrumb %}
+  <a href="{% url 'home.home' %}">Inicio</a>
+  <span>/</span>
+  <span>Taller {{ workshop.name }}</span>
+{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Estudiantes del Taller: {{ workshop.name }}</h2>
+
+    {% if students %}
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Estado</th>
+                    <th>Actualizar Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                    <tr {% if student.status == "absent" %}class="table-danger"{% endif %}>
+                        <td>{{ student.name }} {{ student.lastname }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if student.status == 'present' %}bg-success{% elif student.status == 'absent' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                {{ student.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <form method="POST" class="d-flex align-items-center">
+                                {% csrf_token %}
+                                <input type="hidden" name="student_id" value="{{ student.student_id }}">
+                                <select name="status" class="form-select me-2">
+                                    <option value="neutral" {% if student.status == "neutral" %}selected{% endif %}>No llamado</option>
+                                    <option value="present" {% if student.status == "present" %}selected{% endif %}>Presente</option>
+                                    <option value="absent" {% if student.status == "absent" %}selected{% endif %}>Ausente</option>
+                                </select>
+                                <button type="submit" class="btn btn-primary">Actualizar</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="alert alert-info">No hay estudiantes asignados a este taller.</p>
+    {% endif %}
+</div>
+{% endblock %}
