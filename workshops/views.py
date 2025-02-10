@@ -6,8 +6,9 @@ from datetime import time
 from students.models import Student
 from django.contrib import messages
 from tutors.models import Tutor
+from django.contrib.auth.decorators import login_required
 
-
+@login_required
 def create_workshop(request):
     if request.method == 'POST':
         form = WorkshopForm(request.POST)
@@ -27,7 +28,7 @@ def create_workshop(request):
         form = WorkshopForm()
     return render(request, 'workshops/create_workshop.html', {'form': form})
 
-
+@login_required
 def create_blocks(workshop, is_high_school):
     def to_iso_time(hour_minute):
         return f"0{hour_minute}" if len(hour_minute.split(":")[0]) == 1 else hour_minute
@@ -59,12 +60,12 @@ def create_blocks(workshop, is_high_school):
                     type=block_type
                 )
 
-
+@login_required
 def list_workshops(request):
     workshops = Workshop.objects.all()
     return render(request, 'workshops/workshops_list.html', {'workshops': workshops})
 
-
+@login_required
 def students_by_workshop(request, workshop_id):
     print("cargando funcion de estudiantes por taller")
     workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
@@ -78,7 +79,7 @@ def students_by_workshop(request, workshop_id):
 
 
 from django.core.paginator import Paginator
-
+@login_required
 def show_blocks(request):
     blocks_with_students = [
         {'block': block, 'students': block.students.all()}
@@ -93,7 +94,7 @@ def show_blocks(request):
     })
 
 
-
+@login_required
 def modify_workshop(request, workshop_id):
     workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
     tutors = Tutor.objects.all()  # Listar todos los tutores disponibles
@@ -120,12 +121,12 @@ def modify_workshop(request, workshop_id):
         'tutors': tutors,
     })
 
-
+@login_required
 def confirm_delete_workshop(request, workshop_id):
     workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
     return render(request, 'workshops/confirm_delete_workshop.html', {'workshop': workshop})
 
-
+@login_required
 def delete_workshop(request, workshop_id):
     workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
     if request.method == 'POST':
@@ -134,7 +135,7 @@ def delete_workshop(request, workshop_id):
         return redirect('workshops:list_workshops')
     return redirect('workshops:modify_workshop', workshop_id=workshop_id)
 
-
+@login_required
 def list_by_workshop(request, workshop_id):
     workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
 

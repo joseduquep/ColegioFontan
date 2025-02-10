@@ -4,9 +4,10 @@ from workshops.models import Workshop, Block
 from tutors.models import Tutor
 from schedules.models import Schedule
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 
-
+@login_required
 def tutors_list(request):
     query = request.GET.get('query', '').strip()  # Elimina espacios en blanco en la búsqueda
     workshops = Workshop.objects.all()
@@ -33,7 +34,7 @@ def tutors_list(request):
         'search_type': 'tutors',
     })
 
-
+@login_required
 def tutor_schedule(request, tutor_id):
     tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
 
@@ -107,7 +108,7 @@ def tutor_schedule(request, tutor_id):
 
 
 
-
+@login_required
 def modify_tutor(request, tutor_id):
     tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
     workshops = Workshop.objects.all()
@@ -135,12 +136,12 @@ def modify_tutor(request, tutor_id):
     })
 
 
-
+@login_required
 def confirm_delete_tutor(request, tutor_id):
     tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
     return render(request, 'tutors/confirm_delete_tutor.html', {'tutor': tutor})
 
-
+@login_required
 def delete_tutor(request, tutor_id):
     tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
     if request.method == 'POST':

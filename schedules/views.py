@@ -12,6 +12,7 @@ import logging
 # Configuración básica de logging
 logger = logging.getLogger(__name__)
 
+@login_required
 
 # Función auxiliar: Determinar horario y talleres disponibles
 def get_schedule_and_workshops(student_or_tutor):
@@ -27,7 +28,7 @@ def get_schedule_and_workshops(student_or_tutor):
     workshops = Workshop.objects.filter(type__in=workshop_types)
     return schedule, workshops
 
-
+@login_required
 def student_schedule(request, student_id):
     student = get_object_or_404(Student, student_id=student_id)
     schedule, workshops = get_schedule_and_workshops(student)

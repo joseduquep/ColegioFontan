@@ -7,8 +7,9 @@ from .models import Student
 from workshops.models import Workshop
 from django.db.models import Q
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
 
-
+@login_required
 def student_list(request):
     query = request.GET.get('query', '').strip()  # Elimina espacios en blanco en la búsqueda
     workshops = Workshop.objects.all()
@@ -40,7 +41,7 @@ def student_list(request):
         'search_type': 'students',
     })
 
-
+@login_required
 def register_student(request):
     if request.method == 'POST':
         form = StudentRegistrationForm(request.POST)
@@ -62,7 +63,7 @@ def register_student(request):
 
     return render(request, 'students/register_student.html', {'form': form})
 
-
+@login_required
 def modify_student(request, student_id):
     student = get_object_or_404(Student, student_id=student_id)
     workshops = Workshop.objects.all()
@@ -103,12 +104,12 @@ def modify_student(request, student_id):
         'grades_range': grades_range,  # Pasamos el rango aquí
     })
 
-
+@login_required
 def confirm_delete_student(request, student_id):
     student = get_object_or_404(Student, student_id=student_id)
     return render(request, 'students/confirm_delete_student.html', {'student': student})
 
-
+@login_required
 def delete_student(request, student_id):
     student = get_object_or_404(Student, student_id=student_id)
     if request.method == 'POST':
@@ -117,7 +118,7 @@ def delete_student(request, student_id):
         return redirect('students.student_list')  # Redirige a la lista de estudiantes
     return redirect('students.modify_student', student_id=student_id)  # Si no es POST, regresa a modificar
 
-
+@login_required
 def absent_students(request):
     
     workshops = Workshop.objects.all()
