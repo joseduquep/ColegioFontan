@@ -37,7 +37,10 @@
                         <td class="schedule-cell">
                             {% if cell.block_number %}
                                 <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}?type=high_school" class="btn btn-primary">
-                                    Ver estudiantes
+                                    Ver estudiantes<br>
+                                    {% if cell.student_count is not None %}
+                                        ({{ cell.student_count }}/{{ cell.max_capacity }})
+                                    {% endif %}
                                 </a>
                             {% else %}
                                 <span>Sin bloque</span>
@@ -69,7 +72,11 @@
                         <td class="schedule-cell">
                             {% if cell.block_number %}
                                 <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}?type=primary" class="btn btn-primary">
-                                    Ver estudiantes
+                                    Ver estudiantes<br>
+                                    {% if cell.student_count is not None %}
+                                        ({{ cell.student_count }}/{{ cell.max_capacity }})
+                                    {% endif %}
+
                                 </a>
                             {% else %}
                                 <span>Sin bloque</span>
@@ -102,7 +109,10 @@
                         <td class="schedule-cell">
                             {% if cell.block_number %}
                                 <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}?type=primary" class="btn btn-primary">
-                                    Ver estudiantes
+                                    Ver estudiantes<br>
+                                    {% if cell.student_count is not None %}
+                                        ({{ cell.student_count }}/{{ cell.max_capacity }})
+                                    {% endif %}
                                 </a>
                             {% else %}
                                 <span>Sin bloque</span>
@@ -135,7 +145,10 @@
                         <td class="schedule-cell">
                             {% if cell.block_number %}
                                 <a href="{% url 'student_in_block' tutor.tutor_id cell.day cell.block_number %}?type=high_school" class="btn btn-primary">
-                                    Ver estudiantes
+                                    Ver estudiantes<br>
+                                    {% if cell.student_count is not None %}
+                                        ({{ cell.student_count }}/{{ cell.max_capacity }})
+                                    {% endif %}
                                 </a>
                             {% else %}
                                 <span>Sin bloque</span>

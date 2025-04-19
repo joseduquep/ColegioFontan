@@ -34,6 +34,8 @@ def tutors_list(request):
         'search_type': 'tutors',
     })
 
+from django.db.models import Count
+
 @login_required
 def tutor_schedule(request, tutor_id):
     tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
@@ -44,7 +46,6 @@ def tutor_schedule(request, tutor_id):
     }
     days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
 
-    # Definir bloques por día para primaria y bachillerato
     blocks_per_day = {
         "Monday": 4,
         "Tuesday": 4,
@@ -53,39 +54,50 @@ def tutor_schedule(request, tutor_id):
         "Friday": 3,
     }
 
-    # Generar horario de Bachillerato (solo bloques de tipo high_school)
-    highschool_blocks = Block.objects.filter(workshop__tutor=tutor, type="high_school").select_related("workshop")
+    # Optimizar consultas
+    highschool_blocks = Block.objects.filter(workshop__tutor=tutor, type="high_school").select_related("workshop").annotate(student_count=Count("students"))
+    primary_blocks = Block.objects.filter(workshop__tutor=tutor, type="primary").select_related("workshop").annotate(student_count=Count("students"))
+
     tutor_schedule_table = []
-    for block_number in range(1, 5):  # Solo hasta 4 bloques para Bachillerato
+    for block_number in range(1, 5):
         row = []
         for day in days_of_week:
             if block_number > blocks_per_day[day]:
                 row.append({"day": day, "block_number": None, "workshop": None})
             else:
                 block_entry = highschool_blocks.filter(block_number=block_number, day=day).first()
-                row.append({
-                    "day": day,
-                    "block_number": block_number,
-                    "workshop": block_entry.workshop.name if block_entry else None,
-                })
+                if block_entry and block_entry.workshop:
+                    row.append({
+                        "day": day,
+                        "block_number": block_number,
+                        "workshop_name": block_entry.workshop.name,
+                        "student_count": block_entry.student_count,
+                        "max_capacity": block_entry.workshop.max_capacity,
+                    })
+
+                else:
+                    row.append({"day": day, "block_number": None, "workshop": None})
         tutor_schedule_table.append(row)
 
-    # Generar horario de Primaria (solo bloques de tipo primary)
-    primary_blocks = Block.objects.filter(workshop__tutor=tutor, type="primary").select_related("workshop")
     primary_schedule_table = []
-    for block_number in range(1, 6):  # Hasta 5 bloques para Primaria
+    for block_number in range(1, 6):
         row = []
         for day in days_of_week:
-            # Validar el límite de bloques para viernes y días regulares
             if (day == "Friday" and block_number > 4) or (day != "Friday" and block_number > 5):
                 row.append({"day": day, "block_number": None, "workshop": None})
             else:
                 block_entry = primary_blocks.filter(block_number=block_number, day=day).first()
-                row.append({
-                    "day": day,
-                    "block_number": block_number,
-                    "workshop": block_entry.workshop.name if block_entry else None,
-                })
+                if block_entry and block_entry.workshop:
+                    row.append({
+                        "day": day,
+                        "block_number": block_number,
+                        "workshop_name": block_entry.workshop.name,
+                        "student_count": block_entry.student_count,
+                        "max_capacity": block_entry.workshop.max_capacity,
+                    })
+
+                else:
+                    row.append({"day": day, "block_number": None, "workshop": None})
         primary_schedule_table.append(row)
 
     has_primary = tutor.workshops.filter(type="primary").exists()
@@ -104,8 +116,6 @@ def tutor_schedule(request, tutor_id):
     }
 
     return render(request, "schedules/tutor_schedule.html", context)
-
-
 
 
 @login_required
