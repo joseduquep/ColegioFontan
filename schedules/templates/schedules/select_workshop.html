@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}Selec. Taller {{ block_id }}{% endblock %}
+
 {% block breadcrumb %}
   <a href="{% url 'home.home' %}">Inicio</a>
   <span>/</span>
@@ -9,10 +10,11 @@
   <span>/</span>
   <span>Seleccionar Taller</span>
 {% endblock %}
+
 {% block content %}
 <div class="container">
     <h1>Seleccionar Taller para {{ student.name }} {{ student.lastname }}</h1>
-    <h2>Escoger taller para Bloque {{ block_number }} - 
+    <h2>Escoger taller para Bloque {{ block_number }} -
         {% if day == "Monday" %}Lunes
         {% elif day == "Tuesday" %}Martes
         {% elif day == "Wednesday" %}Miércoles
@@ -34,7 +36,7 @@
         {% csrf_token %}
         <input type="hidden" name="day" value="{{ day }}">
         <input type="hidden" name="block" value="{{ block }}">
-        
+
         <table class="table">
             <thead>
                 <tr>
@@ -47,7 +49,16 @@
             <tbody>
                 {% for workshop in workshops %}
                 <tr>
-                    <td>{{ workshop.name }}</td>
+                    <td>
+                        {{ workshop.name }}
+                        {% if workshop.tutor %}
+                            <br><small>
+                                Tutor: {{ workshop.tutor.user.first_name }} {{ workshop.tutor.user.last_name }}
+                            </small>
+                        {% else %}
+                            <br><small class="text-muted">Tutor sin asignar</small>
+                        {% endif %}
+                    </td>
                     <td>{{ workshop.type }}</td>
                     <td>{{ workshop.current_capacity }} / {{ workshop.max_capacity }}</td>
                     <td>

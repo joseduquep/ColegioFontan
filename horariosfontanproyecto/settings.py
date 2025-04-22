@@ -68,12 +68,16 @@ TEMPLATES = [
 WSGI_APPLICATION = 'horariosfontanproyecto.wsgi.application'
 
 # Base de datos
+import os
+
+# Base de datos para desarrollo local (usando snapshot)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'db_dev.sqlite3',
     }
 }
+
 
 # Validadores de contraseñas
 AUTH_PASSWORD_VALIDATORS = [
