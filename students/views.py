@@ -105,40 +105,44 @@ def modify_student(request, student_id):
     workshops = Workshop.objects.all()
 
     if request.method == 'POST':
-        # Actualizar los datos del estudiante
-        student.name = request.POST.get('name', student.name)
-        student.lastname = request.POST.get('lastname', student.lastname)
-        student.id_number = request.POST.get('id_number', student.id_number)
-        student.autonomy_level = request.POST.get('autonomy_level', student.autonomy_level)
-        student.grade = request.POST.get('grade', student.grade)
-        student.rotation_workshop = request.POST.get('rotation_workshop', student.rotation_workshop)
-        student.extended_vacation = 'extended_vacation' in request.POST
-        
+        # 1) Campos básicos
+        student.name               = request.POST.get('name', student.name)
+        student.lastname           = request.POST.get('lastname', student.lastname)
+        student.id_number          = request.POST.get('id_number', student.id_number)
+        student.autonomy_level     = int(request.POST.get('autonomy_level', student.autonomy_level))
+        student.grade              = int(request.POST.get('grade', student.grade))
+        student.rotation_workshop  = request.POST.get('rotation_workshop', student.rotation_workshop)
+        student.extended_vacation  = 'extended_vacation' in request.POST
+        student.general_data       = request.POST.get('general_data', student.general_data)
 
-        # Actualizar el taller base si se selecciona
+        # 2) Taller base
         workshop_id = request.POST.get('workshop')
         if workshop_id:
             workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
-
-            # Verificar si el taller tiene capacidad disponible
-            current_student_count = Student.objects.filter(workshop=workshop).count()
-            if current_student_count < workshop.max_capacity:
+            current_count = Student.objects.filter(workshop=workshop).count()
+            if current_count < workshop.max_capacity:
                 student.workshop = workshop
-                student.save()
-                messages.success(request, f"Taller base actualizado a {workshop.name}.")
+                messages.success(request, f"Taller base actualizado a «{workshop.name}».")
             else:
                 messages.error(
                     request,
-                    f"El taller '{workshop.name}' ha alcanzado su capacidad máxima ({workshop.max_capacity})."
+                    f"El taller «{workshop.name}» ha alcanzado su capacidad máxima ({workshop.max_capacity})."
                 )
-    # Agregar rango de grados al contexto
-    grades_range = range(1, 12)
+        else:
+            student.workshop = None
 
+        # 3) Guardar todos los cambios
+        student.save()
+        return redirect('students.student_list')
+
+    # GET: preparar context
+    grades_range = range(1, 12)  # 1 a 11
     return render(request, 'students/modify_student.html', {
         'student': student,
         'workshops': workshops,
-        'grades_range': grades_range,  # Pasamos el rango aquí
+        'grades_range': grades_range,
     })
+
 
 @login_required
 def confirm_delete_student(request, student_id):

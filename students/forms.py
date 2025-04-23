@@ -5,13 +5,14 @@ class StudentRegistrationForm(forms.ModelForm):
     class Meta:
         model = Student
         fields = [
-            'name', 
-            'lastname', 
-            'id_number', 
-            'autonomy_level', 
-            'grade', 
+            'name',
+            'lastname',
+            'id_number',
+            'autonomy_level',
+            'grade',
             'workshop',
-            'rotation_workshop'
+            'rotation_workshop',
+            'general_data',            # <<< nuevo
         ]
         labels = {
             'name': 'Nombre',
@@ -20,7 +21,8 @@ class StudentRegistrationForm(forms.ModelForm):
             'autonomy_level': 'Nivel de autonomía',
             'grade': 'Grado',
             'workshop': 'Taller',
-            'rotation_workshop': 'Taller de rotación'
+            'rotation_workshop': 'Taller de rotación',
+            'general_data': 'Datos Generales',  # <<< nuevo
         }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su nombre'}),
@@ -30,17 +32,11 @@ class StudentRegistrationForm(forms.ModelForm):
             'grade': forms.Select(attrs={'class': 'form-control'}),
             'workshop': forms.Select(attrs={'class': 'form-control'}),
             'rotation_workshop': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el taller de rotación'}),
+            'general_data': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Información adicional...'}),  # <<< nuevo
         }
-
-    # Validación personalizada si se necesita
+    
     def clean_id_number(self):
-        id_number = self.cleaned_data.get('id_number')
-        
-        # Convertir id_number a string si es un número entero
-        id_number = str(id_number)
-        
-        # Verificar la longitud del número de identificación
+        id_number = str(self.cleaned_data.get('id_number'))
         if len(id_number) < 6:
             raise forms.ValidationError("El número de identificación debe tener al menos 6 dígitos.")
-        
         return id_number
