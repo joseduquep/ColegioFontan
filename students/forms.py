@@ -16,7 +16,7 @@ class StudentRegistrationForm(forms.ModelForm):
         labels = {
             'name': 'Nombre',
             'lastname': 'Apellido',
-            'id_number': 'Número de identificación',
+            'id_number': 'Código de estudiante',
             'autonomy_level': 'Nivel de autonomía',
             'grade': 'Grado',
             'workshop': 'Taller',

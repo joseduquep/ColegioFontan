@@ -8,39 +8,73 @@ from workshops.models import Workshop
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
+import unicodedata
+
+
+
+def strip_accents(text: str) -> str:
+    return ''.join(
+        c for c in unicodedata.normalize('NFD', text)
+        if unicodedata.category(c) != 'Mn'
+    ).lower()
 
 @login_required
 def student_list(request):
-    query = request.GET.get('query', '').strip()  # Elimina espacios en blanco en la búsqueda
-    workshops = Workshop.objects.all()
+    raw_q          = request.GET.get('query', '').strip()
+    grade_param    = request.GET.get('grade')
+    level          = request.GET.get('level')        # 'primary' o 'high_school'
+    workshop_param = request.GET.get('workshop')
+    view_mode      = request.GET.get('view', 'mosaic')
 
+    # 1) Partimos del queryset base y aplicamos filtros estructurales
+    qs = Student.objects.select_related('workshop').all()
 
-    if query:
-        keywords = query.split()
+    if grade_param and grade_param.isdigit():
+        qs = qs.filter(grade=int(grade_param))
 
-    # Crear un filtro dinámico para buscar en nombre y apellido
-        filters = Q()
-        for keyword in keywords:
-            filters |= Q(name__icontains=keyword) | Q(lastname__icontains=keyword)
-    
-    # Aplicar el filtro
-        students = Student.objects.filter(filters).order_by('lastname', 'name')
+    if level == 'primary':
+        qs = qs.filter(grade__lte=5)
+    elif level == 'high_school':
+        qs = qs.filter(grade__gt=5)
 
+    if workshop_param and workshop_param.isdigit():
+        qs = qs.filter(workshop__workshop_id=int(workshop_param))
 
-    else:
-        students = Student.objects.all().order_by('lastname', 'name')
+    # 2) Convertimos a lista para el filtrado/orden en Python
+    students_list = list(qs)
 
+    # 3) Si hay término de búsqueda, lo usamos para filtrar sin tildes
+    if raw_q:
+        q_norm = strip_accents(raw_q)
+        students_list = [
+            s for s in students_list
+            if q_norm in strip_accents(s.lastname)
+            or q_norm in strip_accents(s.name)
+        ]
 
-    # Paginación: Dividimos en grupos de 30 estudiantes
-    paginator = Paginator(students, 30)  # 30 estudiantes por página
-    page_number = request.GET.get('page')  # Página actual
-    page_obj = paginator.get_page(page_number)
+    # 4) Orden alfabético insensible a tildes
+    students_list.sort(key=lambda s: (
+        strip_accents(s.lastname),
+        strip_accents(s.name)
+    ))
+
+    # 5) Paginación sobre la lista ya ordenada
+    paginator     = Paginator(students_list, 30)
+    students_page = paginator.get_page(request.GET.get('page'))
+
+    # 6) Contexto para los selects
+    grade_choices    = Student._meta.get_field('grade').choices
+    workshop_choices = Workshop.objects.all()
 
     return render(request, 'students/student_list.html', {
-        'workshops': workshops,
-        'students': page_obj,  # Pasamos solo la página actual
-        'query': query,
-        'search_type': 'students',
+        'students': students_page,
+        'query': raw_q,
+        'grade_choices': grade_choices,
+        'selected_grade': int(grade_param) if (grade_param and grade_param.isdigit()) else None,
+        'selected_level': level,
+        'workshop_choices': workshop_choices,
+        'selected_workshop': int(workshop_param) if (workshop_param and workshop_param.isdigit()) else None,
+        'view_mode': view_mode,
     })
 
 @login_required
@@ -120,18 +154,50 @@ def delete_student(request, student_id):
         return redirect('students.student_list')  # Redirige a la lista de estudiantes
     return redirect('students.modify_student', student_id=student_id)  # Si no es POST, regresa a modificar
 
+
 @login_required
 def absent_students(request):
-    
-    workshops = Workshop.objects.all()
-    students = Student.objects.filter(status='absent')
+    # Parámetros GET
+    grade_param      = request.GET.get('grade')
+    level            = request.GET.get('level')       # 'primary' o 'high_school'
+    workshop_param   = request.GET.get('workshop')
+    view_mode        = request.GET.get('view', 'mosaic')
 
-    
-    paginator = Paginator(students, 30)  
-    page_number = request.GET.get('page')  
-    page_obj = paginator.get_page(page_number)
+    # 1) Consulta base: solo ausentes
+    qs = Student.objects.select_related('workshop') \
+                        .filter(status='absent')
+
+    # 2) Filtrar por grado
+    if grade_param and grade_param.isdigit():
+        qs = qs.filter(grade=int(grade_param))
+
+    # 3) Filtrar por nivel
+    if level == 'primary':
+        qs = qs.filter(grade__lte=5)
+    elif level == 'high_school':
+        qs = qs.filter(grade__gt=5)
+
+    # 4) Filtrar por taller base
+    if workshop_param and workshop_param.isdigit():
+        qs = qs.filter(workshop__workshop_id=int(workshop_param))
+
+    # 5) Orden alfabético
+    qs = qs.order_by('lastname', 'name')
+
+    # 6) Paginación
+    paginator = Paginator(qs, 30)
+    page_obj  = paginator.get_page(request.GET.get('page'))
+
+    # 7) Choices para filtros
+    grade_choices    = Student._meta.get_field('grade').choices
+    workshop_choices = Workshop.objects.all()
 
     return render(request, 'students/absent_students.html', {
-        'workshops': workshops,
-        'students': page_obj,  
+        'students': page_obj,
+        'grade_choices': grade_choices,
+        'selected_grade': int(grade_param) if (grade_param and grade_param.isdigit()) else None,
+        'selected_level': level,
+        'workshop_choices': workshop_choices,
+        'selected_workshop': int(workshop_param) if (workshop_param and workshop_param.isdigit()) else None,
+        'view_mode': view_mode,
     })

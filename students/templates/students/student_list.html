@@ -1,71 +1,162 @@
 {% extends 'base.html' %}
 {% block title %}Lista estudiantes{% endblock %}
 {% block breadcrumb %}
-<a href="{% url 'home.home' %}">Inicio</a>
-<span>/</span>
-<a href="{% url 'students.student_list' %}">Lista estudiantes</a>
+  <a href="{% url 'home.home' %}">Inicio</a> /
+  Lista estudiantes
 {% endblock %}
-{% load static %}
-
 {% block content %}
 
-<div class="container">
-  <div class="row row-cols-1 row-cols-md-3 g-4">
-    {% if students %}
+<div class="container mt-4">
+
+  <!-- FILTROS -->
+  <form method="get" class="row g-2 mb-4 align-items-end">
+    {# Mantenemos query en hidden para búsqueda global #}
+    <input type="hidden" name="query" value="{{ query }}">
+
+    <div class="col-md-2">
+      <select name="grade" class="form-select">
+        <option value="">Todos los grados</option>
+        {% for val,label in grade_choices %}
+          <option value="{{ val }}" {% if val == selected_grade %}selected{% endif %}>
+            Grado {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <select name="level" class="form-select">
+        <option value="">Todos los niveles</option>
+        <option value="primary"    {% if selected_level == 'primary'    %}selected{% endif %}>Primaria</option>
+        <option value="high_school" {% if selected_level == 'high_school' %}selected{% endif %}>Bachillerato</option>
+      </select>
+    </div>
+
+    <div class="col-md-3">
+      <select name="workshop" class="form-select">
+        <option value="">Todos los talleres</option>
+        {% for w in workshop_choices %}
+          <option value="{{ w.workshop_id }}" {% if w.workshop_id == selected_workshop %}selected{% endif %}>
+            {{ w.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <select name="view" class="form-select">
+        <option value="mosaic" {% if view_mode != 'list' %}selected{% endif %}>Vista Mosaico</option>
+        <option value="list"   {% if view_mode == 'list'   %}selected{% endif %}>Vista Lista</option>
+      </select>
+    </div>
+
+    <div class="col-md-1">
+      <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+    </div>
+  </form>
+
+  {% if view_mode == 'list' %}
+    <!-- VISTA LISTA -->
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Estudiante</th>
+          <th>Código</th>
+          <th>Autonomía</th>
+          <th>Grado</th>
+          <th>Taller Base</th>
+          <th>Rotación</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for student in students %}
+        <tr>
+          <td>
+            {{ student.lastname }}, {{ student.name }}
+            {% if student.extended_vacation %}
+              <span class="text-danger" style="font-size:0.9rem;">(Ausencia autorizada)</span>
+            {% endif %}
+          </td>
+          <td>{{ student.id_number }}</td>
+          <td>{{ student.autonomy_level }}</td>
+          <td>{{ student.grade }}</td>
+          <td>
+            {% if student.workshop %}
+              <a href="{% url 'workshops:students_by_workshop' student.workshop.workshop_id %}"
+                 class="taller-link">{{ student.workshop.name }}</a>
+            {% else %}
+              <span class="text-muted">–</span>
+            {% endif %}
+          </td>
+          <td>{{ student.rotation_workshop|default:'–' }}</td>
+          <td>
+            <a href="{% url 'students.modify_student' student_id=student.student_id %}" class="btn btn-sm btn-warning">✏️</a>
+            <a href="{% url 'student_schedule' student_id=student.student_id %}" class="btn btn-sm btn-primary">⏱️</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  {% else %}
+    <!-- VISTA MOSAICO -->
+    <div class="row row-cols-1 row-cols-md-3 g-4">
       {% for student in students %}
-        <div class="col">
-          <div class="card" style="width: 18rem;">
-            <div class="card-body">
-              <h4 class="card-title ">
-                {{ student.lastname }}, {{ student.name }}
-              </h4>       
-                     
-              <p class="card-text"><strong>Codigo:</strong> {{ student.id_number }}</p>
-              <p class="card-text"><strong>Nivel de Autonomía:</strong> {{ student.autonomy_level }}</p>
-              <p class="card-text"><strong>Grado:</strong> {{ student.grade }}</p>
-              <p class="card-text">
-                <strong>Taller base:</strong>
-                {% if student.workshop %}
-                  <a href="{% url 'workshops:students_by_workshop' student.workshop.workshop_id %}" class="taller-link" title="Ver estudiantes del taller">
-                    {{ student.workshop.name }}
-                  </a>
-                {% else %}
-                  <span class="text-muted">No asignado</span>
-                {% endif %}
-              </p>
-              
-              <p class="card-text"><strong>Taller de rotación:</strong> {{ student.rotation_workshop }}</p>
-              <a href="{% url 'students.modify_student' student_id=student.student_id %}" class="btn btn-warning">Modificar Perfil</a>
-              <a href="{% url 'student_schedule' student_id=student.student_id %}" class="btn btn-primary">Ver Horario</a>
-            </div>
+      <div class="col">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">
+              {{ student.lastname }}, {{ student.name }}
+              {% if student.extended_vacation %}
+                <span class="text-danger" style="font-size:0.9rem;">(Ausencia autorizada)</span>
+              {% endif %}
+            </h5>
+            <p class="card-text"><strong>Código:</strong> {{ student.id_number }}</p>
+            <p class="card-text"><strong>Autonomía:</strong> {{ student.autonomy_level }}</p>
+            <p class="card-text"><strong>Grado:</strong> {{ student.grade }}</p>
+            <p class="card-text">
+              <strong>Taller base:</strong>
+              {% if student.workshop %}
+                <a href="{% url 'workshops:students_by_workshop' student.workshop.workshop_id %}"
+                   class="taller-link">{{ student.workshop.name }}</a>
+              {% else %}
+                <span class="text-muted">No asignado</span>
+              {% endif %}
+            </p>
+            <p class="card-text"><strong>Rotación:</strong> {{ student.rotation_workshop|default:'–' }}</p>
+          </div>
+          <div class="card-footer d-flex justify-content-between">
+            <a href="{% url 'students.modify_student' student_id=student.student_id %}" class="btn btn-sm btn-warning">Modificar</a>
+            <a href="{% url 'student_schedule' student_id=student.student_id %}" class="btn btn-sm btn-primary">Horario</a>
           </div>
         </div>
+      </div>
       {% endfor %}
-    {% else %}
-      <h2>No hay estudiantes disponibles</h2>
-    {% endif %}
-  </div>
+    </div>
+  {% endif %}
 
-  <!-- Paginación -->
-  <nav aria-label="Navegación de páginas" class="mt-4">
+  <!-- PAGINACIÓN -->
+  <nav class="mt-4">
     <ul class="pagination justify-content-center">
       {% if students.has_previous %}
         <li class="page-item">
-          <a class="page-link" href="?page={{ students.previous_page_number }}&query={{ query }}" aria-label="Anterior">
-            <span aria-hidden="true">&laquo;</span>
-          </a>
+          <a class="page-link"
+             href="?page={{ students.previous_page_number }}&grade={{ selected_grade }}&level={{ selected_level }}&workshop={{ selected_workshop }}&view={{ view_mode }}"
+             aria-label="Anterior">&laquo;</a>
         </li>
       {% endif %}
       {% for num in students.paginator.page_range %}
         <li class="page-item {% if students.number == num %}active{% endif %}">
-          <a class="page-link" href="?page={{ num }}&query={{ query }}">{{ num }}</a>
+          <a class="page-link"
+             href="?page={{ num }}&grade={{ selected_grade }}&level={{ selected_level }}&workshop={{ selected_workshop }}&view={{ view_mode }}">{{ num }}</a>
         </li>
       {% endfor %}
       {% if students.has_next %}
         <li class="page-item">
-          <a class="page-link" href="?page={{ students.next_page_number }}&query={{ query }}" aria-label="Siguiente">
-            <span aria-hidden="true">&raquo;</span>
-          </a>
+          <a class="page-link"
+             href="?page={{ students.next_page_number }}&grade={{ selected_grade }}&level={{ selected_level }}&workshop={{ selected_workshop }}&view={{ view_mode }}"
+             aria-label="Siguiente">&raquo;</a>
         </li>
       {% endif %}
     </ul>
