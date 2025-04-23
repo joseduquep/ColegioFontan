@@ -24,10 +24,12 @@ def student_list(request):
             filters |= Q(name__icontains=keyword) | Q(lastname__icontains=keyword)
     
     # Aplicar el filtro
-        students = Student.objects.filter(filters)
+        students = Student.objects.filter(filters).order_by('lastname', 'name')
+
 
     else:
-        students = Student.objects.all()
+        students = Student.objects.all().order_by('lastname', 'name')
+
 
     # Paginación: Dividimos en grupos de 30 estudiantes
     paginator = Paginator(students, 30)  # 30 estudiantes por página

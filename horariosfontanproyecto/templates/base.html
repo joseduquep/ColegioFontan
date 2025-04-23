@@ -80,6 +80,36 @@
         transform: scaleX(1);
         transform-origin: bottom left;
       }
+
+      .taller-link {
+        text-decoration: none;
+        color: #0d6efd;
+        position: relative;
+        transition: color 0.3s ease;
+      }
+      
+      .taller-link::after {
+        content: "";
+        position: absolute;
+        width: 100%;
+        transform: scaleX(0);
+        height: 2px;
+        bottom: -2px;
+        left: 0;
+        background-color: #0d6efd;
+        transform-origin: bottom right;
+        transition: transform 0.3s ease-out;
+      }
+      
+      .taller-link:hover {
+        color: #063cc6;
+      }
+      
+      .taller-link:hover::after {
+        transform: scaleX(1);
+        transform-origin: bottom left;
+      }
+      
     </style>
     
   </head>

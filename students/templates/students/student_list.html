@@ -16,11 +16,23 @@
         <div class="col">
           <div class="card" style="width: 18rem;">
             <div class="card-body">
-              <h4 class="card-title">{{ student.name }} {{ student.lastname }}</h4>
-              <p class="card-text"><strong>Cédula:</strong> {{ student.id_number }}</p>
+              <h4 class="card-title ">
+                {{ student.lastname }}, {{ student.name }}
+              </h4>              
+              <p class="card-text"><strong>Codigo:</strong> {{ student.id_number }}</p>
               <p class="card-text"><strong>Nivel de Autonomía:</strong> {{ student.autonomy_level }}</p>
               <p class="card-text"><strong>Grado:</strong> {{ student.grade }}</p>
-              <p class="card-text"><strong>Taller base:</strong> {{ student.workshop.name }}</p>
+              <p class="card-text">
+                <strong>Taller base:</strong>
+                {% if student.workshop %}
+                  <a href="{% url 'workshops:students_by_workshop' student.workshop.workshop_id %}" class="taller-link" title="Ver estudiantes del taller">
+                    {{ student.workshop.name }}
+                  </a>
+                {% else %}
+                  <span class="text-muted">No asignado</span>
+                {% endif %}
+              </p>
+              
               <p class="card-text"><strong>Taller de rotación:</strong> {{ student.rotation_workshop }}</p>
               <a href="{% url 'students.modify_student' student_id=student.student_id %}" class="btn btn-warning">Modificar Perfil</a>
               <a href="{% url 'student_schedule' student_id=student.student_id %}" class="btn btn-primary">Ver Horario</a>
