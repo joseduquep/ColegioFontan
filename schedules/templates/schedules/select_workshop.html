@@ -60,7 +60,15 @@
                         {% endif %}
                     </td>
                     <td>{{ workshop.type }}</td>
-                    <td>{{ workshop.current_capacity }} / {{ workshop.max_capacity }}</td>
+                    <td>
+                        {{ workshop.current_capacity }} /
+                        {% if block_type == 'high_school' and workshop.type == 'collective' and workshop.max_capacity_aux %}
+                          {{ workshop.max_capacity_aux }}
+                        {% else %}
+                          {{ workshop.max_capacity }}
+                        {% endif %}
+                      </td>
+                      
                     <td>
                         <button type="submit" name="workshop" value="{{ workshop.workshop_id }}" class="btn btn-primary">
                             Seleccionar

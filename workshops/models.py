@@ -17,6 +17,10 @@ class Workshop(models.Model):
         related_name='workshops'  # Esta línea permite acceder a los talleres desde el tutor
     )
     max_capacity = models.IntegerField(default=25)
+    max_capacity_aux = models.IntegerField(
+        null=True, blank=True,
+        help_text="Capacidad bloques Bachillerato (solo en colectivos)"
+    )
     type = models.CharField(
         max_length=20,
         choices=WORKSHOP_TYPES,

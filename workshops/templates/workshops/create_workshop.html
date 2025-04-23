@@ -8,7 +8,7 @@
 {% endblock %}
 {% block content %}
 <div class="container mt-4">
-  <h2 class="mb-4">Crear Taller</h2>
+  <h2 class="mb-4" id="form-title">Crear Taller</h2>
   <form method="post" class="needs-validation" novalidate>
     {% csrf_token %}
     <div class="mb-3">
@@ -17,4 +17,32 @@
     <button type="submit" class="btn btn-primary">Crear Taller</button>
   </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const typeSelect = document.getElementById('id_type');
+  const mainPara = document.getElementById('id_max_capacity').closest('p');
+  const auxPara  = document.getElementById('id_max_capacity_aux').closest('p');
+  const formTitle = document.getElementById('form-title');
+
+  function updateForm() {
+    const val = typeSelect.value;
+    if (val === 'collective') {
+      auxPara.style.display = '';
+      mainPara.querySelector('label').textContent = 'Capacidad Primaria';
+      formTitle.textContent = 'Crear Taller Colectivo';
+    } else {
+      auxPara.style.display = 'none';
+      mainPara.querySelector('label').textContent = 'Capacidad Máxima';
+      formTitle.textContent = val === 'primary'
+        ? 'Crear Taller de Primaria'
+        : 'Crear Taller de Bachillerato';
+    }
+  }
+
+  typeSelect.addEventListener('change', updateForm);
+  // Inicializamos al cargar
+  updateForm();
+});
+</script>
 {% endblock %}

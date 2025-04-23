@@ -129,48 +129,65 @@ def select_workshop(request, student_id, day, block_number):
     _, workshops = get_schedule_and_workshops(student)
     get_block_capacity(workshops, day, block_number, student.grade)
 
+    # Determinamos si es bloque de bachillerato o primaria
+    is_high_school = student.grade > 5
+    block_type = 'high_school' if is_high_school else 'primary'
+
     if request.method == "POST":
         workshop_id = request.POST.get('workshop')
         workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
 
-        is_high_school = student.grade > 5
-        block_type = 'high_school' if is_high_school else 'primary'
-        block = Block.objects.filter(block_number=block_number, day=day, workshop=workshop, type=block_type).first()
+        # Buscamos el bloque correspondiente
+        block = Block.objects.filter(
+            block_number=block_number,
+            day=day,
+            workshop=workshop,
+            type=block_type
+        ).first()
 
-        if not block or block.students.count() >= workshop.max_capacity:
+        # Calculamos la capacidad según tipo de taller y bloque
+        if block_type == 'high_school' and workshop.type == 'collective' and workshop.max_capacity_aux:
+            capacity = workshop.max_capacity_aux
+        else:
+            capacity = workshop.max_capacity
+
+        # Validamos existencia y cupo
+        if not block or block.students.count() >= capacity:
             return render(request, 'schedules/select_workshop.html', {
                 'student': student,
                 'student_id': student_id,
                 'workshops': workshops,
                 'day': day,
-                'block': block_number,
-                'error': 'Bloque no encontrado o capacidad máxima alcanzada.',
+                'block_number': block_number,
+                'block_type': block_type,
+                'error': f'Capacidad máxima ({capacity}) alcanzada o bloque no existe.',
             })
 
-        # Elimina al estudiante de cualquier bloque previo en el mismo día y bloque
-        previous_schedule = Schedule.objects.filter(student=student, block__day=day, block__block_number=block_number)
-        for schedule in previous_schedule:
-            schedule.block.students.remove(student)  # Remueve el estudiante del bloque anterior
-            schedule.delete()  # Elimina el registro del horario
+        # Removemos asignaciones previas en ese día/bloque
+        previous = Schedule.objects.filter(
+            student=student,
+            block__day=day,
+            block__block_number=block_number
+        )
+        for sch in previous:
+            sch.block.students.remove(student)
+            sch.delete()
 
-        # Asigna al estudiante al nuevo bloque
+        # Creamos la nueva asignación
         Schedule.objects.create(student=student, block=block)
-        block.students.add(student)  # Relaciona al estudiante con el bloque
+        block.students.add(student)
 
-        # Redirigir al horario del estudiante
         return HttpResponseRedirect(reverse('student_schedule', args=[student_id]))
 
-    # Si no es POST, renderiza el formulario para seleccionar taller
+    # GET: renderizamos el formulario
     return render(request, 'schedules/select_workshop.html', {
         'student': student,
         'student_id': student_id,
         'workshops': workshops,
         'day': day,
-        'block': block_number,
         'block_number': block_number,
+        'block_type': block_type,
     })
-
-
 
 
 

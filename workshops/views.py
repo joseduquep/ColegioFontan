@@ -28,7 +28,7 @@ def create_workshop(request):
         form = WorkshopForm()
     return render(request, 'workshops/create_workshop.html', {'form': form})
 
-@login_required
+
 def create_blocks(workshop, is_high_school):
     def to_iso_time(hour_minute):
         return f"0{hour_minute}" if len(hour_minute.split(":")[0]) == 1 else hour_minute
@@ -97,28 +97,40 @@ def show_blocks(request):
 @login_required
 def modify_workshop(request, workshop_id):
     workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
-    tutors = Tutor.objects.all()  # Listar todos los tutores disponibles
+    old_type = workshop.type
+    tutors   = Tutor.objects.all()
 
-    if request.method == 'POST':
-        # Actualizar los datos del taller
-        workshop.name = request.POST.get('name', workshop.name)
-        workshop.type = request.POST.get('type', workshop.type)
-        workshop.max_capacity = request.POST.get('max_capacity', workshop.max_capacity)
-        
-        # Asignar tutor al taller (si se selecciona)
+    form = WorkshopForm(request.POST or None, instance=workshop)
+
+    if request.method == 'POST' and form.is_valid():
+        w = form.save(commit=False)
+
+           # — aquí asignamos tutor manualmente —
         tutor_id = request.POST.get('tutor')
-        if tutor_id:
-            workshop.tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
-        else:
-            workshop.tutor = None  # Eliminar tutor asignado si no se selecciona ninguno
+        w.tutor = Tutor.objects.filter(tutor_id=tutor_id).first() if tutor_id else None
 
-        workshop.save()
-        messages.success(request, f"{workshop.name} modificado exitosamente.")
+        w.save()
+
+            # — si cambió type, ajusta bloques como antes —
+        new_type = w.type
+        if old_type != new_type:
+            Block.objects.filter(workshop=w, type=old_type).delete()
+            if new_type == 'primary':
+                create_blocks(w, is_high_school=False, capacity=w.max_capacity)
+            elif new_type == 'high_school':
+                create_blocks(w, is_high_school=True,  capacity=w.max_capacity)
+            else:  # collective
+                create_blocks(w, is_high_school=False, capacity=w.max_capacity)
+                aux = w.max_capacity_aux or w.max_capacity
+                create_blocks(w, is_high_school=True,  capacity=aux)
+
+            messages.success(request, f"Taller «{w.name}» modificado correctamente.")
         return redirect('workshops:list_workshops')
 
     return render(request, 'workshops/modify_workshop.html', {
-        'workshop': workshop,
+        'form': form,
         'tutors': tutors,
+        'workshop': workshop,
     })
 
 @login_required
