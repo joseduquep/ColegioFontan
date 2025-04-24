@@ -9,14 +9,72 @@ from django.db.models import Q
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 import unicodedata
-
-
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
+from workshops.models import Block
 
 def strip_accents(text: str) -> str:
     return ''.join(
         c for c in unicodedata.normalize('NFD', text)
         if unicodedata.category(c) != 'Mn'
     ).lower()
+
+
+def build_schedule_context(student):
+    days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+    student_blocks = (
+        Block.objects
+             .filter(students=student)
+             .select_related('workshop')
+    )
+    lookup = {(b.day, b.block_number): b for b in student_blocks}
+
+    schedule_table = []
+    for num in range(1, 6):
+        row = []
+        for day in days_of_week:
+            if day == "Friday" and num > 3:
+                row.append({"block_number": None, "workshop": None, "tutor": None})
+            else:
+                b = lookup.get((day, num))
+                if b and b.workshop:
+                    row.append({
+                        "block_number": num,
+                        "workshop": b.workshop,
+                        "tutor": b.workshop.tutor,
+                    })
+                else:
+                    row.append({"block_number": None, "workshop": None, "tutor": None})
+        schedule_table.append(row)
+
+    return days_of_week, schedule_table
+
+@login_required
+def student_schedule_pdf(request, student_id):
+    student = get_object_or_404(Student, student_id=student_id)
+
+    # 1) Obtenemos días y tabla desempaquetando la tupla
+    days_of_week, schedule_table = build_schedule_context(student)
+
+    # 2) Creamos un dict de contexto limpio
+    context = {
+        "student": student,
+        "days_of_week": days_of_week,
+        "schedule_table": schedule_table,
+    }
+
+    # 3) Renderizamos a HTML
+    html = render_to_string("students/schedule_pdf.html", context)
+
+    # 4) Creamos la respuesta PDF
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = f'attachment; filename="horario_{student.student_id}.pdf"'
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    if pisa_status.err:
+        return HttpResponse("Error generando PDF", status=500)
+    return response
+
 
 @login_required
 def student_list(request):
@@ -205,3 +263,5 @@ def absent_students(request):
         'selected_workshop': int(workshop_param) if (workshop_param and workshop_param.isdigit()) else None,
         'view_mode': view_mode,
     })
+
+

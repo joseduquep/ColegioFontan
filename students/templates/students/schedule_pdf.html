@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: sans-serif; }
+    .schedule-table { width: 100%; border-collapse: collapse; }
+    .schedule-table th,
+    .schedule-table td { border: 1px solid #444; padding: 6px; text-align: center; }
+    .schedule-title { text-align: center; margin-bottom: 1em; }
+  </style>
+</head>
+<body>
+  <h2 class="schedule-title">Horario de {{ student.name }} {{ student.lastname }}</h2>
+  <p><strong>Nivel de autonomía:</strong> {{ student.autonomy_level }}</p>
+  <p><strong>Grado:</strong> {{ student.grade }}</p>
+
+  <table class="schedule-table">
+    <thead>
+      <tr>
+        <th>Bloque/Día</th>
+        {% for day in days_of_week %}
+          <th>
+            {% if day == "Monday" %}Lunes
+            {% elif day == "Tuesday" %}Martes
+            {% elif day == "Wednesday" %}Miércoles
+            {% elif day == "Thursday" %}Jueves
+            {% elif day == "Friday" %}Viernes
+            {% endif %}
+          </th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in schedule_table %}
+      <tr>
+        <td>Bloque {{ row.0.block_number }}</td>
+        {% for cell in row %}
+        <td>
+          {% if cell.block_number and cell.workshop %}
+            {{ cell.workshop.name }}
+          {% else %}
+            —
+          {% endif %}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

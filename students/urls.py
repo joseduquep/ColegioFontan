@@ -9,6 +9,6 @@ urlpatterns = [
     path('delete/<int:student_id>/', views.delete_student, name='students.delete_student'),
     path('delete/confirm/<int:student_id>/', views.confirm_delete_student, name='students.confirm_delete_student'),
     path('absent_students/', views.absent_students, name='students.absent_students'),
-
+    path('<int:student_id>/schedule/pdf/', views.student_schedule_pdf, name='student_schedule_pdf'),
 
 ]

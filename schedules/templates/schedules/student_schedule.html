@@ -17,6 +17,10 @@
     <h3 class="schedule-title">Horario de {{ student.name }} {{ student.lastname }}</h3>
     <h4>Nivel de autonomía: {{ student.autonomy_level }}</h4>
     <h4>Grado: {{ student.grade }}</h4>
+    <a href="{% url 'student_schedule_pdf' student.student_id %}"
+        class="btn btn-outline-secondary mb-3">
+         Descargar PDF
+    </a>
 
     <div class="table-wrapper">
         <table class="schedule-table">

@@ -8,6 +8,10 @@ from students.models import Student
 from workshops.models import Block, Workshop
 from tutors.models import Tutor
 import logging
+from django.http import HttpResponse
+from xhtml2pdf import pisa
+
+
 
 # Configuración básica de logging
 logger = logging.getLogger(__name__)
