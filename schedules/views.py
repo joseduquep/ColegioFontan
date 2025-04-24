@@ -10,6 +10,7 @@ from tutors.models import Tutor
 import logging
 from django.http import HttpResponse
 from xhtml2pdf import pisa
+from django.contrib import messages
 
 
 
@@ -212,35 +213,33 @@ def select_block(request, tutor_id, day, block_number):
 def students_in_block(request, tutor_id, day, block_number):
     block_type = request.GET.get("type")
     tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
-
-    # Filtrar por bloque asociado al tutor
     block = Block.objects.filter(
-        day=day, 
-        block_number=block_number, 
-        type=block_type, 
+        day=day,
+        block_number=block_number,
+        type=block_type,
         workshop__tutor=tutor
     ).first()
-
     if not block:
-        raise Http404("No se encontró el bloque correspondiente.")
+        raise Http404("Bloque no encontrado")
 
     if request.method == "POST":
-        student_id = request.POST.get("student_id")
-        status = request.POST.get("status")
-        if student_id and status:
-            student = get_object_or_404(Student, student_id=student_id)
-            student.status = status
-            student.save()
+        # Recorremos cada estudiante del bloque y actualizamos su estado
+        for student in block.students.all():
+            key = f"status_{student.student_id}"
+            new_status = request.POST.get(key)
+            if new_status and student.status != new_status:
+                student.status = new_status
+                student.save()
+        messages.success(request, "Estados actualizados correctamente")
+        return redirect(request.path + f"?type={block_type}")
 
-    # Aseguramos que todos los datos necesarios se envían al template
     students = block.students.all().order_by("-status", "name")
     return render(request, "schedules/students_in_block.html", {
         "tutor": tutor,
-        'tutor_id': tutor.tutor_id,
+        "tutor_id": tutor.tutor_id,
         "block": block,
-        "block_id": block.block_id,
-        "block_day": block.day,
         "block_number": block.block_number,
+        "block_day": block.day,
         "workshop": block.workshop,
         "students": students,
     })

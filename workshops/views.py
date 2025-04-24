@@ -150,17 +150,21 @@ def delete_workshop(request, workshop_id):
 @login_required
 def list_by_workshop(request, workshop_id):
     workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
+    # Obtenemos los estudiantes ya ordenados
+    students = Student.objects.filter(workshop=workshop)\
+                              .order_by('-status', 'name')
 
     if request.method == "POST":
-        student_id = request.POST.get("student_id")
-        status = request.POST.get("status")
-        if student_id and status:
-            student = get_object_or_404(Student, student_id=student_id)
-            student.status = status
-            student.save()
+        # Recorremos cada estudiante y actualizamos su estado
+        for student in students:
+            key = f"status_{student.student_id}"
+            new_status = request.POST.get(key)
+            if new_status and student.status != new_status:
+                student.status = new_status
+                student.save()
+        messages.success(request, "Estados actualizados correctamente.")
+        return redirect('workshops:list_by_workshop', workshop_id=workshop_id)
 
-    # Filtrar estudiantes que pertenecen a este taller
-    students = Student.objects.filter(workshop=workshop).order_by("-status", "name")
     return render(request, "workshops/list_by_workshop.html", {
         "workshop": workshop,
         "students": students,

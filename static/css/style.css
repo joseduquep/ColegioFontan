@@ -12,6 +12,14 @@
   overflow-y: hidden; /* Cambiado a hidden para evitar doble scroll */
   z-index: 1000;
 }
+.student-link {
+  color: inherit;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+.student-link:hover {
+  color: #0d6efd;
+  text-decoration: underline;
+}
 
 .vertical-navbar .scroll-container {
   max-height: calc(100vh - 110px); /* Ajusta la altura para el scroll */

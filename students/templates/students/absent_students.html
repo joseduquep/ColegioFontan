@@ -6,6 +6,8 @@
   Estudiantes ausentes
 {% endblock %}
 {% block content %}
+<br>
+<span style="color: red;"><h3>Estudiantes Ausentes</h3></span>
 
 <div class="container mt-4">
 
@@ -92,7 +94,7 @@
               {{ student.name }} {{ student.lastname }}
               {% if student.extended_vacation %}<span class="text-danger">(Ausencia autorizada){% endif %}
             </h5>
-            <p class="card-text"><strong>Cédula:</strong> {{ student.id_number }}</p>
+            <p class="card-text"><strong>Codigo:</strong> {{ student.id_number }}</p>
             <p class="card-text"><strong>Autonomía:</strong> {{ student.autonomy_level }}</p>
             <p class="card-text"><strong>Grado:</strong> {{ student.grade }}</p>
             <p class="card-text"><strong>Taller base:</strong> {{ student.workshop.name }}</p>

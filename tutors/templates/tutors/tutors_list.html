@@ -12,16 +12,35 @@
   <div class="row row-cols-1 row-cols-md-3 g-4">
     {% for tutor in tutors %}
     <div class="col">
-      <div class="card shadow-sm border-0 h-100" style="width: 100%;">
+      <div class="card shadow-sm border-0 h-100">
         <div class="card-body">
           <h4 class="card-title mb-1">{{ tutor.user.first_name }} {{ tutor.user.last_name }}</h4>
-          <p class="card-text"><strong>{{ tutor.user.email }}</strong></p>
+
+          <!-- NUEVO BLOQUE DE CORREO -->
+          <div class="d-flex align-items-center mb-3">
+            <strong id="email-{{ tutor.tutor_id }}">{{ tutor.user.email }}</strong>
+            <button 
+              type="button" 
+              class="btn btn-sm btn-outline-secondary ms-2" 
+              title="Copiar correo"
+              onclick="copyEmail('{{ tutor.user.email }}')"
+            >
+              <i class="fas fa-copy"></i>
+            </button>
+            <a 
+              href="mailto:{{ tutor.user.email }}" 
+              class="btn btn-sm btn-outline-primary ms-1" 
+              title="Enviar correo"
+            >
+              <i class="fas fa-envelope"></i>
+            </a>
+          </div>
 
           {% if tutor.workshops.count > 0 %}
             {% for workshop in tutor.workshops.all %}
             <p class="card-text mb-1">
               <strong>
-                <a href="{% url 'workshops:students_by_workshop' workshop.workshop_id %}" class="taller-link" title="Ver estudiantes del taller">
+                <a href="{% url 'workshops:students_by_workshop' workshop.workshop_id %}" class="taller-link">
                   {{ workshop.name }}
                 </a>
               </strong><br>
@@ -29,12 +48,9 @@
               <strong>
                 {% if workshop.type == "primary" %}Primaria
                 {% elif workshop.type == "high_school" %}Bachillerato
-                {% elif workshop.type == "collective" %}Colectivo
-                {% else %}{{ workshop.type }}
-                {% endif %}
+                {% elif workshop.type == "collective" %}Colectivo{% endif %}
               </strong>
             </p>
-            
             {% endfor %}
           {% else %}
             <p class="card-text text-muted">No tiene Talleres asignados.</p>
@@ -54,4 +70,18 @@
     {% endfor %}
   </div>
 </div>
+
+<!-- Script para copiar al portapapeles -->
+<script>
+  function copyEmail(email) {
+    navigator.clipboard.writeText(email)
+      .then(() => {
+        // Feedback visual rápido
+        const btn = event.currentTarget;
+        btn.innerHTML = '<i class="fas fa-check"></i>';
+        setTimeout(() => btn.innerHTML = '<i class="fas fa-copy"></i>', 1500);
+      })
+      .catch(err => console.error('Error copiando:', err));
+  }
+</script>
 {% endblock %}
