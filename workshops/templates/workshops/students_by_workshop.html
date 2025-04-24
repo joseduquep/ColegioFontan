@@ -4,7 +4,7 @@
   <span>/</span>
   <a href="{% url 'workshops:list_workshops' %}">Lista de Talleres</a>
   <span>/</span>
-  <a href="{% url 'workshops:students_by_workshop' workshop.workshop_id %}">Lista estudiantes {{ workshop.name }}</a>
+  <a href="{% url 'workshops:students_by_workshop' workshop.workshop_id %}">Estudiantes en {{ workshop.name }}</a>
 {% endblock %}
 {% load static %}
 
@@ -39,7 +39,7 @@
           <div class="card h-100 shadow-sm">
             <div class="card-body">
               <h5 class="card-title">{{ student.name }} {{ student.lastname }}</h5>
-              <p><strong>Cédula:</strong> {{ student.id_number }}</p>
+              <p><strong>Codigo:</strong> {{ student.id_number }}</p>
               <p><strong>Nivel de Autonomía:</strong> {{ student.autonomy_level }}</p>
               <p><strong>Grado:</strong> {{ student.grade }}</p>
               <p><strong>Taller:</strong> {{ student.workshop.name }}</p>
