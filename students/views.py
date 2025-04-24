@@ -219,49 +219,44 @@ def delete_student(request, student_id):
 
 @login_required
 def absent_students(request):
-    # Parámetros GET
-    grade_param      = request.GET.get('grade')
-    level            = request.GET.get('level')       # 'primary' o 'high_school'
-    workshop_param   = request.GET.get('workshop')
-    view_mode        = request.GET.get('view', 'mosaic')
+    # nuevo parámetro de búsqueda
+    query          = request.GET.get('query', '').strip()
 
-    # 1) Consulta base: solo ausentes
-    qs = Student.objects.select_related('workshop') \
-                        .filter(status='absent')
+    grade_param    = request.GET.get('grade')
+    level          = request.GET.get('level')
+    workshop_param = request.GET.get('workshop')
+    view_mode      = request.GET.get('view', 'mosaic')
 
-    # 2) Filtrar por grado
+    qs = Student.objects.select_related('workshop').filter(status='absent')
+
+    # filtrado por búsqueda
+    if query:
+        qs = qs.filter(
+            Q(name__icontains=query) |
+            Q(lastname__icontains=query)
+        )
+
+    # (el resto de tus filtros tal cual estaban...)
     if grade_param and grade_param.isdigit():
         qs = qs.filter(grade=int(grade_param))
-
-    # 3) Filtrar por nivel
     if level == 'primary':
         qs = qs.filter(grade__lte=5)
     elif level == 'high_school':
         qs = qs.filter(grade__gt=5)
-
-    # 4) Filtrar por taller base
     if workshop_param and workshop_param.isdigit():
         qs = qs.filter(workshop__workshop_id=int(workshop_param))
 
-    # 5) Orden alfabético
     qs = qs.order_by('lastname', 'name')
-
-    # 6) Paginación
     paginator = Paginator(qs, 30)
     page_obj  = paginator.get_page(request.GET.get('page'))
 
-    # 7) Choices para filtros
-    grade_choices    = Student._meta.get_field('grade').choices
-    workshop_choices = Workshop.objects.all()
-
     return render(request, 'students/absent_students.html', {
         'students': page_obj,
-        'grade_choices': grade_choices,
-        'selected_grade': int(grade_param) if (grade_param and grade_param.isdigit()) else None,
+        'query': query,                    # pasamos el valor al template
+        'grade_choices': Student._meta.get_field('grade').choices,
+        'selected_grade': int(grade_param) if grade_param and grade_param.isdigit() else None,
         'selected_level': level,
-        'workshop_choices': workshop_choices,
-        'selected_workshop': int(workshop_param) if (workshop_param and workshop_param.isdigit()) else None,
+        'workshop_choices': Workshop.objects.all(),
+        'selected_workshop': int(workshop_param) if workshop_param and workshop_param.isdigit() else None,
         'view_mode': view_mode,
     })
-
-
