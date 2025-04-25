@@ -11,7 +11,7 @@ import logging
 from django.http import HttpResponse
 from xhtml2pdf import pisa
 from django.contrib import messages
-
+from django.db.models import Count
 
 
 # Configuración básica de logging
@@ -20,18 +20,28 @@ logger = logging.getLogger(__name__)
 
 
 # Función auxiliar: Determinar horario y talleres disponibles
-def get_schedule_and_workshops(student_or_tutor):
-    schedule = {
-        "Monday_Thursday": ["7:40-9:10", "9:40-11:00", "11:20-12:40", "1:20-2:40"]
-        if student_or_tutor.grade > 5
-        else ["7:40-8:40", "9:10-10:20", "10:40-11:50", "12:30-1:30", "1:50-2:40"],
-        "Friday": ["7:40-9:10", "9:50-11:20", "11:50-1:20"]
-        if student_or_tutor.grade > 5
-        else ["7:40-8:40", "9:10-10:20", "10:40-11:50", "12:20-1:20"],
-    }
-    workshop_types = ['high_school', 'collective'] if student_or_tutor.grade > 5 else ['primary', 'collective']
-    workshops = Workshop.objects.filter(type__in=workshop_types)
-    return schedule, workshops
+def get_schedule_and_workshops(student):
+    """
+    Devuelve (bloques, talleres) filtrados según grado y colectivos,
+    incluyendo Preescolar cuando student.grade == 0.
+    """
+    if student.grade == 0:
+        tipos = ['preschool', 'collective']
+    elif student.grade > 5:
+        tipos = ['high_school', 'collective']
+    else:
+        tipos = ['primary', 'collective']
+
+    bloques = (
+        Block.objects
+             .filter(workshop__type__in=tipos)
+             .select_related('workshop')
+             .annotate(student_count=Count('students'))
+    )
+
+    talleres = Workshop.objects.filter(type__in=tipos)
+
+    return bloques, list(talleres)
 
 
 def student_schedule(request, student_id):
@@ -106,92 +116,81 @@ def student_schedule(request, student_id):
 
 
 
-def get_block_capacity(workshops, day, block_number, student_grade):
+# schedules/utils.py
+
+
+def get_block_capacity(workshops, day, block_number, grade):
     """
-    Calcula la capacidad de cada bloque teniendo en cuenta si el estudiante es de primaria o bachillerato.
+    Agrega a cada workshop un atributo .current_capacity
+    con el número de estudiantes asignados a ese bloque.
     """
-    for workshop in workshops:
-        # Determinar el tipo de bloque según el taller y el grado del estudiante
-        block_type = (
-            "high_school" if workshop.type == "high_school" or (workshop.type == "collective" and student_grade > 5)
-            else "primary"
-        )
-        
-        # Filtrar el bloque correspondiente
+    for w in workshops:
+        # buscamos el bloque concreto para este workshop, día y número
         block = Block.objects.filter(
-            workshop=workshop, 
-            day=day, 
-            block_number=block_number, 
-            type=block_type  # Verificar el tipo del bloque
+            workshop=w,
+            day=day,
+            block_number=block_number
         ).first()
-        
-        # Asignar la capacidad actual
-        workshop.current_capacity = block.students.count() if block else 0
+        # si existe, contamos los estudiantes en ese bloque; si no, 0
+        w.current_capacity = block.students.count() if block else 0
 
 
 def select_workshop(request, student_id, day, block_number):
     student = get_object_or_404(Student, student_id=student_id)
+    # trae todos los talleres disponibles para el estudiante
     _, workshops = get_schedule_and_workshops(student)
     get_block_capacity(workshops, day, block_number, student.grade)
 
-    # Determinamos si es bloque de bachillerato o primaria
-    is_high_school = student.grade > 5
-    block_type = 'high_school' if is_high_school else 'primary'
+    # en vez de filtrar por tipo, mostramos absolutamente todos
+    available_workshops = workshops
 
     if request.method == "POST":
         workshop_id = request.POST.get('workshop')
         workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
 
-        # Buscamos el bloque correspondiente
+        # buscamos el bloque exacto (cualquiera sea el tipo)
         block = Block.objects.filter(
             block_number=block_number,
             day=day,
-            workshop=workshop,
-            type=block_type
+            workshop=workshop
         ).first()
 
-        # Calculamos la capacidad según tipo de taller y bloque
-        if block_type == 'high_school' and workshop.type == 'collective' and workshop.max_capacity_aux:
+        # capacidad: para colectivos usamos max_capacity_aux si está
+        if workshop.type == 'collective' and workshop.max_capacity_aux:
             capacity = workshop.max_capacity_aux
         else:
             capacity = workshop.max_capacity
 
-        # Validamos existencia y cupo
         if not block or block.students.count() >= capacity:
             return render(request, 'schedules/select_workshop.html', {
                 'student': student,
                 'student_id': student_id,
-                'workshops': workshops,
+                'workshops': available_workshops,
                 'day': day,
                 'block_number': block_number,
-                'block_type': block_type,
+                'block_type': '',  # ya no hace falta para el listado
                 'error': f'Capacidad máxima ({capacity}) alcanzada o bloque no existe.',
             })
 
-        # Removemos asignaciones previas en ese día/bloque
-        previous = Schedule.objects.filter(
+        # limpia asignaciones previas
+        Schedule.objects.filter(
             student=student,
             block__day=day,
             block__block_number=block_number
-        )
-        for sch in previous:
-            sch.block.students.remove(student)
-            sch.delete()
+        ).delete()
 
-        # Creamos la nueva asignación
+        # crea nueva asignación
         Schedule.objects.create(student=student, block=block)
         block.students.add(student)
 
         return HttpResponseRedirect(reverse('student_schedule', args=[student_id]))
 
-    # GET: renderizamos el formulario
     return render(request, 'schedules/select_workshop.html', {
         'student': student,
         'student_id': student_id,
-        'workshops': workshops,
+        'workshops': available_workshops,
         'day': day,
         'block_number': block_number,
-        'block_type': block_type,
     })
 
 

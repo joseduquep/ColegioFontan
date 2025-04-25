@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+
 {% block title %}Seleccionar Taller – Bloque {{ block_number }}{% endblock %}
 
 {% block breadcrumb %}
@@ -33,9 +34,9 @@
   <form method="POST">
     {% csrf_token %}
     <input type="hidden" name="day" value="{{ day }}">
-    <input type="hidden" name="block" value="{{ block }}">
+    <input type="hidden" name="block_number" value="{{ block_number }}">
 
-    <table class="table">
+    <table class="table table-striped">
       <thead>
         <tr>
           <th>Taller</th>
@@ -59,6 +60,7 @@
             {% if workshop.type == "primary" %}Primaria
             {% elif workshop.type == "high_school" %}Bachillerato
             {% elif workshop.type == "collective" %}Colectivo
+            {% elif workshop.type == "preschool" %}Preescolar
             {% else %}{{ workshop.type }}
             {% endif %}
           </td>
