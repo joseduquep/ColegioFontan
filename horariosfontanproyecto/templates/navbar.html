@@ -17,8 +17,8 @@
     background-color: var(--primary-color) !important;
   }
   .navbar-brand img {
-    max-height: 250px;   /* <-- aquí pon el alto que necesites (prueba 120, 140, 160, etc.) */
-    width: auto;
+    max-height: 140px;   /* <-- aquí pon el alto que necesites (prueba 120, 140, 160, etc.) */
+    width: 200px;
   }
   
   .navbar-nav .nav-link {
@@ -53,7 +53,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark custom-navbar-bg fixed-top" style="height: 110px; z-index:1000;">
   <div class="container-fluid">
     <a class="navbar-brand ms-3" href="{% url 'home.home' %}">
-      <img src="{% static 'images/logonavbar.png' %}" alt="Colegio Fontán"style="max: height 800px;">
+      <img src="{% static 'images/logofontan.png' %}" alt="Colegio Fontán"style="max: height 800px;">
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
             data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
