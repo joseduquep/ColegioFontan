@@ -14,51 +14,64 @@ def create_workshop(request):
         form = WorkshopForm(request.POST)
         if form.is_valid():
             workshop = form.save()
-            if workshop.type == 'high_school':
-                create_blocks(workshop, is_high_school=True)
+            # Genera bloques según el tipo de taller
+            if workshop.type == 'preschool':
+                create_blocks(workshop, 'preschool')
             elif workshop.type == 'primary':
-                create_blocks(workshop, is_high_school=False)
+                create_blocks(workshop, 'primary')
+            elif workshop.type == 'high_school':
+                create_blocks(workshop, 'high_school')
             elif workshop.type == 'collective':
-                create_blocks(workshop, is_high_school=True)
-                create_blocks(workshop, is_high_school=False)
-            messages.success(request, '¡El taller se ha creado correctamente!')
+                # colectivos en preescolar, primaria y bachillerato
+                for lvl in ('preschool','primary','high_school'):
+                    create_blocks(workshop, lvl)
+            messages.success(request, '¡El taller se ha creado correctamente con sus bloques!')
             return redirect('workshops:list_workshops')
-        
     else:
         form = WorkshopForm()
     return render(request, 'workshops/create_workshop.html', {'form': form})
 
 
-def create_blocks(workshop, is_high_school):
-    def to_iso_time(hour_minute):
-        return f"0{hour_minute}" if len(hour_minute.split(":")[0]) == 1 else hour_minute
+def create_blocks(workshop, block_type):
+    """
+    Crea 4 bloques de Lunes a Jueves y 3 el Viernes
+    para los niveles: 'preschool', 'primary', 'high_school'.
+    Horarios de ejemplo que podrás ajustar luego.
+    """
+    def to_iso(hm):
+        h, m = hm.split(':')
+        return f"{int(h):02d}:{m}"
 
     schedules = {
-        "high_school": {
-            "Monday-Thursday": [("7:40", "9:10"), ("9:40", "11:00"), ("11:20", "12:40"), ("13:20", "14:40")],
-            "Friday": [("7:40", "9:10"), ("9:50", "11:20"), ("11:50", "13:20")]
+        'preschool': {
+            'Monday-Thursday': [("08:20","08:55"),("10:00","10:50"),("10:55","11:45"),("1:30","2:30")],
+            'Friday':            [("08:20","08:55"),("10:00","10:50"),("10:55","11:45")],
         },
-        "primary": {
-            "Monday-Thursday": [("7:40", "8:40"), ("9:10", "10:20"), ("10:40", "11:50"), ("12:30", "13:30"), ("13:50", "14:40")],
-            "Friday": [("7:40", "8:40"), ("9:10", "10:20"), ("10:40", "11:50"), ("12:20", "13:20")]
-        }
+        'primary': {
+            'Monday-Thursday': [("07:40","08:40"),("09:10","10:20"),("10:40","11:50"),("12:30","13:30"),("13:50","14:40")],
+            'Friday':            [("07:40","08:40"),("09:10","10:20"),("10:40","11:50"),("12:20","13:20")],
+        },
+        'high_school': {
+            'Monday-Thursday': [("07:40","09:10"),("09:40","11:00"),("11:20","12:40"),("13:20","14:40")],
+            'Friday':            [("07:40","09:10"),("09:50","11:20"),("11:50","13:20")],
+        },
     }
 
-    block_type = 'high_school' if is_high_school else 'primary'
-    schedule = schedules[block_type]
-
-    for day_group, time_slots in schedule.items():
-        days = ["Monday", "Tuesday", "Wednesday", "Thursday"] if day_group == "Monday-Thursday" else ["Friday"]
+    cfg = schedules[block_type]
+    for day_group, slots in cfg.items():
+        days = (["Monday","Tuesday","Wednesday","Thursday"]
+                if day_group == "Monday-Thursday" else ["Friday"])
         for day in days:
-            for block_number, (start, end) in enumerate(time_slots, start=1):
+            for idx, (start, end) in enumerate(slots, start=1):
                 Block.objects.create(
                     workshop=workshop,
                     day=day,
-                    start_time=time.fromisoformat(to_iso_time(start)),
-                    end_time=time.fromisoformat(to_iso_time(end)),
-                    block_number=block_number,
+                    start_time=time.fromisoformat(to_iso(start)),
+                    end_time=time.fromisoformat(to_iso(end)),
+                    block_number=idx,
                     type=block_type
                 )
+
 
 @login_required
 def list_workshops(request):

@@ -113,6 +113,7 @@ def tutor_schedule(request, tutor_id):
         "has_collective": tutor.workshops.filter(type="collective").exists(),
         "has_primary": tutor.workshops.filter(type="primary").exists(),
         "has_highschool": tutor.workshops.filter(type="high_school").exists(),
+        "has_preschool": tutor.workshops.filter(type="preschool").exists(),
     }
     return render(request, "schedules/tutor_schedule.html", context)
 
