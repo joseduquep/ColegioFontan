@@ -3,6 +3,7 @@ from django.db import models
 
 class Workshop(models.Model):
     WORKSHOP_TYPES = [
+        ('preschool',   'Preescolar'),
         ('primary', 'Primaria'),
         ('high_school', 'Bachillerato'),
         ('collective', 'Colectivo'),
