@@ -1,24 +1,30 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
   <style>
-    body { font-family: sans-serif; }
-    .schedule-table { width: 100%; border-collapse: collapse; }
-    .schedule-table th,
-    .schedule-table td { border: 1px solid #444; padding: 6px; text-align: center; }
-    .schedule-title { text-align: center; margin-bottom: 1em; }
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1, h4, p { margin: 0 0 10px; }
+    .meta { font-size: 0.9em; color: #555; }
+    .schedule-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    .schedule-table th, .schedule-table td {
+      border: 1px solid #333;
+      padding: 8px;
+      text-align: center;
+    }
+    .schedule-table thead { background: #f0f0f0; }
   </style>
 </head>
 <body>
-  <h2 class="schedule-title">Horario de {{ student.name }} {{ student.lastname }}</h2>
-  <p><strong>Nivel de autonomía:</strong> {{ student.autonomy_level }}</p>
-  <p><strong>Grado:</strong> {{ student.grade }}</p>
+  <h1>Horario de {{ student.name }} {{ student.lastname }} </h1>
+  <h2>(Codigo: {{ student.id_number }})</h2>
+  <p class="meta">Fecha de generación: {{ generation_datetime }}</p>
+  <p class="meta">Nivel de autonomía: {{ student.autonomy_level }} — Grado: {{ student.grade }}</p>
 
   <table class="schedule-table">
     <thead>
       <tr>
-        <th>Bloque/Día</th>
+        <th>Bloque / Día</th>
         {% for day in days_of_week %}
           <th>
             {% if day == "Monday" %}Lunes
@@ -34,11 +40,14 @@
     <tbody>
       {% for row in schedule_table %}
       <tr>
-        <td>Bloque {{ row.0.block_number }}</td>
+        <th>Bloque {{ row.0.block_number }}</th>
         {% for cell in row %}
         <td>
-          {% if cell.block_number and cell.workshop %}
-            {{ cell.workshop.name }}
+          {% if cell.block_number %}
+            {{ cell.workshop.name }}<br>
+            {% if cell.student_count is not None %}
+              ({{ cell.student_count }}/{{ cell.max_capacity }})
+            {% endif %}
           {% else %}
             —
           {% endif %}
