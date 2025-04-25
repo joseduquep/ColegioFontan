@@ -13,6 +13,7 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
 from workshops.models import Block
+from django.utils import timezone
 
 def strip_accents(text: str) -> str:
     return ''.join(
@@ -54,22 +55,27 @@ def build_schedule_context(student):
 def student_schedule_pdf(request, student_id):
     student = get_object_or_404(Student, student_id=student_id)
 
-    # 1) Obtenemos días y tabla desempaquetando la tupla
+    # 1) Obtenemos días y tabla
     days_of_week, schedule_table = build_schedule_context(student)
 
-    # 2) Creamos un dict de contexto limpio
+    # 2) Fecha y hora de generación
+    generation_datetime = timezone.now().strftime("%d/%m/%Y %H:%M")
+
+    # 3) Contexto para el template
     context = {
         "student": student,
         "days_of_week": days_of_week,
         "schedule_table": schedule_table,
+        "generation_datetime": generation_datetime,
     }
 
-    # 3) Renderizamos a HTML
+    # 4) Render a HTML
     html = render_to_string("students/schedule_pdf.html", context)
 
-    # 4) Creamos la respuesta PDF
+    # 5) Creamos la respuesta PDF con nombre = student_id.pdf
     response = HttpResponse(content_type="application/pdf")
-    response["Content-Disposition"] = f'attachment; filename="horario_{student.student_id}.pdf"'
+    response["Content-Disposition"] = f'attachment; filename="{student.id_number}.pdf"'
+
     pisa_status = pisa.CreatePDF(html, dest=response)
     if pisa_status.err:
         return HttpResponse("Error generando PDF", status=500)
