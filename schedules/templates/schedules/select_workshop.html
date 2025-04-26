@@ -15,14 +15,12 @@
 {% block content %}
 <div class="container">
   <h1>Seleccionar Taller para {{ student.name }} {{ student.lastname }}</h1>
-  <h2>Escoger taller para Bloque {{ block_number }} –
+  <h2>Bloque {{ block_number }} –
     {% if day == "Monday" %}Lunes
     {% elif day == "Tuesday" %}Martes
     {% elif day == "Wednesday" %}Miércoles
     {% elif day == "Thursday" %}Jueves
     {% elif day == "Friday" %}Viernes
-    {% elif day == "Saturday" %}Sábado
-    {% elif day == "Sunday" %}Domingo
     {% else %}{{ day }}
     {% endif %}
   </h2>
@@ -35,6 +33,7 @@
     {% csrf_token %}
     <input type="hidden" name="day" value="{{ day }}">
     <input type="hidden" name="block_number" value="{{ block_number }}">
+    <input type="hidden" name="type" value="{{ block_type }}">
 
     <table class="table table-striped">
       <thead>
@@ -61,12 +60,11 @@
             {% elif workshop.type == "high_school" %}Bachillerato
             {% elif workshop.type == "collective" %}Colectivo
             {% elif workshop.type == "preschool" %}Preescolar
-            {% else %}{{ workshop.type }}
             {% endif %}
           </td>
           <td>
             {{ workshop.current_capacity }} /
-            {% if block_type == "high_school" and workshop.type == "collective" and workshop.max_capacity_aux %}
+            {% if workshop.type == "collective" and block_type == "high_school" and workshop.max_capacity_aux %}
               {{ workshop.max_capacity_aux }}
             {% else %}
               {{ workshop.max_capacity }}

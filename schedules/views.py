@@ -61,7 +61,7 @@ def student_schedule(request, student_id):
     days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
 
     # Definir bloques según el grado
-    if student.grade > 5:
+    if student.grade > 5 or student.grade < 1:
         blocks_per_day = {
             "Monday": 4,
             "Tuesday": 4,
@@ -119,7 +119,7 @@ def student_schedule(request, student_id):
 # schedules/utils.py
 
 
-def get_block_capacity(workshops, day, block_number, grade):
+def get_block_capacity(workshops, day, block_number, block_type):
     """
     Agrega a cada workshop un atributo .current_capacity
     con el número de estudiantes asignados a ese bloque.
@@ -127,36 +127,56 @@ def get_block_capacity(workshops, day, block_number, grade):
     for w in workshops:
         # buscamos el bloque concreto para este workshop, día y número
         block = Block.objects.filter(
-            workshop=w,
-            day=day,
-            block_number=block_number
-        ).first()
+           workshop=w,
+           day=day,
+           block_number=block_number,
+           type=block_type
+       ).first()
         # si existe, contamos los estudiantes en ese bloque; si no, 0
         w.current_capacity = block.students.count() if block else 0
 
 
+@login_required
 def select_workshop(request, student_id, day, block_number):
     student = get_object_or_404(Student, student_id=student_id)
-    # trae todos los talleres disponibles para el estudiante
     _, workshops = get_schedule_and_workshops(student)
-    get_block_capacity(workshops, day, block_number, student.grade)
-
-    # en vez de filtrar por tipo, mostramos absolutamente todos
-    available_workshops = workshops
+    
+    block_type = request.GET.get('type')
+    if block_type not in ('primary', 'high_school', 'preschool'):
+        if student.grade == 0:
+            block_type = 'preschool'
+        elif student.grade > 5:
+            block_type = 'high_school'
+        else:
+            block_type = 'primary'
+    get_block_capacity(workshops, day, block_number, block_type)
+    # 1) Primero sacamos el tipo de bloque del parámetro ?type=… (viene de los enlaces)
+    block_type = request.GET.get('type')
+    if block_type not in ('primary', 'high_school', 'preschool'):
+        if student.grade == 0:
+            block_type = 'preschool'
+        elif student.grade > 5:
+            block_type = 'high_school'
+        else:
+            block_type = 'primary'
 
     if request.method == "POST":
+        # nos aseguramos de recibirlo también en el form
+        block_type = request.POST.get('type', block_type)
+
         workshop_id = request.POST.get('workshop')
         workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
 
-        # buscamos el bloque exacto (cualquiera sea el tipo)
+        # filtramos blocks POR TIPO también
         block = Block.objects.filter(
             block_number=block_number,
             day=day,
-            workshop=workshop
+            workshop=workshop,
+            type=block_type
         ).first()
 
-        # capacidad: para colectivos usamos max_capacity_aux si está
-        if workshop.type == 'collective' and workshop.max_capacity_aux:
+        # calculamos capacidad
+        if workshop.type == 'collective' and getattr(workshop, 'max_capacity_aux', None):
             capacity = workshop.max_capacity_aux
         else:
             capacity = workshop.max_capacity
@@ -165,34 +185,44 @@ def select_workshop(request, student_id, day, block_number):
             return render(request, 'schedules/select_workshop.html', {
                 'student': student,
                 'student_id': student_id,
-                'workshops': available_workshops,
+                'workshops': workshops,
                 'day': day,
                 'block_number': block_number,
-                'block_type': '',  # ya no hace falta para el listado
-                'error': f'Capacidad máxima ({capacity}) alcanzada o bloque no existe.',
+                'block_type': block_type,
+                'error': f'Capacidad máxima ({capacity}) o bloque no existe.',
             })
 
-        # limpia asignaciones previas
+        # ———————— LIMPIAMOS EL BLOQUE ANTERIOR ————————
+        old_blocks = Block.objects.filter(
+            students=student,
+            day=day,
+            block_number=block_number
+        )
+        for ob in old_blocks:
+            ob.students.remove(student)
+        # también eliminamos la entrada previa en Schedule
         Schedule.objects.filter(
             student=student,
             block__day=day,
             block__block_number=block_number
         ).delete()
+        # ——————————————————————————————
 
-        # crea nueva asignación
+        # creamos la nueva asignación
         Schedule.objects.create(student=student, block=block)
         block.students.add(student)
 
         return HttpResponseRedirect(reverse('student_schedule', args=[student_id]))
 
+    # GET: enviamos block_type al template
     return render(request, 'schedules/select_workshop.html', {
         'student': student,
         'student_id': student_id,
-        'workshops': available_workshops,
+        'workshops': workshops,
         'day': day,
         'block_number': block_number,
+        'block_type': block_type,
     })
-
 
 
 
