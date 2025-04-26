@@ -66,6 +66,8 @@
             {{ workshop.current_capacity }} /
             {% if workshop.type == "collective" and block_type == "high_school" and workshop.max_capacity_aux %}
               {{ workshop.max_capacity_aux }}
+            {% elif workshop.type == "collective" and block_type == "preschool" and workshop.max_capacity_aux_preschool %}
+              {{ workshop.max_capacity_aux_preschool }}
             {% else %}
               {{ workshop.max_capacity }}
             {% endif %}

@@ -176,8 +176,13 @@ def select_workshop(request, student_id, day, block_number):
         ).first()
 
         # calculamos capacidad
-        if workshop.type == 'collective' and getattr(workshop, 'max_capacity_aux', None):
-            capacity = workshop.max_capacity_aux
+        if workshop.type == 'collective':
+            if block_type == 'preschool' and workshop.max_capacity_aux_preschool:
+                capacity = workshop.max_capacity_aux_preschool
+            elif block_type == 'high_school' and workshop.max_capacity_aux:
+                capacity = workshop.max_capacity_aux
+            else:
+                capacity = workshop.max_capacity
         else:
             capacity = workshop.max_capacity
 
@@ -192,7 +197,7 @@ def select_workshop(request, student_id, day, block_number):
                 'error': f'Capacidad máxima ({capacity}) o bloque no existe.',
             })
 
-        # ———————— LIMPIAMOS EL BLOQUE ANTERIOR ————————
+    
         old_blocks = Block.objects.filter(
             students=student,
             day=day,
@@ -200,7 +205,7 @@ def select_workshop(request, student_id, day, block_number):
         )
         for ob in old_blocks:
             ob.students.remove(student)
-        # también eliminamos la entrada previa en Schedule
+        
         Schedule.objects.filter(
             student=student,
             block__day=day,

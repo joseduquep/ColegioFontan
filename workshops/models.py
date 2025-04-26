@@ -22,6 +22,10 @@ class Workshop(models.Model):
         null=True, blank=True,
         help_text="Capacidad bloques Bachillerato (solo en colectivos)"
     )
+    max_capacity_aux_preschool = models.IntegerField(
+        null=True, blank=True,
+        help_text="Capacidad bloques Bachillerato (solo en colectivos)"
+    )
     type = models.CharField(
         max_length=20,
         choices=WORKSHOP_TYPES,

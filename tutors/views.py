@@ -119,11 +119,12 @@ def tutor_schedule(request, tutor_id):
                 entry = preschool_blocks.filter(block_number=block_number, day=day).first()
                 if entry:
                     w = entry.workshop
+                    cap1 = w.max_capacity_aux_preschool if (w.type == 'collective' and w.max_capacity_aux_preschool) else w.max_capacity
                     row.append({
                         "day": day,
                         "block_number": block_number,
                         "student_count": entry.student_count,
-                        "max_capacity": w.max_capacity,
+                        "max_capacity": cap1,
                     })
                 else:
                     row.append({"day": day, "block_number": None})

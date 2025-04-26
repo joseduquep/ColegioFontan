@@ -7,12 +7,18 @@ class WorkshopForm(forms.ModelForm):
     max_capacity_aux = forms.IntegerField(
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
-        label='Capacidad Bachillerato (colectivos)'
+        label='Capacidad bachillerato '
+    )
+
+    max_capacity_aux_preschool = forms.IntegerField(
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        label='Capacidad prescolar'
     )
 
     class Meta:
         model = Workshop
-        fields = ['name', 'type', 'max_capacity', 'max_capacity_aux']
+        fields = ['name', 'type', 'max_capacity', 'max_capacity_aux', 'max_capacity_aux_preschool']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'type': forms.Select(attrs={'class': 'form-select'}),
