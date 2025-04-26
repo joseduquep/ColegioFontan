@@ -200,7 +200,7 @@ def modify_student(request, student_id):
         return redirect('students.student_list')
 
     # GET: preparar context
-    grades_range = range(1, 12)  # 1 a 11
+    grades_range = range(0, 12)  # 1 a 11
     return render(request, 'students/modify_student.html', {
         'student': student,
         'workshops': workshops,

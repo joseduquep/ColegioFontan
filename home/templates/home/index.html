@@ -3,7 +3,7 @@
 
 {% block content %}
 <style>
-  /* Asegurarse de que el body y el contenedor principal no tengan padding/margin */
+  /* Reset márgenes/paddings de la página */
   body {
     margin: 0;
     padding: 0;
@@ -14,25 +14,22 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: calc(100vh - 120px); /* Ajusta según navbar y footer */
+    min-height: calc(100vh - 120px); /* Ajustar según navbar/footer */
     text-align: center;
-    padding: 0; /* Eliminar cualquier padding adicional */
-    margin: 0 auto; /* Centrar el contenedor horizontalmente */
-    box-sizing: border-box; /* Asegura que el padding no desplace el contenido */
-    width: 100%; /* Asegura que ocupe todo el ancho disponible */
+    width: 100%;
+    box-sizing: border-box;
   }
 
-  /* Estilo del título */
   h1 {
     font-size: 3.5rem;
     font-weight: bold;
-    color: #333; /* Texto oscuro */
+    color: #333;
     margin-bottom: 2rem;
   }
 
-  /* Estilo del botón */
+  /* Botón con Cyan Fontán */
   .btn-primary {
-    background-color: #064463; /* Color principal del botón */
+    background-color: #00C8FF; /* Cyan Fontán */
     color: white;
     padding: 15px 30px;
     border: none;
@@ -44,20 +41,20 @@
     cursor: pointer;
   }
 
-  /* Hover del botón */
+  /* Hover más oscuro */
   .btn-primary:hover {
-    background-color: #1C5471;
-    transform: scale(1.05); /* Ligero zoom */
+    background-color: #00AACC;
+    transform: scale(1.05);
   }
 
-  /* Botón al hacer clic */
   .btn-primary:active {
-    transform: scale(1); /* Sin efecto al presionar */
+    transform: scale(1);
   }
 </style>
 
 <div class="container-home">
   <h1>Bienvenidos a Horarios Fontán</h1>
+  <BR></BR>
   <a href="{% url 'accounts.login' %}" class="btn-primary">Iniciar Sesión</a>
 </div>
 {% endblock %}
