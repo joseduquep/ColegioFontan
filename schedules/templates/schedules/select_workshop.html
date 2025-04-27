@@ -88,6 +88,18 @@
     </table>
   </form>
 
+  
+  <form
+    method="post"
+    action="{% url 'delete_workshop' student.student_id day block_number %}"
+    class="mt-3"
+    >
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">
+      Eliminar taller actual
+    </button>
+  </form>
+  <br>ller
   <a href="{% url 'student_schedule' student.student_id %}" class="btn btn-secondary">
     Volver al Horario
   </a>

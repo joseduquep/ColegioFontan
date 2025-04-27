@@ -277,3 +277,31 @@ def students_in_block(request, tutor_id, day, block_number):
         "workshop": block.workshop,
         "students": students,
     })
+
+
+
+@login_required
+def delete_workshop(request, student_id, day, block_number):
+    if request.method != 'POST':
+        return redirect('student_schedule', student_id)
+
+    student = get_object_or_404(Student, student_id=student_id)
+
+    # Borra registros intermedios
+    Schedule.objects.filter(
+        student=student,
+        block__day=day,
+        block__block_number=block_number
+    ).delete()
+
+    # Quita la relación M2M de Block.students de forma segura
+    block = Block.objects.filter(
+        students=student,
+        day=day,
+        block_number=block_number
+    ).first()
+    if block:
+        block.students.remove(student)
+
+    messages.success(request, "Taller eliminado correctamente.")
+    return redirect('student_schedule', student_id)
