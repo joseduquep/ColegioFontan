@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-oqd^oz@mj@5s!1!jw&xqj!g-ctw@g$0m&g1_9fq5xx__9tn482'
 
 # DEBUG en producción
-DEBUG = True
+DEBUG = False
 
 # Configuración de hosts permitidos
 ALLOWED_HOSTS = ['*']  # En producción, lista explícita de dominios.
@@ -74,7 +74,7 @@ import os
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db_dev.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -109,7 +109,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Configuración de cookies y sesiones
-SESSION_COOKIE_AGE = 1800  # Tiempo de sesión: 30 minutos
+SESSION_COOKIE_AGE = 10800  # Tiempo de sesión: 30 minutos
 SESSION_COOKIE_HTTPONLY = True  # Bloquea acceso desde JavaScript
 SESSION_COOKIE_SECURE = True  # Solo envía cookies por HTTPS
 SESSION_COOKIE_SAMESITE = 'Strict'  # Restringe cookies a solicitudes del mismo sitio
