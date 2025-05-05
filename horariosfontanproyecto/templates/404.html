@@ -10,6 +10,21 @@
     <link href="https://fonts.googleapis.com/css?family=Cabin:400,700" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Montserrat:900" rel="stylesheet">
     <style>
+        .btn-home {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background-color: #5c6bc0;
+            color: #fff;
+            text-decoration: none;
+            font-family: 'Cabin', sans-serif;
+            font-weight: 700;
+            border-radius: 4px;
+            transition: background-color .3s;
+        }
+        .btn-home:hover {
+            background-color: #3949ab;
+        }
         * {
             -webkit-box-sizing: border-box;
             box-sizing: border-box;
@@ -128,6 +143,8 @@
         </div>
         <h2>Lo sentimos, pero no se encontró la página solicitada.</h2>
         <h2>Comunicate con los administradores del sitio.</h2>
+        <!-- Botón para volver al home -->
+        <a href="{% url 'accounts.login' %}" class="btn-home">Volver al inicio</a>
 
     </div>
 </div>

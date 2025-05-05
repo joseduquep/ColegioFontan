@@ -51,6 +51,7 @@
 </style>
 
 <nav class="navbar navbar-expand-lg navbar-dark custom-navbar-bg fixed-top" style="height: 110px; z-index:1000;">
+  {% if user.is_authenticated %}
   <div class="container-fluid">
     <a class="navbar-brand ms-3" href="{% url 'home.home' %}">
       <img src="{% static 'images/logofontan.png' %}" alt="Colegio Fontán"style="max: height 800px;">
@@ -61,7 +62,7 @@
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    {% if user.is_authenticated %}
+    
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
         <li class="nav-item"><a class="nav-link" href="{% url 'students.absent_students' %}">Estudiantes ausentes</a></li>
