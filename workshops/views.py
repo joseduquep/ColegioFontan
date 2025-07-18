@@ -34,7 +34,7 @@ def create_workshop(request):
 
 def create_blocks(workshop, block_type):
     """
-    Crea 4 bloques de Lunes a Jueves y 3 el Viernes
+    Crea bloques para todos los días incluyendo viernes con la misma cantidad
     para los niveles: 'preschool', 'primary', 'high_school'.
     Horarios de ejemplo que podrás ajustar luego.
     """
@@ -43,34 +43,44 @@ def create_blocks(workshop, block_type):
         return f"{int(h):02d}:{m}"
 
     schedules = {
-        'preschool': {
-            'Monday-Thursday': [("08:20","08:55"),("10:00","10:50"),("10:55","11:45"),("1:30","2:30")],
-            'Friday':            [("08:20","08:55"),("10:00","10:50"),("10:55","11:45")],
-        },
-        'primary': {
-            'Monday-Thursday': [("07:40","08:40"),("09:10","10:20"),("10:40","11:50"),("12:30","13:30"),("13:50","14:40")],
-            'Friday':            [("07:40","08:40"),("09:10","10:20"),("10:40","11:50"),("12:20","13:20")],
-        },
-        'high_school': {
-            'Monday-Thursday': [("07:40","09:10"),("09:40","11:00"),("11:20","12:40"),("13:20","14:40")],
-            'Friday':            [("07:40","09:10"),("09:50","11:20"),("11:50","13:20")],
-        },
+        'preschool': [
+            ("08:20","08:55"),
+            ("10:00","10:50"),
+            ("10:55","11:45"),
+            ("13:30","14:30")
+        ],
+        'primary': [
+            ("07:40","08:40"),
+            ("09:10","10:20"),
+            ("10:40","11:50"),
+            ("12:30","13:30"),
+            ("13:50","14:40")
+        ],
+        'high_school': [
+            ("07:40","09:10"),
+            ("09:40","11:00"),
+            ("11:20","12:40"),
+            ("13:20","14:40")
+        ],
     }
 
-    cfg = schedules[block_type]
-    for day_group, slots in cfg.items():
-        days = (["Monday","Tuesday","Wednesday","Thursday"]
-                if day_group == "Monday-Thursday" else ["Friday"])
-        for day in days:
-            for idx, (start, end) in enumerate(slots, start=1):
-                Block.objects.create(
-                    workshop=workshop,
-                    day=day,
-                    start_time=time.fromisoformat(to_iso(start)),
-                    end_time=time.fromisoformat(to_iso(end)),
-                    block_number=idx,
-                    type=block_type
-                )
+    # Días de la semana
+    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+    
+    # Obtener los horarios para este tipo de bloque
+    slots = schedules[block_type]
+    
+    # Crear bloques para todos los días con los mismos horarios
+    for day in days:
+        for idx, (start, end) in enumerate(slots, start=1):
+            Block.objects.create(
+                workshop=workshop,
+                day=day,
+                start_time=time.fromisoformat(to_iso(start)),
+                end_time=time.fromisoformat(to_iso(end)),
+                block_number=idx,
+                type=block_type
+            )
 
 
 @login_required
@@ -118,26 +128,33 @@ def modify_workshop(request, workshop_id):
     if request.method == 'POST' and form.is_valid():
         w = form.save(commit=False)
 
-           # — aquí asignamos tutor manualmente —
+        # Asignar tutor manualmente
         tutor_id = request.POST.get('tutor')
         w.tutor = Tutor.objects.filter(tutor_id=tutor_id).first() if tutor_id else None
 
+        # Si el tipo es colectivo, asegurarse de que los campos auxiliares tengan valor
+        if w.type == 'collective':
+            # Solo asignar el valor principal si el campo está vacío o None
+            if w.max_capacity_aux in [None, '']:
+                w.max_capacity_aux = w.max_capacity
+            if w.max_capacity_aux_preschool in [None, '']:
+                w.max_capacity_aux_preschool = w.max_capacity
+
         w.save()
 
-            # — si cambió type, ajusta bloques como antes —
         new_type = w.type
-        if old_type != new_type:
-            Block.objects.filter(workshop=w, type=old_type).delete()
-            if new_type == 'primary':
-                create_blocks(w, is_high_school=False, capacity=w.max_capacity)
-            elif new_type == 'high_school':
-                create_blocks(w, is_high_school=True,  capacity=w.max_capacity)
-            else:  # collective
-                create_blocks(w, is_high_school=False, capacity=w.max_capacity)
-                aux = w.max_capacity_aux or w.max_capacity
-                create_blocks(w, is_high_school=True,  capacity=aux)
+        # Determinar los niveles requeridos según el tipo nuevo
+        if new_type == 'collective':
+            required_levels = ['preschool', 'primary', 'high_school']
+        else:
+            required_levels = [new_type]
 
-            messages.success(request, f"Taller «{w.name}» modificado correctamente.")
+        # Para cada nivel requerido, crear bloques solo si no existen
+        for level in required_levels:
+            if not Block.objects.filter(workshop=w, type=level).exists():
+                create_blocks(w, level)
+
+        messages.success(request, f"Taller «{w.name}» modificado correctamente.")
         return redirect('workshops:list_workshops')
 
     return render(request, 'workshops/modify_workshop.html', {

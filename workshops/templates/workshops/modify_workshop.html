@@ -35,4 +35,31 @@
     <button type="submit" class="btn btn-danger">Eliminar Taller</button>
   </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const typeSelect        = document.getElementById('id_type');
+  const mainPara          = document.getElementById('id_max_capacity').closest('p');
+  const auxPara           = document.getElementById('id_max_capacity_aux').closest('p');
+  const preschAuxPara     = document.getElementById('id_max_capacity_aux_preschool').closest('p');
+
+  function updateForm() {
+    const val = typeSelect.value;
+    if (val === 'collective') {
+      auxPara.style.display       = '';
+      preschAuxPara.style.display = '';
+      mainPara.querySelector('label').textContent = 'Capacidad Primaria';
+      auxPara.querySelector('label').textContent  = 'Capacidad Bachillerato';
+      preschAuxPara.querySelector('label').textContent = 'Capacidad Preescolar';
+    } else {
+      auxPara.style.display       = 'none';
+      preschAuxPara.style.display = 'none';
+      mainPara.querySelector('label').textContent = 'Capacidad Máxima';
+    }
+  }
+
+  typeSelect.addEventListener('change', updateForm);
+  updateForm();
+});
+</script>
 {% endblock %}

@@ -19,7 +19,7 @@
   <h1>Horario de {{ student.name }} {{ student.lastname }} </h1>
   <h2>(Codigo: {{ student.id_number }})</h2>
   <p class="meta">Fecha de generación: {{ generation_datetime }}</p>
-  <p class="meta">Nivel de autonomía: {{ student.autonomy_level }} — Grado: {{ student.grade }}</p>
+  <p class="meta">Nivel de autonomía: {{ student.autonomy_level }} — Grado: {{ student.get_grade_display }}</p>
 
   <table class="schedule-table">
     <thead>

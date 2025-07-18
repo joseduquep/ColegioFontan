@@ -32,21 +32,19 @@ def build_schedule_context(student):
     lookup = {(b.day, b.block_number): b for b in student_blocks}
 
     schedule_table = []
+    # Ahora todos los días pueden tener hasta 5 bloques
     for num in range(1, 6):
         row = []
         for day in days_of_week:
-            if day == "Friday" and num > 3:
-                row.append({"block_number": None, "workshop": None, "tutor": None})
+            b = lookup.get((day, num))
+            if b and b.workshop:
+                row.append({
+                    "block_number": num,
+                    "workshop": b.workshop,
+                    "tutor": b.workshop.tutor,
+                })
             else:
-                b = lookup.get((day, num))
-                if b and b.workshop:
-                    row.append({
-                        "block_number": num,
-                        "workshop": b.workshop,
-                        "tutor": b.workshop.tutor,
-                    })
-                else:
-                    row.append({"block_number": None, "workshop": None, "tutor": None})
+                row.append({"block_number": None, "workshop": None, "tutor": None})
         schedule_table.append(row)
 
     return days_of_week, schedule_table
@@ -93,13 +91,19 @@ def student_list(request):
     # 1) Partimos del queryset base y aplicamos filtros estructurales
     qs = Student.objects.select_related('workshop').all()
 
-    if grade_param and grade_param.isdigit():
-        qs = qs.filter(grade=int(grade_param))
+    if grade_param:
+        try:
+            grade_int = int(grade_param)
+            qs = qs.filter(grade=grade_int)
+        except ValueError:
+            pass  # Ignorar si no es un número válido
 
     if level == 'primary':
         qs = qs.filter(grade__lte=5)
     elif level == 'high_school':
         qs = qs.filter(grade__gt=5)
+    elif level == 'preschool':
+        qs = qs.filter(grade__lte=0)  # PJ, J, T (todos los preescolar)
 
     if workshop_param and workshop_param.isdigit():
         qs = qs.filter(workshop__workshop_id=int(workshop_param))
@@ -200,7 +204,7 @@ def modify_student(request, student_id):
         return redirect('students.student_list')
 
     # GET: preparar context
-    grades_range = range(0, 12)  # 1 a 11
+    grades_range = range(-3, 12)  # PJ (-3) hasta 11
     return render(request, 'students/modify_student.html', {
         'student': student,
         'workshops': workshops,
@@ -243,12 +247,18 @@ def absent_students(request):
         )
 
     # (el resto de tus filtros tal cual estaban...)
-    if grade_param and grade_param.isdigit():
-        qs = qs.filter(grade=int(grade_param))
+    if grade_param:
+        try:
+            grade_int = int(grade_param)
+            qs = qs.filter(grade=grade_int)
+        except ValueError:
+            pass  # Ignorar si no es un número válido
     if level == 'primary':
         qs = qs.filter(grade__lte=5)
     elif level == 'high_school':
         qs = qs.filter(grade__gt=5)
+    elif level == 'preschool':
+        qs = qs.filter(grade__lte=0)  # PJ, J, T (todos los preescolar)
     if workshop_param and workshop_param.isdigit():
         qs = qs.filter(workshop__workshop_id=int(workshop_param))
 

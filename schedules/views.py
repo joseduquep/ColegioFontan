@@ -23,9 +23,9 @@ logger = logging.getLogger(__name__)
 def get_schedule_and_workshops(student):
     """
     Devuelve (bloques, talleres) filtrados según grado y colectivos,
-    incluyendo Preescolar cuando student.grade == 0.
+    incluyendo Preescolar cuando student.grade <= 0 (PJ, J, T).
     """
-    if student.grade == 0:
+    if student.grade <= 0:  # PJ, J, T (todos los niveles de preescolar)
         tipos = ['preschool', 'collective']
     elif student.grade > 5:
         tipos = ['high_school', 'collective']
@@ -60,14 +60,14 @@ def student_schedule(request, student_id):
 
     days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
 
-    # Definir bloques según el grado
-    if student.grade > 5 or student.grade < 1:
+    # Definir bloques según el grado - ahora todos los días tienen la misma cantidad
+    if student.grade > 5 or student.grade <= 0:  # Bachillerato o Preescolar (PJ, J, T)
         blocks_per_day = {
             "Monday": 4,
             "Tuesday": 4,
             "Wednesday": 4,
             "Thursday": 4,
-            "Friday": 3,
+            "Friday": 4,  # Ahora viernes también tiene 4 bloques para bachillerato/preescolar
         }
     else:
         blocks_per_day = {
@@ -75,7 +75,7 @@ def student_schedule(request, student_id):
             "Tuesday": 5,
             "Wednesday": 5,
             "Thursday": 5,
-            "Friday": 4,
+            "Friday": 5,  # Ahora viernes también tiene 5 bloques para primaria
         }
 
     num_blocks = range(1, max(blocks_per_day.values()) + 1)
@@ -143,7 +143,7 @@ def select_workshop(request, student_id, day, block_number):
     
     block_type = request.GET.get('type')
     if block_type not in ('primary', 'high_school', 'preschool'):
-        if student.grade == 0:
+        if student.grade <= 0:  # PJ, J, T (preescolar)
             block_type = 'preschool'
         elif student.grade > 5:
             block_type = 'high_school'
@@ -153,7 +153,7 @@ def select_workshop(request, student_id, day, block_number):
     # 1) Primero sacamos el tipo de bloque del parámetro ?type=… (viene de los enlaces)
     block_type = request.GET.get('type')
     if block_type not in ('primary', 'high_school', 'preschool'):
-        if student.grade == 0:
+        if student.grade <= 0:  # PJ, J, T (preescolar)
             block_type = 'preschool'
         elif student.grade > 5:
             block_type = 'high_school'

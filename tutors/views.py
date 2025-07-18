@@ -41,7 +41,8 @@ def tutor_schedule(request, tutor_id):
     tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
 
     days_of_week   = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-    blocks_per_day = {"Monday": 4, "Tuesday": 4, "Wednesday": 4, "Thursday": 4, "Friday": 3}
+    # Ahora todos los días tienen 4 bloques (bachillerato/preescolar es 4, primaria es 5)
+    blocks_per_day = {"Monday": 4, "Tuesday": 4, "Wednesday": 4, "Thursday": 4, "Friday": 4}
 
     # Incluimos los bloques 'collective' en cada nivel
     highschool_blocks = (
@@ -65,69 +66,66 @@ def tutor_schedule(request, tutor_id):
 
     # Tabla Bachillerato
     tutor_schedule_table = []
-    for block_number in range(1, 5):
+    for block_number in range(1, 5):  # 4 bloques para bachillerato
         row = []
         for day in days_of_week:
-            if block_number > blocks_per_day[day]:
-                row.append({"day": day, "block_number": None})
-            else:
-                entry = highschool_blocks.filter(block_number=block_number, day=day).first()
-                if entry:
-                    w = entry.workshop
-                    cap = w.max_capacity_aux if (w.type == 'collective' and w.max_capacity_aux) else w.max_capacity
-                    row.append({
-                        "day": day,
-                        "block_number": block_number,
-                        "student_count": entry.student_count,
-                        "max_capacity": cap,
-                    })
+            entry = highschool_blocks.filter(block_number=block_number, day=day).first()
+            if entry:
+                w = entry.workshop
+                if w.type == 'collective' and w.max_capacity_aux:
+                    cap = w.max_capacity_aux
                 else:
-                    row.append({"day": day, "block_number": None})
+                    cap = w.max_capacity
+                row.append({
+                    "day": day,
+                    "block_number": block_number,
+                    "student_count": entry.student_count,
+                    "max_capacity": cap,
+                })
+            else:
+                row.append({"day": day, "block_number": None})
         tutor_schedule_table.append(row)
 
     # Tabla Primaria
     primary_schedule_table = []
-    for block_number in range(1, 6):
+    for block_number in range(1, 6):  # 5 bloques para primaria
         row = []
         for day in days_of_week:
-            limit = 4 if day == "Friday" else 5
-            if block_number > limit:
-                row.append({"day": day, "block_number": None})
+            entry = primary_blocks.filter(block_number=block_number, day=day).first()
+            if entry:
+                w = entry.workshop
+                # Para primaria, siempre usar max_capacity
+                cap = w.max_capacity
+                row.append({
+                    "day": day,
+                    "block_number": block_number,
+                    "student_count": entry.student_count,
+                    "max_capacity": cap,
+                })
             else:
-                entry = primary_blocks.filter(block_number=block_number, day=day).first()
-                if entry:
-                    w = entry.workshop
-                    row.append({
-                        "day": day,
-                        "block_number": block_number,
-                        "student_count": entry.student_count,
-                        "max_capacity": w.max_capacity,
-                    })
-                else:
-                    row.append({"day": day, "block_number": None})
+                row.append({"day": day, "block_number": None})
         primary_schedule_table.append(row)
 
     # Tabla Preescolar
     preschool_schedule_table = []
-    for block_number in range(1, 5):
+    for block_number in range(1, 5):  # 4 bloques para preescolar
         row = []
         for day in days_of_week:
-            limit = 3 if day == "Friday" else 4
-            if block_number > limit:
-                row.append({"day": day, "block_number": None})
-            else:
-                entry = preschool_blocks.filter(block_number=block_number, day=day).first()
-                if entry:
-                    w = entry.workshop
-                    cap1 = w.max_capacity_aux_preschool if (w.type == 'collective' and w.max_capacity_aux_preschool) else w.max_capacity
-                    row.append({
-                        "day": day,
-                        "block_number": block_number,
-                        "student_count": entry.student_count,
-                        "max_capacity": cap1,
-                    })
+            entry = preschool_blocks.filter(block_number=block_number, day=day).first()
+            if entry:
+                w = entry.workshop
+                if w.type == 'collective' and w.max_capacity_aux_preschool:
+                    cap1 = w.max_capacity_aux_preschool
                 else:
-                    row.append({"day": day, "block_number": None})
+                    cap1 = w.max_capacity
+                row.append({
+                    "day": day,
+                    "block_number": block_number,
+                    "student_count": entry.student_count,
+                    "max_capacity": cap1,
+                })
+            else:
+                row.append({"day": day, "block_number": None})
         preschool_schedule_table.append(row)
 
     context = {

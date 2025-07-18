@@ -23,7 +23,9 @@ class Student(models.Model):
     extended_vacation = models.BooleanField(default=False)
     grade = models.IntegerField(
         choices=[
-            (0, 'Preescolar'),
+            (-3, 'PJ (Prejardín)'),
+            (-2, 'J (Jardín)'),
+            (-1, 'T (Transición)'),
             (1, '1'),
             (2, '2'),
             (3, '3'),

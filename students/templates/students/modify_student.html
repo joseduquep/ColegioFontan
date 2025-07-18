@@ -40,8 +40,12 @@
             <select class="form-control" id="grade" name="grade">
                 {% for i in grades_range %}
                     <option value="{{ i }}" {% if student.grade == i %}selected{% endif %}>
-                        {% if i == 0 %}
-                            Preescolar
+                        {% if i == -3 %}
+                            PJ (Prejardín)
+                        {% elif i == -2 %}
+                            J (Jardín)
+                        {% elif i == -1 %}
+                            T (Transición)
                         {% else %}
                             Grado {{ i }}
                         {% endif %}
