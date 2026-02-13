@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirmar Eliminación{% endblock %}
+{% block breadcrumb %}
+<a href="{% url 'home.home' %}">Inicio</a>
+<span>/</span>
+<a href="{% url 'tutors.tutors_list' %}">Lista de tutores</a>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Confirmar Eliminación</h2>
+    <p>¿Estás seguro de que deseas eliminar al tutor <strong>{{ tutor.user.first_name }} {{ tutor.user.last_name }}</strong>?</p>
+    <form action="{% url 'tutors.delete_tutor' tutor.tutor_id %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+        <a href="{% url 'tutors.modify_tutor' tutor.tutor_id %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

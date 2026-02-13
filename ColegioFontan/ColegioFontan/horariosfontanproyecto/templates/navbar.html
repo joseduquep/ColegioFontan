@@ -1,0 +1,110 @@
+{% load static %}
+<style>
+  :root {
+    --primary-color: #50007D;
+    --secondary-color: #00C8FF;
+    --text-color: #F5F5F5;
+    --hover-color: #947DD1;
+  }
+
+  /* Asegura que el body deje espacio bajo la navbar fija */
+  body {
+    padding-top: 110px; 
+  }
+
+  /* Navbar fija */
+  .custom-navbar-bg {
+    background-color: var(--primary-color) !important;
+  }
+  .navbar-brand img {
+    max-height: 140px;   /* <-- aquí pon el alto que necesites (prueba 120, 140, 160, etc.) */
+    width: 200px;
+  }
+  
+  .navbar-nav .nav-link {
+    color: var(--text-color);
+    font-size: 1.1rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+  .navbar-nav .nav-link:hover {
+    color: var(--hover-color);
+  }
+  .dropdown-menu .dropdown-item:hover {
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+  }
+  .btn-outline-light:hover {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: #000;
+  }
+
+  @media (max-width: 800px) {
+    .navbar-brand img {
+      max-height: 800px;
+    }
+    .navbar-nav .nav-link {
+      font-size: 1rem;
+    }
+  }
+</style>
+
+<nav class="navbar navbar-expand-lg navbar-dark custom-navbar-bg fixed-top" style="height: 110px; z-index:1000;">
+  {% if user.is_authenticated %}
+  <div class="container-fluid">
+    <a class="navbar-brand ms-3" href="{% url 'home.home' %}">
+      <img src="{% static 'images/logofontan.png' %}" alt="Colegio Fontán"style="max: height 800px;">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+            aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" href="{% url 'students.absent_students' %}">Estudiantes ausentes</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'accounts.signup' %}">Registrar perfil</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'workshops:show_blocks' %}">Bloques</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'tutors.tutors_list' %}">Tutores</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="estudiantesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Estudiantes
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="estudiantesDropdown">
+            <li><a class="dropdown-item" href="{% url 'students.student_list' %}">Ver Estudiantes</a></li>
+            <li><a class="dropdown-item" href="{% url 'students.register_student' %}">Registrar Estudiantes</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="talleresDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Talleres
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="talleresDropdown">
+            <li><a class="dropdown-item" href="{% url 'workshops:list_workshops' %}">Ver talleres</a></li>
+            <li><a class="dropdown-item" href="{% url 'workshops:create_workshop' %}">Crear taller</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user fa-lg"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+            <li><a class="dropdown-item" href="{% url 'tutor_profile' %}">Ver Perfil</a></li>
+            <li><a class="dropdown-item" href="{% url 'accounts.logout' %}">Cerrar Sesión</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <form class="d-flex ms-3" method="GET"
+                action="{% if search_type == 'tutors' %}{% url 'tutors.tutors_list' %}{% else %}{% url 'students.student_list' %}{% endif %}">
+            <input class="form-control me-2" type="search" placeholder="Buscar..." aria-label="Buscar" name="query">
+            <button class="btn btn-outline-light" type="submit">Buscar</button>
+          </form>
+        </li>
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+</nav>

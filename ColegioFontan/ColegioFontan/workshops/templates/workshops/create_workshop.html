@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block breadcrumb %}
+  <a href="{% url 'home.home' %}">Inicio</a>
+  <span>/</span>
+  <a href="{% url 'students.student_list' %}">Estudiantes</a>
+  <span>/</span>
+  <span>Crear Taller</span>
+{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4" id="form-title">Crear Taller</h2>
+  <form method="post" class="needs-validation" novalidate>
+    {% csrf_token %}
+    <div class="mb-3">
+      {{ form.as_p }}
+    </div>
+    <button type="submit" class="btn btn-primary">Crear Taller</button>
+  </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const typeSelect        = document.getElementById('id_type');
+  const mainPara          = document.getElementById('id_max_capacity').closest('p');
+  const auxPara           = document.getElementById('id_max_capacity_aux').closest('p');
+  const preschAuxPara     = document.getElementById('id_max_capacity_aux_preschool').closest('p');
+  const formTitle         = document.getElementById('form-title');
+
+  function updateForm() {
+    const val = typeSelect.value;
+    if (val === 'collective') {
+      auxPara.style.display       = '';
+      preschAuxPara.style.display = '';
+      mainPara.querySelector('label').textContent = 'Capacidad Primaria';
+      auxPara.querySelector('label').textContent  = 'Capacidad Bachillerato';
+      preschAuxPara.querySelector('label').textContent = 'Capacidad Preescolar';
+      formTitle.textContent = 'Crear Taller Colectivo';
+    } else {
+      auxPara.style.display       = 'none';
+      preschAuxPara.style.display = 'none';
+      mainPara.querySelector('label').textContent = 'Capacidad Máxima';
+      if (val === 'primary') {
+        formTitle.textContent = 'Crear Taller de Primaria';
+      } else if (val === 'high_school') {
+        formTitle.textContent = 'Crear Taller de Bachillerato';
+      } else if (val === 'preschool') {
+        formTitle.textContent = 'Crear Taller de Preescolar';
+      } else {
+        formTitle.textContent = 'Crear Taller';
+      }
+    }
+  }
+
+  typeSelect.addEventListener('change', updateForm);
+  updateForm();
+});
+</script>
+{% endblock %}

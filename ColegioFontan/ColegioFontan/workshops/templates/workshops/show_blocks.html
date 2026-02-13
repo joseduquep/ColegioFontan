@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block breadcrumb %}
+<a href="{% url 'home.home' %}">Inicio</a>
+<span>/</span>
+<a href="{% url 'workshops:show_blocks' %}">Bloques de tiempo</a>
+{% endblock %}
+{% block content %}
+<h1>Bloques de Tiempo</h1>
+<table class="table table-striped table-bordered">
+  <thead class="table-dark">
+    <tr>
+      <th>Bloque</th>
+      <th>Día</th>
+      <th>Hora de Inicio</th>
+      <th>Hora de Fin</th>
+      <th>Estudiantes</th>
+      <th>Taller</th>
+      <th>Tipo de Taller</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in blocks_with_students %}
+      <tr>
+        <td>{{ item.block.block_number }}</td>
+        <td>{{ item.block.day }}</td>
+        <td>{{ item.block.start_time }}</td>
+        <td>{{ item.block.end_time }}</td>
+        <td>
+          {% if item.students %}
+            <ul class="list-unstyled mb-0">
+              {% for student in item.students %}
+                <li>{{ student.name }} {{ student.lastname }}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted mb-0">No hay estudiantes asignados</p>
+          {% endif %}
+        </td>
+        <td>{{ item.block.workshop.name }}</td>
+        <td>{{ item.block.workshop.get_type_display }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- Paginación -->
+<nav aria-label="Navegación de páginas" class="mt-4">
+  <ul class="pagination justify-content-center">
+    {% if blocks_with_students.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ blocks_with_students.previous_page_number }}" aria-label="Anterior">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+    {% endif %}
+    {% for num in blocks_with_students.paginator.page_range %}
+      <li class="page-item {% if blocks_with_students.number == num %}active{% endif %}">
+        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+      </li>
+    {% endfor %}
+    {% if blocks_with_students.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ blocks_with_students.next_page_number }}" aria-label="Siguiente">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endblock %}

@@ -1,0 +1,25 @@
+# Byte-compiled / optimized / DLL files
+*.pyc
+*.pyo
+__pycache__/
+
+# Logs
+*.log
+
+# Virtualenv
+venv/
+env/
+.env
+
+# Database
+
+
+# Static and media
+staticfiles/
+media/
+nohup.out
+
+db_dev.sqlite3
+db*.sqlite3
+db*.sqlite3
+db*.sqlite3

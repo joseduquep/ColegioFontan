@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Modificar Tutor{% endblock %}
+{% block breadcrumb %}
+<a href="{% url 'home.home' %}">Inicio</a>
+<span>/</span>
+<a href="{% url 'tutors.tutors_list' %}">Lista de tutores</a>
+<span>/</span>
+<a href="{% url 'tutors.modify_tutor' tutor.tutor_id %}">Modificar/id# {{ tutor.tutor_id }}</a>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Modificar Tutor</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="first_name">Nombre</label>
+            <input type="text" class="form-control" id="first_name" name="first_name" value="{{ tutor.user.first_name }}" required>
+        </div>
+        <div class="form-group">
+            <label for="last_name">Apellido</label>
+            <input type="text" class="form-control" id="last_name" name="last_name" value="{{ tutor.user.last_name }}" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Correo Electrónico</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ tutor.user.email }}" required>
+        </div>
+        <div class="form-group">
+            <label for="workshops">Talleres Asignados</label>
+            <select multiple class="form-control" id="workshops" name="workshops">
+                {% for workshop in workshops %}
+                    <option value="{{ workshop.workshop_id }}" {% if workshop in tutor.workshops.all %}selected{% endif %}>
+                        {{ workshop.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>        
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+    </form>
+    <hr>
+    <form action="{% url 'tutors.confirm_delete_tutor' tutor.tutor_id %}" method="GET">
+        <button type="submit" class="btn btn-danger mt-3">Eliminar Tutor</button>
+    </form>
+</div>
+{% endblock %}

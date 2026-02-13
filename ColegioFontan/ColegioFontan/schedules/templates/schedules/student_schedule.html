@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}{{student.name}} {{ student.student_id }}{% endblock %}
+{% block breadcrumb %}
+  <a href="{% url 'home.home' %}">Inicio</a>
+  <span>/</span>
+  <a href="{% url 'students.student_list' %}">Estudiantes</a>
+  <span>/</span>
+  <a href="{% url 'student_schedule' student.student_id %}">{{ student.name }} #{{ student.student_id }}</a>
+  {% endblock %}
+
+{% load static %}
+
+{% block content %}
+<div class="schedule-container">
+    <h3 class="schedule-title">Horario de {{ student.name }} {{ student.lastname }}</h3>
+    <h4>Nivel de autonomía: {{ student.autonomy_level }}</h4>
+    <h4>Grado: {{ student.grade }}</h4>
+    <a href="{% url 'student_schedule_pdf' student.student_id %}"
+        class="btn btn-outline-secondary mb-3">
+         Descargar PDF
+    </a>
+
+    <div class="table-wrapper">
+        <table class="schedule-table">
+            <thead>
+                <tr>
+                    <th>Bloque/Día</th>
+                    {% for day in days_of_week %}
+                        <th>
+                            {% if day == "Monday" %} Lunes
+                            {% elif day == "Tuesday" %} Martes
+                            {% elif day == "Wednesday" %} Miércoles
+                            {% elif day == "Thursday" %} Jueves
+                            {% elif day == "Friday" %} Viernes
+                            {% else %} {{ day }}
+                            {% endif %}
+                        </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in schedule_table %}
+                <tr>
+                    <td class="schedule-block">Bloque {{ row.0.block_number }}</td>
+                    {% for cell in row %}
+                    <td class="schedule-cell">
+                        {% if cell.block_number %}
+                            {% if cell.workshop %}
+                                <a href="{% url 'select_workshop' student.student_id cell.day cell.block_number %}" 
+                                    class="btn btn-primary edit-workshop-button">
+                                    {{ cell.workshop.name }} 
+                                    {% if cell.tutor %}
+                                        ({{ cell.tutor }})
+                                    {% else %}
+                                        (No asignado)
+                                    {% endif %}
+                                </a>
+                            {% else %}
+                                <a href="{% url 'select_workshop' student.student_id cell.day cell.block_number %}" 
+                                class="btn btn-secondary add-workshop-button">
+                            Agregar Taller
+                                </a>
+                            {% endif %}
+                    
+                        {% else %}
+                            <span>Sin bloque</span>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

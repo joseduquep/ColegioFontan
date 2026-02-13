@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Seleccionar Taller – Bloque {{ block_number }}{% endblock %}
+
+{% block breadcrumb %}
+  <a href="{% url 'home.home' %}">Inicio</a>
+  <span>/</span>
+  <a href="{% url 'students.student_list' %}">Estudiantes</a>
+  <span>/</span>
+  <a href="{% url 'student_schedule' student.student_id %}">{{ student.name }} #{{ student.student_id }}</a>
+  <span>/</span>
+  <span>Seleccionar Taller</span>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1>Seleccionar Taller para {{ student.name }} {{ student.lastname }}</h1>
+  <h2>Bloque {{ block_number }} –
+    {% if day == "Monday" %}Lunes
+    {% elif day == "Tuesday" %}Martes
+    {% elif day == "Wednesday" %}Miércoles
+    {% elif day == "Thursday" %}Jueves
+    {% elif day == "Friday" %}Viernes
+    {% else %}{{ day }}
+    {% endif %}
+  </h2>
+
+  {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="day" value="{{ day }}">
+    <input type="hidden" name="block_number" value="{{ block_number }}">
+    <input type="hidden" name="type" value="{{ block_type }}">
+
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Taller</th>
+          <th>Tipo</th>
+          <th>Capacidad</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for workshop in workshops %}
+        <tr>
+          <td>
+            {{ workshop.name }}
+            {% if workshop.tutor %}
+              <br><small>Tutor: {{ workshop.tutor.user.first_name }} {{ workshop.tutor.user.last_name }}</small>
+            {% else %}
+              <br><small class="text-muted">Tutor sin asignar</small>
+            {% endif %}
+          </td>
+          <td>
+            {% if workshop.type == "primary" %}Primaria
+            {% elif workshop.type == "high_school" %}Bachillerato
+            {% elif workshop.type == "collective" %}Colectivo
+            {% elif workshop.type == "preschool" %}Preescolar
+            {% endif %}
+          </td>
+          <td>
+            {{ workshop.current_capacity }} /
+            {% if workshop.type == "collective" and block_type == "high_school" and workshop.max_capacity_aux %}
+              {{ workshop.max_capacity_aux }}
+            {% elif workshop.type == "collective" and block_type == "preschool" and workshop.max_capacity_aux_preschool %}
+              {{ workshop.max_capacity_aux_preschool }}
+            {% else %}
+              {{ workshop.max_capacity }}
+            {% endif %}
+          </td>
+          <td>
+            <button
+              type="submit"
+              name="workshop"
+              value="{{ workshop.workshop_id }}"
+              class="btn btn-primary"
+            >
+              Seleccionar
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </form>
+
+  
+  <form
+    method="post"
+    action="{% url 'delete_workshop' student.student_id day block_number %}"
+    class="mt-3"
+    >
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">
+      Eliminar taller actual
+    </button>
+  </form>
+  <br>
+  <a href="{% url 'student_schedule' student.student_id %}" class="btn btn-secondary">
+    Volver al Horario
+  </a>
+</div>
+{% endblock %}

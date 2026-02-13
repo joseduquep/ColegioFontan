@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Estudiantes del Taller {{ workshop.name }}{% endblock %}
+{% block breadcrumb %}
+  <a href="{% url 'home.home' %}">Inicio</a> /
+  {{ workshop.name }}
+{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Estudiantes: {{ workshop.name }}</h2>
+
+  {% if students %}
+  <form method="POST">
+    {% csrf_token %}
+    <div class="d-flex justify-content-end mb-3">
+      <button type="submit" class="btn btn-primary">Actualizar estados</button>
+    </div>
+
+    <table class="table table-bordered table-striped">
+      <thead class="table-dark">
+        <tr>
+          <th>Nombre</th>
+          <th>Estado actual</th>
+          <th>Nuevo estado</th>
+        </tr>
+      </thead>
+      <!-- list_by_workshop.html -->
+<tbody>
+  {% for student in students %}
+  <tr {% if student.status == "absent" %}class="table-danger"{% endif %}>
+    <td>
+      <a 
+        href="{% url 'student_schedule' student_id=student.student_id %}" 
+        class="student-link text-decoration-none"
+        title="Ver horario de {{ student.name }} {{ student.lastname }}"
+      >
+        {{ student.name }} {{ student.lastname }}
+      </a>
+    </td>
+    <td>
+      <span class="badge 
+        {% if student.status == 'present' %}bg-success
+         {% elif student.status == 'absent' %}bg-danger
+         {% else %}bg-secondary{% endif %}">
+        {{ student.get_status_display }}
+      </span>
+    </td>
+    <td>
+      <select name="status_{{ student.student_id }}" class="form-select">
+        <option value="neutral" {% if student.status == "neutral" %}selected{% endif %}>No llamado</option>
+        <option value="present" {% if student.status == "present" %}selected{% endif %}>Presente</option>
+        <option value="absent"  {% if student.status == "absent"  %}selected{% endif %}>Ausente</option>
+      </select>
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>
+    </table>
+
+    <div class="d-flex justify-content-end mt-3">
+      <button type="submit" class="btn btn-primary">Actualizar estados</button>
+    </div>
+  </form>
+  {% else %}
+    <p class="alert alert-info">No hay estudiantes asignados a este taller.</p>
+  {% endif %}
+</div>
+{% endblock %}

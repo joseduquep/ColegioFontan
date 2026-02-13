@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Registro{% endblock %}
+{% block breadcrumb %}
+  <a href="{% url 'home.index' %}">Inicio</a>
+  <span>></span>
+  <span>Registrarse</span>
+{% endblock %}  
+{% block content %}
+<div class="p-3 mt-4">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow p-3 mb-4 rounded">
+                    <div class="card-body">
+                        <h2>Registro Perfil</h2>
+                        <hr />
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label>Nombre de usuario: </label>
+                                {{ template_data.form.username }} 
+                                <span style="color:blue;" class="form-text text-muted"><small>Debe ser 20 caracteres o menos. Solo letras, números y @/./+/-/_</small></span>
+                            </div>
+                            <div class="form-group">
+                                <label>Nombre: </label>
+                                {{ template_data.form.first_name}} 
+                            </div>
+                            <div class="form-group">
+                                <label>Apellido </label>
+                                {{ template_data.form.last_name}} 
+
+                            </div>
+
+                            <div class="form-group">
+                                {{ template_data.form.email.label_tag }}
+                                {{ template_data.form.email }}
+                                <span class="form-text text-muted"><small>Debe ser un correo que termine en @colegiofontan.edu.co.</small></span>
+                            </div>
+                            <div class="form-group">
+                                {{ template_data.form.cedula.label_tag }}
+                                {{ template_data.form.cedula }}
+                            </div>
+                            <div class="form-group">
+                                <label>Contraseña: </label>
+                                {{ template_data.form.password1 }}
+                                <ul class="form-text text-muted small">
+                                    <li>Tu contraseña no puede ser muy parecida a tu nombre de usuario.</li>
+                                    <li>Tu contraseña debe tener al menos 8 caracteres.</li>
+                                    <li>Tu contraseña no puede ser una contraseña comúnmente usada.</li>
+                                    <li>Tu contraseña no puede consistir únicamente en números.</li>
+                                </ul>
+                            </div>
+                            <div class="form-group">
+                                <label>Confirmar Contraseña: </label>
+                                {{ template_data.form.password2 }}
+                            </div>
+                            <div class="form-group">
+                                <label>¿Eres Tutor?</label><br />
+                                <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-outline-primary {% if template_data.form.is_tutor.value == 'yes' %}active{% endif %}">
+                                        <input type="radio" name="is_tutor" value="yes" autocomplete="off" 
+                                            {% if template_data.form.is_tutor.value == 'yes' %}checked{% endif %}> Sí
+                                    </label>
+                                    <label class="btn btn-outline-secondary {% if template_data.form.is_tutor.value == 'no' %}active{% endif %}">
+                                        <input type="radio" name="is_tutor" value="no" autocomplete="off" 
+                                            {% if template_data.form.is_tutor.value == 'no' %}checked{% endif %}> No
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- Campo para subir la imagen -->
+                            <br>
+                            <br>
+                            <button type="submit" class="btn bg-dark text-white">Registrarse</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Habilitar/deshabilitar el campo de foto dinámicamente
+    document.addEventListener('DOMContentLoaded', function () {
+        const isTutorRadios = document.querySelectorAll('input[name="is_tutor"]');
+        const photoInput = document.getElementById('id_photo');
+
+        isTutorRadios.forEach(radio => {
+            radio.addEventListener('change', function () {
+                if (this.value === 'yes') {
+                    photoInput.disabled = false;  // Habilitar
+                } else {
+                    photoInput.disabled = true;   // Deshabilitar
+                    photoInput.value = '';       // Limpiar el campo
+                }
+            });
+        });
+    });
+</script>
+{% endblock content %}

@@ -1,0 +1,42 @@
+from django import forms
+from .models import Student
+
+class StudentRegistrationForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = [
+            'name',
+            'lastname',
+            'id_number',
+            'autonomy_level',
+            'grade',
+            'workshop',
+            'rotation_workshop',
+            'general_data',            # <<< nuevo
+        ]
+        labels = {
+            'name': 'Nombre',
+            'lastname': 'Apellido',
+            'id_number': 'Código de estudiante',
+            'autonomy_level': 'Nivel de autonomía',
+            'grade': 'Grado',
+            'workshop': 'Taller',
+            'rotation_workshop': 'Taller de rotación',
+            'general_data': 'Datos Generales',  # <<< nuevo
+        }
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su nombre'}),
+            'lastname': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su apellido'}),
+            'id_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su número de identificación'}),
+            'autonomy_level': forms.Select(attrs={'class': 'form-control'}),
+            'grade': forms.Select(attrs={'class': 'form-control'}),
+            'workshop': forms.Select(attrs={'class': 'form-control'}),
+            'rotation_workshop': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el taller de rotación'}),
+            'general_data': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Información adicional...'}),  # <<< nuevo
+        }
+    
+    def clean_id_number(self):
+        id_number = str(self.cleaned_data.get('id_number'))
+        if len(id_number) < 6:
+            raise forms.ValidationError("El número de identificación debe tener al menos 6 dígitos.")
+        return id_number
