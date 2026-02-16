@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block breadcrumb %}
+<a href="{% url 'home.home' %}">Inicio</a>
+<span>/</span>
+<a href="{% url 'tutors.tutors_list' %}">Tutores</a>
+<span>/</span>
+<span>Historial de Asistencia - {{ block.workshop.name }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Historial de Asistencia</h2>
+  <h3>{{ block.workshop.name }} - Bloque {{ block.block_number }} ({{ block.day }})</h3>
+  <p class="text-muted">Mostrando registros desde {{ date_from }}</p>
+
+  {% if history_data %}
+  {% for day_data in history_data %}
+  <div class="card mb-3">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">
+        {{ day_data.date|date:"l, d \d\e F \d\e Y" }}
+      </h5>
+    </div>
+    <div class="card-body">
+      <table class="table table-sm table-striped">
+        <thead>
+          <tr>
+            <th>Estudiante</th>
+            <th>Estado</th>
+            <th>Marcado por</th>
+            <th>Hora</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for attendance in day_data.attendances %}
+          <tr>
+            <td>{{ attendance.student.name }} {{ attendance.student.lastname }}</td>
+            <td>
+              <span class="badge 
+                  {% if attendance.status == 'present' %}bg-success
+                  {% elif attendance.status == 'absent' %}bg-danger
+                  {% else %}bg-secondary{% endif %}">
+                {{ attendance.get_status_display }}
+              </span>
+            </td>
+            <td>
+              {% if attendance.marked_by %}
+              {{ attendance.marked_by.get_full_name|default:attendance.marked_by.username }}
+              {% else %}
+              <span class="text-muted">Sistema</span>
+              {% endif %}
+            </td>
+            <td>{{ attendance.marked_at|date:"H:i" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <!-- Resumen del día -->
+      <div class="mt-2">
+        <small class="text-muted">
+          <strong>Resumen:</strong>
+          {{ day_data.stats.total }} estudiantes -
+          <span class="text-success">{{ day_data.stats.present }} presentes</span>,
+          <span class="text-danger">{{ day_data.stats.absent }} ausentes</span>
+        </small>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div class="alert alert-info">
+    No hay registros de asistencia para este bloque en los últimos 30 días.
+  </div>
+  {% endif %}
+
+  <a href="javascript:history.back()" class="btn btn-secondary mt-3">Volver</a>
+</div>
+{% endblock %}

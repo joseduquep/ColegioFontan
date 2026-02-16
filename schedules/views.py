@@ -245,6 +245,10 @@ def select_block(request, tutor_id, day, block_number):
 
 
 def students_in_block(request, tutor_id, day, block_number):
+    from students.models import Attendance
+    from django.utils import timezone
+    import datetime
+    
     block_type = request.GET.get("type")
     tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
     block = Block.objects.filter(
@@ -256,27 +260,75 @@ def students_in_block(request, tutor_id, day, block_number):
     if not block:
         raise Http404("Bloque no encontrado")
 
+    print(f"DEBUG BLOCK: ID={block.block_id}, Type={type(block)}, PK={block.pk}")
+    
+    # SIMULACIÓN DE TIEMPO: HAKUNA MATATA (Mañana es otro día)
+    # today = timezone.now().date()
+    today = timezone.now().date() + datetime.timedelta(days=1)
+    print(f"DEBUG TIME TRAVEL: Hoy es {today}")
+
     if request.method == "POST":
-        # Recorremos cada estudiante del bloque y actualizamos su estado
+        # Crear/actualizar registros de Attendance en lugar de student.status
         for student in block.students.all():
             key = f"status_{student.student_id}"
             new_status = request.POST.get(key)
-            if new_status and student.status != new_status:
-                student.status = new_status
-                student.save()
-        messages.success(request, "Estados actualizados correctamente")
+            if new_status:
+                Attendance.objects.update_or_create(
+                    student=student,
+                    block=block,
+                    date=today,
+                    defaults={
+                        'status': new_status,
+                        'marked_by': request.user
+                    }
+                )
+        messages.success(request, "Asistencia registrada correctamente")
         return redirect(request.path + f"?type={block_type}")
 
-    students = block.students.all().order_by("-status", "name")
+    # GET: Obtener attendance de hoy para todos los estudiantes del bloque en UNA sola consulta
+    students = block.students.all().order_by('lastname', 'name')
+    
+    # Traer todos los registros de attendance para este bloque y fecha
+    attendances = Attendance.objects.filter(
+        block=block,
+        date=today,
+        student__in=students
+    ).select_related('student', 'marked_by')
+
+    # Crear mpeo: student_id -> attendance_record
+    attendance_map = {a.student_id: a for a in attendances}
+
+    students_with_attendance = []
+    for student in students:
+        attendance = attendance_map.get(student.student_id)
+        students_with_attendance.append({
+            'student': student,
+            'attendance': attendance,
+            'current_status': attendance.status if attendance else 'neutral'
+        })
+    
+    # Ordenar: ausentes primero, luego por apellido
+    students_with_attendance.sort(
+        key=lambda x: (
+            0 if x['current_status'] == 'absent' else 1,
+            x['student'].lastname,
+            x['student'].name
+        )
+    )
+
     return render(request, "schedules/students_in_block.html", {
         "tutor": tutor,
         "tutor_id": tutor.tutor_id,
         "block": block,
+        "block_id": block.block_id, # Added block_id
+        "block_id_fixed": block.block_id, # Explicitly passing ID
         "block_number": block.block_number,
         "block_day": block.day,
         "workshop": block.workshop,
-        "students": students,
+        "students_with_attendance": students_with_attendance,
+        "today": today,
     })
+
 
 
 
@@ -305,3 +357,47 @@ def delete_workshop(request, student_id, day, block_number):
 
     messages.success(request, "Taller eliminado correctamente.")
     return redirect('student_schedule', student_id)
+
+
+@login_required
+def block_attendance_history(request, block_id):
+    """
+    Muestra el historial de asistencia de un bloque específico.
+    Últimos 30 días de registros agrupados por fecha.
+    """
+    from students.models import Attendance
+    from django.utils import timezone
+    from datetime import timedelta
+    from itertools import groupby
+    
+    block = get_object_or_404(Block, block_id=block_id)
+    
+    # Últimos 30 días
+    date_from = timezone.now().date() - timedelta(days=30)
+    attendances = (
+        Attendance.objects
+        .filter(block=block, date__gte=date_from)
+        .select_related('student', 'marked_by')
+        .order_by('-date', 'student__lastname', 'student__name')
+    )
+    
+    # Agrupar por fecha y calcular estadísticas
+    history_data = []
+    for date, group in groupby(attendances, key=lambda a: a.date):
+        group_list = list(group)
+        stats = {
+            'total': len(group_list),
+            'present': len([a for a in group_list if a.status == 'present']),
+            'absent': len([a for a in group_list if a.status == 'absent']),
+        }
+        history_data.append({
+            'date': date,
+            'attendances': group_list,
+            'stats': stats
+        })
+    
+    return render(request, 'schedules/block_attendance_history.html', {
+        'block': block,
+        'history_data': history_data,
+        'date_from': date_from,
+    })

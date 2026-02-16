@@ -10,4 +10,5 @@ urlpatterns = [
         views.delete_workshop,
         name='delete_workshop'
     ),
+    path('block/<int:block_id>/attendance-history/', views.block_attendance_history, name='block_attendance_history'),
 ]

@@ -227,52 +227,5 @@ def delete_student(request, student_id):
     return redirect('students.modify_student', student_id=student_id)  # Si no es POST, regresa a modificar
 
 
-@login_required
-def absent_students(request):
-    # nuevo parámetro de búsqueda
-    query          = request.GET.get('query', '').strip()
-
-    grade_param    = request.GET.get('grade')
-    level          = request.GET.get('level')
-    workshop_param = request.GET.get('workshop')
-    view_mode      = request.GET.get('view', 'mosaic')
-
-    qs = Student.objects.select_related('workshop').filter(status='absent')
-
-    # filtrado por búsqueda
-    if query:
-        qs = qs.filter(
-            Q(name__icontains=query) |
-            Q(lastname__icontains=query)
-        )
-
-    # (el resto de tus filtros tal cual estaban...)
-    if grade_param:
-        try:
-            grade_int = int(grade_param)
-            qs = qs.filter(grade=grade_int)
-        except ValueError:
-            pass  # Ignorar si no es un número válido
-    if level == 'primary':
-        qs = qs.filter(grade__lte=5)
-    elif level == 'high_school':
-        qs = qs.filter(grade__gt=5)
-    elif level == 'preschool':
-        qs = qs.filter(grade__lte=0)  # PJ, J, T (todos los preescolar)
-    if workshop_param and workshop_param.isdigit():
-        qs = qs.filter(workshop__workshop_id=int(workshop_param))
-
-    qs = qs.order_by('lastname', 'name')
-    paginator = Paginator(qs, 30)
-    page_obj  = paginator.get_page(request.GET.get('page'))
-
-    return render(request, 'students/absent_students.html', {
-        'students': page_obj,
-        'query': query,                    # pasamos el valor al template
-        'grade_choices': Student._meta.get_field('grade').choices,
-        'selected_grade': int(grade_param) if grade_param and grade_param.isdigit() else None,
-        'selected_level': level,
-        'workshop_choices': Workshop.objects.all(),
-        'selected_workshop': int(workshop_param) if workshop_param and workshop_param.isdigit() else None,
-        'view_mode': view_mode,
-    })
+# absent_students view removed - attendance is now tracked per block
+# Use block_attendance_history view in schedules app instead

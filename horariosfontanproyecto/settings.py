@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-oqd^oz@mj@5s!1!jw&xqj!g-ctw@g$0m&g1_9fq5xx__9tn482'
 
 # DEBUG en producción
-DEBUG = False
+DEBUG = True  # Temporalmente True para debugging
 
 # Configuración de hosts permitidos
 ALLOWED_HOSTS = ['*']  # En producción, lista explícita de dominios.
@@ -69,13 +69,22 @@ WSGI_APPLICATION = 'horariosfontanproyecto.wsgi.application'
 
 # Base de datos
 import os
+import dj_database_url
 
-# Base de datos para desarrollo local (usando snapshot)
+# Configuración de base de datos
+# Usa la variable de entorno DATABASE_URL (Neon/Producción)
+# Si no existe, usa SQLite como fallback (Desarrollo local)
+DATABASE_URL = os.environ.get(
+    'DATABASE_URL',
+    'postgresql://neondb_owner:npg_PIZhOrC6lS3g@ep-restless-glade-aiby47bw-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require'
+)
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db_dev.sqlite3',
-    }
+    'default': dj_database_url.parse(
+        DATABASE_URL,
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 
 
