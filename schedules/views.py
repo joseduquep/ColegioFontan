@@ -11,7 +11,7 @@ import logging
 from django.http import HttpResponse
 from xhtml2pdf import pisa
 from django.contrib import messages
-from django.db.models import Count
+from django.db.models import Count, Q
 
 
 # Configuración básica de logging
@@ -250,6 +250,7 @@ def students_in_block(request, tutor_id, day, block_number):
     import datetime
     
     block_type = request.GET.get("type")
+    valid_level_types = {"primary", "high_school", "preschool"}
     tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
     block = Block.objects.filter(
         day=day,
@@ -316,6 +317,16 @@ def students_in_block(request, tutor_id, day, block_number):
         )
     )
 
+    # Tipo de nivel para filtrar estudiantes en el buscador del modal.
+    # Prioridad: tipo recibido en URL -> tipo del bloque -> tipo del taller.
+    search_block_type = (
+        block_type
+        if block_type in valid_level_types
+        else block.type if block.type in valid_level_types
+        else block.workshop.type if block.workshop.type in valid_level_types
+        else "primary"
+    )
+
     return render(request, "schedules/students_in_block.html", {
         "tutor": tutor,
         "tutor_id": tutor.tutor_id,
@@ -325,6 +336,7 @@ def students_in_block(request, tutor_id, day, block_number):
         "block_number": block.block_number,
         "block_day": block.day,
         "workshop": block.workshop,
+        "search_block_type": search_block_type,
         "students_with_attendance": students_with_attendance,
         "today": today,
     })
@@ -401,3 +413,103 @@ def block_attendance_history(request, block_id):
         'history_data': history_data,
         'date_from': date_from,
     })
+
+
+@login_required
+def ajax_search_students(request):
+    query = request.GET.get('q', '')
+    block_type = request.GET.get('block_type', 'primary')
+    
+    if not query:
+        return JsonResponse({'results': []})
+    
+    # Filter by grade level
+    if block_type == 'preschool':
+        grade_filter = Q(grade__lte=0)
+    elif block_type == 'high_school':
+        grade_filter = Q(grade__gt=5)
+    else: # primary
+        grade_filter = Q(grade__gt=0, grade__lte=5)
+        
+    students = Student.objects.filter(
+        grade_filter,
+        Q(name__icontains=query) | Q(lastname__icontains=query) | Q(id_number__icontains=query)
+    )[:10]
+    
+    results = []
+    for s in students:
+        results.append({
+            'id': s.student_id,
+            'text': f"{s.name} {s.lastname} (ID: {s.id_number})"
+        })
+        
+    return JsonResponse({'results': results})
+
+
+@login_required
+def add_student_to_block(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
+    
+    student_id = request.POST.get('student_id')
+    block_id = request.POST.get('block_id')
+
+    if not student_id or not block_id:
+        return JsonResponse(
+            {'success': False, 'error': 'Faltan datos obligatorios (student_id o block_id).'},
+            status=400
+        )
+
+    try:
+        student_id = int(student_id)
+        block_id = int(block_id)
+    except (TypeError, ValueError):
+        return JsonResponse(
+            {'success': False, 'error': 'student_id o block_id inválido.'},
+            status=400
+        )
+    
+    student = get_object_or_404(Student, student_id=student_id)
+    block = get_object_or_404(Block, block_id=block_id)
+    
+    # Check if student is already in a block at the SAME time and day
+    existing_schedule = Schedule.objects.filter(
+        student=student,
+        block__day=block.day,
+        block__block_number=block.block_number
+    ).first()
+    
+    if existing_schedule:
+        # Conflict found
+        return JsonResponse({
+            'success': False,
+            'conflict': True,
+            'workshop_name': existing_schedule.block.workshop.name,
+            'student_name': f"{student.name} {student.lastname}",
+            'student_schedule_url': reverse('student_schedule', args=[student.student_id])
+        })
+    
+    # Check capacity
+    capacity = 25
+    w = block.workshop
+    if w.type == 'collective':
+        if block.type == 'preschool' and w.max_capacity_aux_preschool:
+            capacity = w.max_capacity_aux_preschool
+        elif block.type == 'high_school' and w.max_capacity_aux:
+            capacity = w.max_capacity_aux
+        else:
+            capacity = w.max_capacity
+    else:
+        capacity = w.max_capacity
+
+    if block.students.count() >= capacity:
+        return JsonResponse({
+            'success': False,
+            'error': f'Capacidad máxima ({capacity}) alcanzada.'
+        })
+
+    # No conflict, add student
+    Schedule.objects.create(student=student, block=block)
+    block.students.add(student)
+    
+    return JsonResponse({'success': True})

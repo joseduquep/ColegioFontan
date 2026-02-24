@@ -222,8 +222,8 @@
 
 
 
-/* Modal estilos básicos */
-.modal {
+/* Modal estilos básicos - RENAMED TO AVOID CONFLICT WITH BOOTSTRAP */
+.legacy-modal {
   display: none;
   position: fixed;
   z-index: 1;
@@ -235,7 +235,7 @@
   background-color: rgba(0, 0, 0, 0.4);
 }
 
-.modal-content {
+.legacy-modal-content {
   background-color: #fefefe;
   margin: 15% auto;
   padding: 20px;
@@ -243,15 +243,15 @@
   width: 80%;
 }
 
-.close {
+.legacy-close {
   color: #aaa;
   float: right;
   font-size: 28px;
   font-weight: bold;
 }
 
-.close:hover,
-.close:focus {
+.legacy-close:hover,
+.legacy-close:focus {
   color: black;
   text-decoration: none;
   cursor: pointer;

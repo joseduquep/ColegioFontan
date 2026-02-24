@@ -11,4 +11,6 @@ urlpatterns = [
         name='delete_workshop'
     ),
     path('block/<int:block_id>/attendance-history/', views.block_attendance_history, name='block_attendance_history'),
+    path('ajax/search-students/', views.ajax_search_students, name='ajax_search_students'),
+    path('ajax/add-student-to-block/', views.add_student_to_block, name='add_student_to_block'),
 ]

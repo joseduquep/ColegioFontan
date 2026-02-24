@@ -18,7 +18,7 @@
 {% endblock %}
 
 {% block content %}
-<!-- DEBUG: PYTHON WRITE VERSION 5.0 -->
+<!-- DEBUG: PYTHON WRITE VERSION 4.0 -->
 <div class="container mt-4">
   <h2>Estudiantes del Bloque {{ block_number }} –
     {% if block_day == "Monday" %}Lunes
@@ -59,11 +59,7 @@
       <tbody>
         {% for item in students_with_attendance %}
         <tr class="{% if item.current_status == 'absent' %}table-danger{% endif %}">
-          <td>
-            <a href="{% url 'student_schedule' item.student.student_id %}" class="text-decoration-none">
-              {{ item.student.name }} {{ item.student.lastname }}
-            </a>
-          </td>
+          <td>{{ item.student.name }} {{ item.student.lastname }}</td>
           <td>
             <span class="badge 
               {% if item.current_status == 'present' %}bg-success
@@ -81,9 +77,9 @@
           </td>
           <td>
             <select name="status_{{ item.student.student_id }}" class="form-select">
-              <option value="neutral" {% if item.current_status == 'neutral' %}selected{% endif %}>No llamado</option>
-              <option value="present" {% if item.current_status == 'present' %}selected{% endif %}>Presente</option>
-              <option value="absent" {% if item.current_status == 'absent' %}selected{% endif %}>Ausente</option>
+              <option value="neutral" {% if item.current_status=='neutral' %}selected{% endif %}>No llamado</option>
+              <option value="present" {% if item.current_status=='present' %}selected{% endif %}>Presente</option>
+              <option value="absent" {% if item.current_status=='absent' %}selected{% endif %}>Ausente</option>
             </select>
           </td>
         </tr>
@@ -135,7 +131,6 @@
     const conflictMessage = document.getElementById('conflictMessage');
     const conflictStudentName = document.getElementById('conflictStudentName');
     const goToStudentSchedule = document.getElementById('goToStudentSchedule');
-    const blockId = '{{ block_id_fixed|default_if_none:"" }}'.trim();
 
     let debounceTimer;
 
@@ -148,7 +143,7 @@
       }
 
       debounceTimer = setTimeout(() => {
-        fetch(`{% url 'ajax_search_students' %}?q=${encodeURIComponent(query)}&block_type={{ search_block_type }}`)
+        fetch(`{% url 'ajax_search_students' %}?q=${query}&block_type={{ block.type }}`)
           .then(response => response.json())
           .then(data => {
             resultsDiv.innerHTML = '';
@@ -165,27 +160,16 @@
 
     function addStudent(studentId) {
       hideConflict();
-      if (!blockId) {
-        alert('No se pudo identificar el bloque. Recarga la página e intenta de nuevo.');
-        return;
-      }
-
       const formData = new FormData();
       formData.append('student_id', studentId);
-      formData.append('block_id', blockId);
+      formData.append('block_id', '{{ block.block_id }}');
       formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
       fetch(`{% url 'add_student_to_block' %}`, {
         method: 'POST',
         body: formData
       })
-        .then(async response => {
-          const data = await response.json().catch(() => ({}));
-          if (!response.ok) {
-            throw new Error(data.error || 'Error del servidor al agregar estudiante.');
-          }
-          return data;
-        })
+        .then(response => response.json())
         .then(data => {
           if (data.success) {
             location.reload();
@@ -197,9 +181,6 @@
           } else {
             alert(data.error || 'Ocurrió un error al agregar al estudiante.');
           }
-        })
-        .catch(error => {
-          alert(error.message || 'No se pudo completar la operación.');
         });
     }
 
