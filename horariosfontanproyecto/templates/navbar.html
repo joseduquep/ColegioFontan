@@ -3,40 +3,92 @@
   :root {
     --primary-color: #50007D;
     --secondary-color: #00C8FF;
-    --text-color: #F5F5F5;
+    --text-color: #F5F7FA;
     --hover-color: #947DD1;
+    --surface-color: #ffffff;
   }
 
-  /* Asegura que el body deje espacio bajo la navbar fija */
+  /* Espacio para navbar fija */
   body {
-    padding-top: 110px;
+    padding-top: 88px;
   }
 
-  /* Navbar fija */
   .custom-navbar-bg {
     background-color: var(--primary-color) !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  .navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
   }
 
   .navbar-brand img {
-    max-height: 140px;
-    /* <-- aquí pon el alto que necesites (prueba 120, 140, 160, etc.) */
-    width: 200px;
+    height: 52px;
+    width: auto;
+  }
+
+  .navbar-nav {
+    align-items: center;
   }
 
   .navbar-nav .nav-link {
     color: var(--text-color);
-    font-size: 1.1rem;
-    font-weight: 500;
-    transition: color 0.2s ease;
+    font-size: 0.98rem;
+    font-weight: 600;
+    transition: color 0.2s ease, opacity 0.2s ease;
+    opacity: 0.95;
+    padding: 0.55rem 0.75rem;
   }
 
   .navbar-nav .nav-link:hover {
     color: var(--hover-color);
+    opacity: 1;
+  }
+
+  .dropdown-menu {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.14);
+    overflow: hidden;
+  }
+
+  .dropdown-menu .dropdown-item {
+    font-weight: 500;
+    padding: 0.6rem 0.9rem;
   }
 
   .dropdown-menu .dropdown-item:hover {
     background-color: var(--secondary-color);
-    color: var(--text-color);
+    color: #111827;
+  }
+
+  .navbar-search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: 0.75rem;
+  }
+
+  .navbar-search .form-control {
+    min-width: 200px;
+    border: none;
+    border-radius: 999px;
+    padding-left: 0.9rem;
+  }
+
+  .navbar-search .btn {
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .profile-pill {
+    background: rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    padding: 0.2rem 0.55rem;
   }
 
   .btn-outline-light:hover {
@@ -46,42 +98,54 @@
   }
 
   @media (max-width: 800px) {
-    .navbar-brand img {
-      max-height: 800px;
+    body {
+      padding-top: 74px;
     }
 
-    .navbar-nav .nav-link {
-      font-size: 1rem;
+    .navbar-brand img {
+      height: 42px;
+    }
+
+    .navbar-search {
+      width: 100%;
+      margin-left: 0;
+      margin-top: 0.6rem;
+    }
+
+    .navbar-search .form-control,
+    .navbar-search .btn {
+      width: 100%;
     }
   }
 </style>
 
-<nav class="navbar navbar-expand-lg navbar-dark custom-navbar-bg fixed-top" style="height: 110px; z-index:1000;">
-  {% if user.is_authenticated %}
+<nav class="navbar navbar-expand-lg navbar-dark custom-navbar-bg fixed-top" style="z-index:1000;">
   <div class="container-fluid">
-    <a class="navbar-brand ms-3" href="{% url 'home.home' %}">
-      <img src="{% static 'images/logofontan.png' %}" alt="Colegio Fontán" style="max: height 800px;">
+    <a class="navbar-brand ms-2 ms-lg-3" href="{% url 'home.home' %}">
+      <img src="{% static 'images/logofontan.png' %}" alt="Colegio Fontán">
+      <span class="d-none d-lg-inline">Horarios Fontán</span>
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      {% if user.is_authenticated %}
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-        <!-- Estudiantes ausentes link removed - use block-based attendance instead -->
-        <li class="nav-item"><a class="nav-link" href="{% url 'accounts.signup' %}">Registrar perfil</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'workshops:show_blocks' %}">Bloques</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'tutors.tutors_list' %}">Tutores</a></li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'home.home' %}">Inicio</a>
+        </li>
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="estudiantesDropdown" role="button" data-bs-toggle="dropdown"
+          <a class="nav-link dropdown-toggle" href="#" id="gestionDropdown" role="button" data-bs-toggle="dropdown"
             aria-expanded="false">
-            Estudiantes
+            Gestión
           </a>
-          <ul class="dropdown-menu" aria-labelledby="estudiantesDropdown">
-            <li><a class="dropdown-item" href="{% url 'students.student_list' %}">Ver Estudiantes</a></li>
-            <li><a class="dropdown-item" href="{% url 'students.register_student' %}">Registrar Estudiantes</a></li>
+          <ul class="dropdown-menu" aria-labelledby="gestionDropdown">
+            <li><a class="dropdown-item" href="{% url 'students.student_list' %}">Ver estudiantes</a></li>
+            <li><a class="dropdown-item" href="{% url 'students.register_student' %}">Registrar estudiante</a></li>
+            <li><a class="dropdown-item" href="{% url 'tutors.tutors_list' %}">Ver tutores</a></li>
+            <li><a class="dropdown-item" href="{% url 'workshops:show_blocks' %}">Bloques</a></li>
           </ul>
         </li>
         <li class="nav-item dropdown">
@@ -95,24 +159,33 @@
           </ul>
         </li>
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown"
+          <a class="nav-link dropdown-toggle profile-pill" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown"
             aria-expanded="false">
             <i class="fas fa-user fa-lg"></i>
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+            <li><a class="dropdown-item" href="{% url 'accounts.signup' %}">Registrar perfil</a></li>
             <li><a class="dropdown-item" href="{% url 'tutor_profile' %}">Ver Perfil</a></li>
             <li><a class="dropdown-item" href="{% url 'accounts.logout' %}">Cerrar Sesión</a></li>
           </ul>
         </li>
-        <li class="nav-item">
-          <form class="d-flex ms-3" method="GET"
+        <li class="nav-item navbar-search">
+          <form class="d-flex" method="GET"
             action="{% if search_type == 'tutors' %}{% url 'tutors.tutors_list' %}{% else %}{% url 'students.student_list' %}{% endif %}">
             <input class="form-control me-2" type="search" placeholder="Buscar..." aria-label="Buscar" name="query">
             <button class="btn btn-outline-light" type="submit">Buscar</button>
           </form>
         </li>
       </ul>
+      {% else %}
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'accounts.login' %}">
+            <i class="fas fa-sign-in-alt me-1"></i> Iniciar sesión
+          </a>
+        </li>
+      </ul>
+      {% endif %}
     </div>
-    {% endif %}
   </div>
 </nav>
