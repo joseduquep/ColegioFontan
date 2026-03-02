@@ -12,6 +12,8 @@ from django.http import HttpResponse
 from xhtml2pdf import pisa
 from django.contrib import messages
 from django.db.models import Count, Q
+from django.db import transaction
+from django.views.decorators.http import require_POST
 
 
 # Configuración básica de logging
@@ -340,6 +342,48 @@ def students_in_block(request, tutor_id, day, block_number):
         "students_with_attendance": students_with_attendance,
         "today": today,
     })
+
+
+@login_required
+@require_POST
+def clear_block_students(request, tutor_id, block_id):
+    """
+    Desvincula todos los estudiantes de un bloque específico de un tutor.
+    - Conserva historial de asistencia (Attendance).
+    - Limpia ambas fuentes de asignación (Schedule y Block.students).
+    """
+    tutor = get_object_or_404(Tutor, tutor_id=tutor_id)
+    block = get_object_or_404(
+        Block.objects.select_related("workshop"),
+        block_id=block_id,
+        workshop__tutor=tutor,
+    )
+
+    m2m_count = block.students.count()
+
+    with transaction.atomic():
+        # Elimina asignaciones explícitas del bloque para evitar inconsistencias.
+        schedule_deleted, _ = Schedule.objects.filter(block=block).delete()
+        # Limpia la relación M2M usada en vistas de bloque/capacidad/asistencia.
+        block.students.clear()
+
+    if m2m_count == 0 and schedule_deleted == 0:
+        messages.info(request, "El bloque ya estaba vacío; no había estudiantes para desvincular.")
+    else:
+        messages.success(
+            request,
+            (
+                f"Bloque limpiado correctamente. "
+                f"Estudiantes desvinculados (M2M): {m2m_count}. "
+                f"Asignaciones eliminadas (Schedule): {schedule_deleted}."
+            ),
+        )
+
+    redirect_url = (
+        reverse("student_in_block", args=[tutor.tutor_id, block.day, block.block_number])
+        + f"?type={block.type}"
+    )
+    return HttpResponseRedirect(redirect_url)
 
 
 

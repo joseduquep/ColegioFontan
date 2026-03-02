@@ -1,10 +1,17 @@
 from pathlib import Path
 import os
 
+from dotenv import load_dotenv
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Clave secreta
-SECRET_KEY = 'django-insecure-oqd^oz@mj@5s!1!jw&xqj!g-ctw@g$0m&g1_9fq5xx__9tn482'
+load_dotenv(BASE_DIR / '.env')
+
+# Clave secreta (desde .env o valor por defecto)
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY',
+    'django-insecure-oqd^oz@mj@5s!1!jw&xqj!g-ctw@g$0m&g1_9fq5xx__9tn482'
+)
 
 # DEBUG en producción
 DEBUG = True  # Temporalmente True para debugging
