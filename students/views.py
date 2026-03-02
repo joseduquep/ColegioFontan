@@ -12,8 +12,8 @@ import unicodedata
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
-from workshops.models import Block
 from django.utils import timezone
+from schedules.models import Schedule
 
 def strip_accents(text: str) -> str:
     return ''.join(
@@ -24,37 +24,68 @@ def strip_accents(text: str) -> str:
 
 def build_schedule_context(student):
     days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-    student_blocks = (
-        Block.objects
-             .filter(students=student)
-             .select_related('workshop')
+    schedule_qs = (
+        Schedule.objects
+        .filter(student=student)
+        .select_related('block', 'block__workshop', 'block__workshop__tutor')
     )
-    lookup = {(b.day, b.block_number): b for b in student_blocks}
 
-    schedule_table = []
-    # Ahora todos los días pueden tener hasta 5 bloques
-    for num in range(1, 6):
-        row = []
-        for day in days_of_week:
-            b = lookup.get((day, num))
-            if b and b.workshop:
-                row.append({
-                    "block_number": num,
-                    "workshop": b.workshop,
-                    "tutor": b.workshop.tutor,
-                })
-            else:
-                row.append({"block_number": None, "workshop": None, "tutor": None})
-        schedule_table.append(row)
+    def build_table(level_type):
+        max_blocks = 4 if level_type in ('high_school', 'preschool') else 5
+        table = []
+        for num in range(1, max_blocks + 1):
+            row = []
+            for day in days_of_week:
+                entry = next(
+                    (
+                        s for s in schedule_qs
+                        if s.block.type == level_type
+                        and s.block.day == day
+                        and s.block.block_number == num
+                    ),
+                    None
+                )
+                if entry and entry.block.workshop:
+                    row.append({
+                        "block_number": num,
+                        "workshop": entry.block.workshop,
+                        "tutor": entry.block.workshop.tutor,
+                    })
+                else:
+                    row.append({"block_number": num, "workshop": None, "tutor": None})
+            table.append(row)
+        return table
 
-    return days_of_week, schedule_table
+    if student.grade == 5:
+        return {
+            "days_of_week": days_of_week,
+            "is_mixed_grade": True,
+            "primary_schedule_table": build_table('primary'),
+            "highschool_schedule_table": build_table('high_school'),
+            "schedule_table": [],
+        }
+
+    if student.grade <= 0:
+        level = 'preschool'
+    elif student.grade > 5:
+        level = 'high_school'
+    else:
+        level = 'primary'
+
+    return {
+        "days_of_week": days_of_week,
+        "is_mixed_grade": False,
+        "schedule_table": build_table(level),
+        "primary_schedule_table": [],
+        "highschool_schedule_table": [],
+    }
 
 @login_required
 def student_schedule_pdf(request, student_id):
     student = get_object_or_404(Student, student_id=student_id)
 
-    # 1) Obtenemos días y tabla
-    days_of_week, schedule_table = build_schedule_context(student)
+    # 1) Obtenemos estructura de horario
+    schedule_context = build_schedule_context(student)
 
     # 2) Fecha y hora de generación
     generation_datetime = timezone.now().strftime("%d/%m/%Y %H:%M")
@@ -62,9 +93,8 @@ def student_schedule_pdf(request, student_id):
     # 3) Contexto para el template
     context = {
         "student": student,
-        "days_of_week": days_of_week,
-        "schedule_table": schedule_table,
         "generation_datetime": generation_datetime,
+        **schedule_context,
     }
 
     # 4) Render a HTML
@@ -101,7 +131,7 @@ def student_list(request):
     if level == 'primary':
         qs = qs.filter(grade__lte=5)
     elif level == 'high_school':
-        qs = qs.filter(grade__gt=5)
+        qs = qs.filter(grade__gte=5)
     elif level == 'preschool':
         qs = qs.filter(grade__lte=0)  # PJ, J, T (todos los preescolar)
 

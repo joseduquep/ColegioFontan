@@ -21,18 +21,69 @@ logger = logging.getLogger(__name__)
 
 
 
+# Funciones auxiliares de niveles y horarios
+def get_student_level_types(student):
+    """
+    Retorna los tipos de nivel académico habilitados para el estudiante.
+    Regla especial: grado 5 es mixto (primary + high_school).
+    """
+    if student.grade <= 0:
+        return ['preschool']
+    if student.grade == 5:
+        return ['primary', 'high_school']
+    if student.grade > 5:
+        return ['high_school']
+    return ['primary']
+
+
+def get_blocks_per_level(level_type):
+    return 4 if level_type in ('high_school', 'preschool') else 5
+
+
+def build_level_schedule_table(student_schedule, days_of_week, level_type):
+    num_blocks = range(1, get_blocks_per_level(level_type) + 1)
+    schedule_table = [
+        [
+            {
+                "day": day,
+                "block_number": block_number,
+                "block_type": level_type,
+                "workshop": next(
+                    (
+                        entry.block.workshop
+                        for entry in student_schedule
+                        if entry.block.type == level_type
+                        and entry.block.block_number == block_number
+                        and entry.block.day == day
+                    ),
+                    None
+                ),
+                "tutor": next(
+                    (
+                        entry.block.workshop.tutor.user.get_full_name()
+                        for entry in student_schedule
+                        if entry.block.type == level_type
+                        and entry.block.block_number == block_number
+                        and entry.block.day == day
+                        and entry.block.workshop.tutor
+                    ),
+                    None
+                ),
+            }
+            for day in days_of_week
+        ]
+        for block_number in num_blocks
+    ]
+    return schedule_table, num_blocks
+
+
 # Función auxiliar: Determinar horario y talleres disponibles
 def get_schedule_and_workshops(student):
     """
     Devuelve (bloques, talleres) filtrados según grado y colectivos,
     incluyendo Preescolar cuando student.grade <= 0 (PJ, J, T).
     """
-    if student.grade <= 0:  # PJ, J, T (todos los niveles de preescolar)
-        tipos = ['preschool', 'collective']
-    elif student.grade > 5:
-        tipos = ['high_school', 'collective']
-    else:
-        tipos = ['primary', 'collective']
+    tipos = get_student_level_types(student) + ['collective']
 
     bloques = (
         Block.objects
@@ -61,55 +112,43 @@ def student_schedule(request, student_id):
             pass
 
     days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+    student_schedule = (
+        Schedule.objects
+        .filter(student=student)
+        .select_related('block', 'block__workshop', 'block__workshop__tutor', 'block__workshop__tutor__user')
+    )
+    is_mixed_grade = student.grade == 5
+    level_types = get_student_level_types(student)
 
-    # Definir bloques según el grado - ahora todos los días tienen la misma cantidad
-    if student.grade > 5 or student.grade <= 0:  # Bachillerato o Preescolar (PJ, J, T)
-        blocks_per_day = {
-            "Monday": 4,
-            "Tuesday": 4,
-            "Wednesday": 4,
-            "Thursday": 4,
-            "Friday": 4,  # Ahora viernes también tiene 4 bloques para bachillerato/preescolar
-        }
+    schedule_table = []
+    primary_schedule_table = []
+    highschool_schedule_table = []
+    num_blocks = range(1, 1)
+    primary_num_blocks = range(1, 1)
+    highschool_num_blocks = range(1, 1)
+
+    if is_mixed_grade:
+        primary_schedule_table, primary_num_blocks = build_level_schedule_table(
+            student_schedule, days_of_week, 'primary'
+        )
+        highschool_schedule_table, highschool_num_blocks = build_level_schedule_table(
+            student_schedule, days_of_week, 'high_school'
+        )
     else:
-        blocks_per_day = {
-            "Monday": 5,
-            "Tuesday": 5,
-            "Wednesday": 5,
-            "Thursday": 5,
-            "Friday": 5,  # Ahora viernes también tiene 5 bloques para primaria
-        }
-
-    num_blocks = range(1, max(blocks_per_day.values()) + 1)
-
-    # Generar la tabla del horario
-    student_schedule = Schedule.objects.filter(student=student).select_related('block')
-    schedule_table = [
-        [
-            {
-                "day": day,
-                "block_number": block_number if block_number <= blocks_per_day[day] else None,
-                "workshop": next(
-                    (entry.block.workshop for entry in student_schedule
-                     if entry.block.block_number == block_number and entry.block.day == day),
-                    None
-                ) if block_number <= blocks_per_day[day] else None,
-                "tutor": next(
-                    (entry.block.workshop.tutor.user.get_full_name() for entry in student_schedule
-                     if entry.block.block_number == block_number and entry.block.day == day and entry.block.workshop.tutor),
-                    None
-                ) if block_number <= blocks_per_day[day] else None,
-            }
-            for day in days_of_week
-        ]
-        for block_number in num_blocks
-    ]
+        schedule_table, num_blocks = build_level_schedule_table(
+            student_schedule, days_of_week, level_types[0]
+        )
 
     context = {
         "student": student,
         "schedule_table": schedule_table,
+        "primary_schedule_table": primary_schedule_table,
+        "highschool_schedule_table": highschool_schedule_table,
         "days_of_week": days_of_week,
         "num_blocks": num_blocks,
+        "primary_num_blocks": primary_num_blocks,
+        "highschool_num_blocks": highschool_num_blocks,
+        "is_mixed_grade": is_mixed_grade,
         "workshops": workshops,
     }
 
@@ -142,29 +181,20 @@ def get_block_capacity(workshops, day, block_number, block_type):
 def select_workshop(request, student_id, day, block_number):
     student = get_object_or_404(Student, student_id=student_id)
     _, workshops = get_schedule_and_workshops(student)
-    
+    allowed_block_types = get_student_level_types(student)
+
     block_type = request.GET.get('type')
-    if block_type not in ('primary', 'high_school', 'preschool'):
-        if student.grade <= 0:  # PJ, J, T (preescolar)
-            block_type = 'preschool'
-        elif student.grade > 5:
-            block_type = 'high_school'
-        else:
-            block_type = 'primary'
+    if block_type not in allowed_block_types:
+        block_type = allowed_block_types[0]
+
+    workshops = [w for w in workshops if w.type in ('collective', block_type)]
     get_block_capacity(workshops, day, block_number, block_type)
-    # 1) Primero sacamos el tipo de bloque del parámetro ?type=… (viene de los enlaces)
-    block_type = request.GET.get('type')
-    if block_type not in ('primary', 'high_school', 'preschool'):
-        if student.grade <= 0:  # PJ, J, T (preescolar)
-            block_type = 'preschool'
-        elif student.grade > 5:
-            block_type = 'high_school'
-        else:
-            block_type = 'primary'
 
     if request.method == "POST":
         # nos aseguramos de recibirlo también en el form
         block_type = request.POST.get('type', block_type)
+        if block_type not in allowed_block_types:
+            block_type = allowed_block_types[0]
 
         workshop_id = request.POST.get('workshop')
         workshop = get_object_or_404(Workshop, workshop_id=workshop_id)
@@ -471,7 +501,7 @@ def ajax_search_students(request):
     if block_type == 'preschool':
         grade_filter = Q(grade__lte=0)
     elif block_type == 'high_school':
-        grade_filter = Q(grade__gt=5)
+        grade_filter = Q(grade__gte=5)
     else: # primary
         grade_filter = Q(grade__gt=0, grade__lte=5)
         

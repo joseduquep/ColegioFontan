@@ -21,41 +21,110 @@
   <p class="meta">Fecha de generación: {{ generation_datetime }}</p>
   <p class="meta">Nivel de autonomía: {{ student.autonomy_level }} — Grado: {{ student.get_grade_display }}</p>
 
-  <table class="schedule-table">
-    <thead>
-      <tr>
-        <th>Bloque / Día</th>
-        {% for day in days_of_week %}
-          <th>
-            {% if day == "Monday" %}Lunes
-            {% elif day == "Tuesday" %}Martes
-            {% elif day == "Wednesday" %}Miércoles
-            {% elif day == "Thursday" %}Jueves
-            {% elif day == "Friday" %}Viernes
+  {% if is_mixed_grade %}
+    <h4>Horario Primaria</h4>
+    <table class="schedule-table">
+      <thead>
+        <tr>
+          <th>Bloque / Día</th>
+          {% for day in days_of_week %}
+            <th>
+              {% if day == "Monday" %}Lunes
+              {% elif day == "Tuesday" %}Martes
+              {% elif day == "Wednesday" %}Miércoles
+              {% elif day == "Thursday" %}Jueves
+              {% elif day == "Friday" %}Viernes
+              {% endif %}
+            </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in primary_schedule_table %}
+        <tr>
+          <th>Bloque {{ row.0.block_number }}</th>
+          {% for cell in row %}
+          <td>
+            {% if cell.workshop %}
+              {{ cell.workshop.name }}<br>
+            {% else %}
+              —
             {% endif %}
-          </th>
+          </td>
+          {% endfor %}
+        </tr>
         {% endfor %}
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in schedule_table %}
-      <tr>
-        <th>Bloque {{ row.0.block_number }}</th>
-        {% for cell in row %}
-        <td>
-          {% if cell.block_number %}
-            {{ cell.workshop.name }}<br>
-            {% if cell.student_count is not None %}
-              ({{ cell.student_count }}/{{ cell.max_capacity }})
+      </tbody>
+    </table>
+
+    <h4>Horario Bachillerato</h4>
+    <table class="schedule-table">
+      <thead>
+        <tr>
+          <th>Bloque / Día</th>
+          {% for day in days_of_week %}
+            <th>
+              {% if day == "Monday" %}Lunes
+              {% elif day == "Tuesday" %}Martes
+              {% elif day == "Wednesday" %}Miércoles
+              {% elif day == "Thursday" %}Jueves
+              {% elif day == "Friday" %}Viernes
+              {% endif %}
+            </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in highschool_schedule_table %}
+        <tr>
+          <th>Bloque {{ row.0.block_number }}</th>
+          {% for cell in row %}
+          <td>
+            {% if cell.workshop %}
+              {{ cell.workshop.name }}<br>
+            {% else %}
+              —
             {% endif %}
-          {% else %}
-            —
-          {% endif %}
-        </td>
+          </td>
+          {% endfor %}
+        </tr>
         {% endfor %}
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </tbody>
+    </table>
+  {% else %}
+    <table class="schedule-table">
+      <thead>
+        <tr>
+          <th>Bloque / Día</th>
+          {% for day in days_of_week %}
+            <th>
+              {% if day == "Monday" %}Lunes
+              {% elif day == "Tuesday" %}Martes
+              {% elif day == "Wednesday" %}Miércoles
+              {% elif day == "Thursday" %}Jueves
+              {% elif day == "Friday" %}Viernes
+              {% endif %}
+            </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in schedule_table %}
+        <tr>
+          <th>Bloque {{ row.0.block_number }}</th>
+          {% for cell in row %}
+          <td>
+            {% if cell.workshop %}
+              {{ cell.workshop.name }}<br>
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
 </body>
 </html>

@@ -20,6 +20,105 @@
          Descargar PDF
     </a>
 
+    {% if is_mixed_grade %}
+    <h4 class="mt-3">Horario Primaria</h4>
+    <div class="table-wrapper mb-4">
+        <table class="schedule-table">
+            <thead>
+                <tr>
+                    <th>Bloque/Día</th>
+                    {% for day in days_of_week %}
+                        <th>
+                            {% if day == "Monday" %} Lunes
+                            {% elif day == "Tuesday" %} Martes
+                            {% elif day == "Wednesday" %} Miércoles
+                            {% elif day == "Thursday" %} Jueves
+                            {% elif day == "Friday" %} Viernes
+                            {% else %} {{ day }}
+                            {% endif %}
+                        </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in primary_schedule_table %}
+                <tr>
+                    <td class="schedule-block">Bloque {{ row.0.block_number }}</td>
+                    {% for cell in row %}
+                    <td class="schedule-cell">
+                        {% if cell.workshop %}
+                            <a href="{% url 'select_workshop' student.student_id cell.day cell.block_number %}?type=primary"
+                                class="btn btn-primary edit-workshop-button">
+                                {{ cell.workshop.name }}
+                                {% if cell.tutor %}
+                                    ({{ cell.tutor }})
+                                {% else %}
+                                    (No asignado)
+                                {% endif %}
+                            </a>
+                        {% else %}
+                            <a href="{% url 'select_workshop' student.student_id cell.day cell.block_number %}?type=primary"
+                               class="btn btn-secondary add-workshop-button">
+                                Agregar Taller
+                            </a>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h4 class="mt-2">Horario Bachillerato</h4>
+    <div class="table-wrapper">
+        <table class="schedule-table">
+            <thead>
+                <tr>
+                    <th>Bloque/Día</th>
+                    {% for day in days_of_week %}
+                        <th>
+                            {% if day == "Monday" %} Lunes
+                            {% elif day == "Tuesday" %} Martes
+                            {% elif day == "Wednesday" %} Miércoles
+                            {% elif day == "Thursday" %} Jueves
+                            {% elif day == "Friday" %} Viernes
+                            {% else %} {{ day }}
+                            {% endif %}
+                        </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in highschool_schedule_table %}
+                <tr>
+                    <td class="schedule-block">Bloque {{ row.0.block_number }}</td>
+                    {% for cell in row %}
+                    <td class="schedule-cell">
+                        {% if cell.workshop %}
+                            <a href="{% url 'select_workshop' student.student_id cell.day cell.block_number %}?type=high_school"
+                                class="btn btn-primary edit-workshop-button">
+                                {{ cell.workshop.name }}
+                                {% if cell.tutor %}
+                                    ({{ cell.tutor }})
+                                {% else %}
+                                    (No asignado)
+                                {% endif %}
+                            </a>
+                        {% else %}
+                            <a href="{% url 'select_workshop' student.student_id cell.day cell.block_number %}?type=high_school"
+                               class="btn btn-secondary add-workshop-button">
+                                Agregar Taller
+                            </a>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
     <div class="table-wrapper">
         <table class="schedule-table">
             <thead>
@@ -44,26 +143,21 @@
                     <td class="schedule-block">Bloque {{ row.0.block_number }}</td>
                     {% for cell in row %}
                     <td class="schedule-cell">
-                        {% if cell.block_number %}
-                            {% if cell.workshop %}
-                                <a href="{% url 'select_workshop' student.student_id cell.day cell.block_number %}" 
-                                    class="btn btn-primary edit-workshop-button">
-                                    {{ cell.workshop.name }} 
-                                    {% if cell.tutor %}
-                                        ({{ cell.tutor }})
-                                    {% else %}
-                                        (No asignado)
-                                    {% endif %}
-                                </a>
-                            {% else %}
-                                <a href="{% url 'select_workshop' student.student_id cell.day cell.block_number %}" 
-                                class="btn btn-secondary add-workshop-button">
-                            Agregar Taller
-                                </a>
-                            {% endif %}
-                    
+                        {% if cell.workshop %}
+                            <a href="{% url 'select_workshop' student.student_id cell.day cell.block_number %}?type={{ cell.block_type }}"
+                                class="btn btn-primary edit-workshop-button">
+                                {{ cell.workshop.name }}
+                                {% if cell.tutor %}
+                                    ({{ cell.tutor }})
+                                {% else %}
+                                    (No asignado)
+                                {% endif %}
+                            </a>
                         {% else %}
-                            <span>Sin bloque</span>
+                            <a href="{% url 'select_workshop' student.student_id cell.day cell.block_number %}?type={{ cell.block_type }}"
+                               class="btn btn-secondary add-workshop-button">
+                                Agregar Taller
+                            </a>
                         {% endif %}
                     </td>
                     {% endfor %}
@@ -72,6 +166,7 @@
             </tbody>
         </table>
     </div>
+    {% endif %}
 </div>
 
 {% endblock %}
