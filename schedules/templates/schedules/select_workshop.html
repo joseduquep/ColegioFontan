@@ -91,10 +91,11 @@
   
   <form
     method="post"
-    action="{% url 'delete_workshop' student.student_id day block_number %}"
+    action="{% url 'delete_workshop' student.student_id day block_number block_type %}"
     class="mt-3"
     >
     {% csrf_token %}
+    <input type="hidden" name="type" value="{{ block_type }}">
     <button type="submit" class="btn btn-danger">
       Eliminar taller actual
     </button>

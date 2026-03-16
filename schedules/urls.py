@@ -11,7 +11,7 @@ urlpatterns = [
         views.clear_block_students,
         name='clear_block_students'
     ),
-    path('delete-workshop/<int:student_id>/<str:day>/<int:block_number>/',
+    path('delete-workshop/<int:student_id>/<str:day>/<int:block_number>/<str:block_type>/',
         views.delete_workshop,
         name='delete_workshop'
     ),

@@ -233,7 +233,8 @@ def select_workshop(request, student_id, day, block_number):
         old_blocks = Block.objects.filter(
             students=student,
             day=day,
-            block_number=block_number
+            block_number=block_number,
+            type=block_type
         )
         for ob in old_blocks:
             ob.students.remove(student)
@@ -241,7 +242,8 @@ def select_workshop(request, student_id, day, block_number):
         Schedule.objects.filter(
             student=student,
             block__day=day,
-            block__block_number=block_number
+            block__block_number=block_number,
+            block__type=block_type
         ).delete()
         # ——————————————————————————————
 
@@ -419,24 +421,26 @@ def clear_block_students(request, tutor_id, block_id):
 
 
 @login_required
-def delete_workshop(request, student_id, day, block_number):
+def delete_workshop(request, student_id, day, block_number, block_type):
     if request.method != 'POST':
         return redirect('student_schedule', student_id)
 
     student = get_object_or_404(Student, student_id=student_id)
 
-    # Borra registros intermedios
+    # Borra registros intermedios filtrando también por el tipo de bloque
     Schedule.objects.filter(
         student=student,
         block__day=day,
-        block__block_number=block_number
+        block__block_number=block_number,
+        block__type=block_type
     ).delete()
 
-    # Quita la relación M2M de Block.students de forma segura
+    # Quita la relación M2M de Block.students de forma segura, respetando el tipo
     block = Block.objects.filter(
         students=student,
         day=day,
-        block_number=block_number
+        block_number=block_number,
+        type=block_type
     ).first()
     if block:
         block.students.remove(student)
@@ -546,11 +550,12 @@ def add_student_to_block(request):
     student = get_object_or_404(Student, student_id=student_id)
     block = get_object_or_404(Block, block_id=block_id)
     
-    # Check if student is already in a block at the SAME time and day
+    # Check if student is already in a block at the SAME time, day and level
     existing_schedule = Schedule.objects.filter(
         student=student,
         block__day=block.day,
-        block__block_number=block.block_number
+        block__block_number=block.block_number,
+        block__type=block.type
     ).first()
     
     if existing_schedule:
