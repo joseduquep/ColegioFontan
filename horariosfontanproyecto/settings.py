@@ -114,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Archivos estáticos y media
 STATIC_URL = '/static/'
-STATIC_ROOT = '/var/www/django_app/static/'
+STATIC_ROOT = '/var/www/django_app/staticfiles/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'horariosfontanproyecto/static'),
