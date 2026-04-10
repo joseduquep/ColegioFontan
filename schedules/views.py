@@ -509,10 +509,15 @@ def ajax_search_students(request):
     else: # primary
         grade_filter = Q(grade__gt=0, grade__lte=5)
         
-    students = Student.objects.filter(
-        grade_filter,
-        Q(name__icontains=query) | Q(lastname__icontains=query) | Q(id_number__icontains=query)
-    )[:10]
+    # id_number es BigIntegerField: icontains falla en PostgreSQL (no se puede ILIKE sobre bigint).
+    # Se construye el filtro de búsqueda por nombre y, si la query es numérica, por id_number exacto.
+    search_filter = Q(name__icontains=query) | Q(lastname__icontains=query)
+    try:
+        search_filter |= Q(id_number=int(query))
+    except ValueError:
+        pass
+
+    students = Student.objects.filter(grade_filter, search_filter)[:10]
     
     results = []
     for s in students:

@@ -165,9 +165,16 @@
 
       debounceTimer = setTimeout(() => {
         fetch(`{% url 'ajax_search_students' %}?q=${encodeURIComponent(query)}&block_type={{ search_block_type }}`)
-          .then(response => response.json())
+          .then(response => {
+            if (!response.ok) throw new Error(`Error ${response.status}`);
+            return response.json();
+          })
           .then(data => {
             resultsDiv.innerHTML = '';
+            if (!data.results.length) {
+              resultsDiv.innerHTML = '<p class="text-muted p-2 mb-0">Sin resultados.</p>';
+              return;
+            }
             data.results.forEach(student => {
               const btn = document.createElement('button');
               btn.className = 'list-group-item list-group-item-action';
@@ -175,6 +182,10 @@
               btn.onclick = () => addStudent(student.id);
               resultsDiv.appendChild(btn);
             });
+          })
+          .catch(err => {
+            console.error('Error al buscar estudiantes:', err);
+            resultsDiv.innerHTML = '<p class="text-danger p-2 mb-0">Error al buscar. Intenta de nuevo.</p>';
           });
       }, 300);
     });
