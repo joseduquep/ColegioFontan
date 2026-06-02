@@ -14,6 +14,12 @@ from django.contrib import messages
 from django.db.models import Count, Q
 from django.db import transaction
 from django.views.decorators.http import require_POST
+from .assignment import (
+    AssignmentConflict,
+    assign_student_to_block,
+    get_block_capacity,
+    unassign_student_slot,
+)
 
 
 # Configuración básica de logging
@@ -160,7 +166,7 @@ def student_schedule(request, student_id):
 # schedules/utils.py
 
 
-def get_block_capacity(workshops, day, block_number, block_type):
+def annotate_workshops_capacity(workshops, day, block_number, block_type):
     """
     Agrega a cada workshop un atributo .current_capacity
     con el número de estudiantes asignados a ese bloque.
@@ -188,7 +194,7 @@ def select_workshop(request, student_id, day, block_number):
         block_type = allowed_block_types[0]
 
     workshops = [w for w in workshops if w.type in ('collective', block_type)]
-    get_block_capacity(workshops, day, block_number, block_type)
+    annotate_workshops_capacity(workshops, day, block_number, block_type)
 
     if request.method == "POST":
         # nos aseguramos de recibirlo también en el form
@@ -207,18 +213,12 @@ def select_workshop(request, student_id, day, block_number):
             type=block_type
         ).first()
 
-        # calculamos capacidad
-        if workshop.type == 'collective':
-            if block_type == 'preschool' and workshop.max_capacity_aux_preschool:
-                capacity = workshop.max_capacity_aux_preschool
-            elif block_type == 'high_school' and workshop.max_capacity_aux:
-                capacity = workshop.max_capacity_aux
-            else:
-                capacity = workshop.max_capacity
-        else:
-            capacity = workshop.max_capacity
+        capacity = get_block_capacity(block) if block else 0
+        occupied = block.students.count() if block else 0
+        if block and block.students.filter(pk=student.pk).exists():
+            occupied -= 1
 
-        if not block or block.students.count() >= capacity:
+        if not block or occupied >= capacity:
             return render(request, 'schedules/select_workshop.html', {
                 'student': student,
                 'student_id': student_id,
@@ -229,27 +229,7 @@ def select_workshop(request, student_id, day, block_number):
                 'error': f'Capacidad máxima ({capacity}) o bloque no existe.',
             })
 
-    
-        old_blocks = Block.objects.filter(
-            students=student,
-            day=day,
-            block_number=block_number,
-            type=block_type
-        )
-        for ob in old_blocks:
-            ob.students.remove(student)
-        
-        Schedule.objects.filter(
-            student=student,
-            block__day=day,
-            block__block_number=block_number,
-            block__type=block_type
-        ).delete()
-        # ——————————————————————————————
-
-        # creamos la nueva asignación
-        Schedule.objects.create(student=student, block=block)
-        block.students.add(student)
+        assign_student_to_block(student, block)
 
         return HttpResponseRedirect(reverse('student_schedule', args=[student_id]))
 
@@ -426,24 +406,7 @@ def delete_workshop(request, student_id, day, block_number, block_type):
         return redirect('student_schedule', student_id)
 
     student = get_object_or_404(Student, student_id=student_id)
-
-    # Borra registros intermedios filtrando también por el tipo de bloque
-    Schedule.objects.filter(
-        student=student,
-        block__day=day,
-        block__block_number=block_number,
-        block__type=block_type
-    ).delete()
-
-    # Quita la relación M2M de Block.students de forma segura, respetando el tipo
-    block = Block.objects.filter(
-        students=student,
-        day=day,
-        block_number=block_number,
-        type=block_type
-    ).first()
-    if block:
-        block.students.remove(student)
+    unassign_student_slot(student, day, block_number, block_type)
 
     messages.success(request, "Taller eliminado correctamente.")
     return redirect('student_schedule', student_id)
@@ -554,46 +517,28 @@ def add_student_to_block(request):
     
     student = get_object_or_404(Student, student_id=student_id)
     block = get_object_or_404(Block, block_id=block_id)
-    
-    # Check if student is already in a block at the SAME time, day and level
-    existing_schedule = Schedule.objects.filter(
-        student=student,
-        block__day=block.day,
-        block__block_number=block.block_number,
-        block__type=block.type
-    ).first()
-    
-    if existing_schedule:
-        # Conflict found
-        return JsonResponse({
-            'success': False,
-            'conflict': True,
-            'workshop_name': existing_schedule.block.workshop.name,
-            'student_name': f"{student.name} {student.lastname}",
-            'student_schedule_url': reverse('student_schedule', args=[student.student_id])
-        })
-    
-    # Check capacity
-    capacity = 25
-    w = block.workshop
-    if w.type == 'collective':
-        if block.type == 'preschool' and w.max_capacity_aux_preschool:
-            capacity = w.max_capacity_aux_preschool
-        elif block.type == 'high_school' and w.max_capacity_aux:
-            capacity = w.max_capacity_aux
-        else:
-            capacity = w.max_capacity
-    else:
-        capacity = w.max_capacity
 
-    if block.students.count() >= capacity:
+    capacity = get_block_capacity(block)
+    occupied = block.students.count()
+    if block.students.filter(pk=student.pk).exists():
+        occupied -= 1
+
+    if occupied >= capacity:
         return JsonResponse({
             'success': False,
             'error': f'Capacidad máxima ({capacity}) alcanzada.'
         })
 
-    # No conflict, add student
-    Schedule.objects.create(student=student, block=block)
-    block.students.add(student)
-    
+    try:
+        assign_student_to_block(student, block)
+    except AssignmentConflict as exc:
+        existing = exc.existing_schedule
+        return JsonResponse({
+            'success': False,
+            'conflict': True,
+            'workshop_name': existing.block.workshop.name,
+            'student_name': f"{student.name} {student.lastname}",
+            'student_schedule_url': reverse('student_schedule', args=[student.student_id])
+        })
+
     return JsonResponse({'success': True})
