@@ -15,6 +15,37 @@ class AssignmentConflict(Exception):
         super().__init__()
 
 
+def get_student_level_types(student):
+    """
+    Retorna los tipos de nivel académico habilitados para el estudiante.
+    Regla especial: grado 5 es mixto (primary + high_school).
+    """
+    if student.grade <= 0:
+        return ['preschool']
+    if student.grade == 5:
+        return ['primary', 'high_school']
+    if student.grade > 5:
+        return ['high_school']
+    return ['primary']
+
+
+def unassign_stale_blocks(student):
+    """
+    Elimina las asignaciones (Schedule + Block.students) del estudiante que ya
+    no correspondan a su nivel académico actual (por ejemplo, tras un cambio
+    de grado que lo mueve de primaria a bachillerato).
+    """
+    valid_types = get_student_level_types(student)
+    stale = (
+        Schedule.objects
+        .filter(student=student)
+        .exclude(block__type__in=valid_types)
+        .select_related('block')
+    )
+    for sched in stale:
+        clear_student_slot(student, sched.block.day, sched.block.block_number, sched.block.type)
+
+
 def get_block_capacity(block):
     w = block.workshop
     if w.type == 'collective':

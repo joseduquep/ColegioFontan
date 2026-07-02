@@ -14,6 +14,7 @@ from django.template.loader import render_to_string
 from xhtml2pdf import pisa
 from django.utils import timezone
 from schedules.models import Schedule
+from schedules.assignment import unassign_stale_blocks
 
 def strip_accents(text: str) -> str:
     return ''.join(
@@ -204,11 +205,15 @@ def modify_student(request, student_id):
 
     if request.method == 'POST':
         # 1) Campos básicos
+        grade_changed               = False
         student.name               = request.POST.get('name', student.name)
         student.lastname           = request.POST.get('lastname', student.lastname)
         student.id_number          = request.POST.get('id_number', student.id_number)
         student.autonomy_level     = int(request.POST.get('autonomy_level', student.autonomy_level))
-        student.grade              = int(request.POST.get('grade', student.grade))
+        new_grade                  = int(request.POST.get('grade', student.grade))
+        if new_grade != student.grade:
+            grade_changed = True
+            student.grade = new_grade
         student.rotation_workshop  = request.POST.get('rotation_workshop', student.rotation_workshop)
         student.extended_vacation  = 'extended_vacation' in request.POST
         student.general_data       = request.POST.get('general_data', student.general_data)
@@ -231,6 +236,13 @@ def modify_student(request, student_id):
 
         # 3) Guardar todos los cambios
         student.save()
+
+        # 4) Si el grado cambió de nivel académico, desvincular al estudiante
+        #    de los bloques (Schedule + Block.students) que ya no le correspondan
+        #    (p. ej. bloques de primaria al pasar de grado 5 a 6).
+        if grade_changed:
+            unassign_stale_blocks(student)
+
         return redirect('students.student_list')
 
     # GET: preparar context

@@ -18,28 +18,13 @@ from .assignment import (
     AssignmentConflict,
     assign_student_to_block,
     get_block_capacity,
+    get_student_level_types,
     unassign_student_slot,
 )
 
 
 # Configuración básica de logging
 logger = logging.getLogger(__name__)
-
-
-
-# Funciones auxiliares de niveles y horarios
-def get_student_level_types(student):
-    """
-    Retorna los tipos de nivel académico habilitados para el estudiante.
-    Regla especial: grado 5 es mixto (primary + high_school).
-    """
-    if student.grade <= 0:
-        return ['preschool']
-    if student.grade == 5:
-        return ['primary', 'high_school']
-    if student.grade > 5:
-        return ['high_school']
-    return ['primary']
 
 
 def get_blocks_per_level(level_type):
