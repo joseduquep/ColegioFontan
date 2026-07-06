@@ -214,7 +214,9 @@ def select_workshop(request, student_id, day, block_number):
                 'error': f'Capacidad máxima ({capacity}) o bloque no existe.',
             })
 
-        assign_student_to_block(student, block)
+        # Desde esta vista el usuario elige explícitamente el taller del slot,
+        # así que reemplazamos cualquier asignación previa en ese horario.
+        assign_student_to_block(student, block, replace=True)
 
         return HttpResponseRedirect(reverse('student_schedule', args=[student_id]))
 

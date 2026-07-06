@@ -65,6 +65,16 @@ class AssignmentSyncTests(TestCase):
         with self.assertRaises(AssignmentConflict):
             assign_student_to_block(self.student, self.block_b)
 
+    def test_assign_with_replace_moves_student_to_new_block(self):
+        Schedule.objects.create(student=self.student, block=self.block_a)
+        self.block_a.students.add(self.student)
+        assign_student_to_block(self.student, self.block_b, replace=True)
+        self.assertFalse(self.block_a.students.filter(pk=self.student.pk).exists())
+        self.assertTrue(is_student_assigned_to_block(self.student, self.block_b))
+        self.assertEqual(
+            Schedule.objects.filter(student=self.student).count(), 1
+        )
+
     def test_unassign_clears_all_blocks_in_slot(self):
         self.block_a.students.add(self.student)
         self.block_b.students.add(self.student)

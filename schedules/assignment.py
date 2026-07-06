@@ -97,17 +97,18 @@ def is_student_assigned_to_block(student, block):
 
 
 @transaction.atomic
-def assign_student_to_block(student, block):
+def assign_student_to_block(student, block, replace=False):
     """
     Asigna al estudiante a un bloque limpiando antes cualquier asignación previa
     en el mismo día, número de bloque y tipo de nivel.
 
-    Raises AssignmentConflict si ya existe Schedule apuntando a otro bloque.
+    Con replace=False lanza AssignmentConflict si ya existe Schedule apuntando
+    a otro bloque; con replace=True reemplaza la asignación existente.
     """
     existing = get_slot_schedule(
         student, block.day, block.block_number, block.type
     )
-    if existing and existing.block_id != block.block_id:
+    if existing and existing.block_id != block.block_id and not replace:
         raise AssignmentConflict(existing)
 
     if is_student_assigned_to_block(student, block):
